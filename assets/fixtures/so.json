@@ -1,0 +1,274 @@
+{
+  "config": {
+    "minimum_supported_build": 1,
+    "available_locales": [
+      "en",
+      "so"
+    ],
+    "data_saver_default": true,
+    "feature_flags": {
+      "vod": true,
+      "radio": true,
+      "schedule": true
+    }
+  },
+  "live": {
+    "is_live": true,
+    "stream_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+    "offline_message": "Baahintu waxay dib u bilaabaneysaa dhawaan.",
+    "now_playing": {
+      "title": "Warbaahinta Fiidka ee Telefishinka Puntland",
+      "starts_at": "{{today 21:00}}",
+      "ends_at": "{{today 22:00}}",
+      "subtitle": "Wararka Fiidka",
+      "genre": "Wararka"
+    },
+    "up_next": [
+      {
+        "title": "Dood Furan — arrimaha bulshada",
+        "starts_at": "{{today 22:00}}",
+        "ends_at": "{{today 23:00}}",
+        "subtitle": "Arrimaha maanta",
+        "genre": "Arrimaha maanta"
+      },
+      {
+        "title": "Wararka Habeenkii ee ugu dambeeyay",
+        "starts_at": "{{today 23:00}}",
+        "ends_at": "{{today 23:30}}",
+        "subtitle": "Wararka",
+        "genre": "Wararka"
+      },
+      {
+        "title": "Suugaan iyo Dhaqan",
+        "starts_at": "{{today 00:00}}",
+        "ends_at": "{{today 00:45}}",
+        "subtitle": "Dhaqanka",
+        "genre": "Dhaqanka"
+      }
+    ]
+  },
+  "radio": {
+    "stream_url": "https://stream.zeno.fm/0r0xa792kwzuv",
+    "station_name": "Raadiyo Puntland",
+    "now_playing": "Barnaamijka Duhurnimo",
+    "frequency_label": "Raadiyo Puntland · 88.5 FM · Garoowe"
+  },
+  "categories": [
+    {
+      "slug": "top",
+      "name": "Wararka ugu sarreeya",
+      "is_default": true
+    },
+    {
+      "slug": "puntland",
+      "name": "Dalka"
+    },
+    {
+      "slug": "world",
+      "name": "Caalamka"
+    },
+    {
+      "slug": "sport",
+      "name": "Ciyaaraha"
+    },
+    {
+      "slug": "economy",
+      "name": "Dhaqaalaha"
+    },
+    {
+      "slug": "education",
+      "name": "Waxbarashada"
+    }
+  ],
+  "articles": [
+    {
+      "slug": "heavy-rains-forecast-eastern-regions",
+      "title": "Saadaasha hawada: roobab culus ayaa la filayo gobolada bariga toddobaadka soo socda",
+      "category_slug": "puntland",
+      "category_name": "Dalka",
+      "published_at": "{{now-12m}}",
+      "content_locale": "so",
+      "excerpt": "Maamulka gobolka wuxuu ku booriyay dadka ku nool meelaha hooseeya inay hore u diyaargaroobaan xilliga roobaadka.",
+      "image_url": "https://picsum.photos/seed/pltv-rains/800/500",
+      "reading_minutes": 3,
+      "is_breaking": false
+    },
+    {
+      "slug": "major-road-reopens-after-repairs",
+      "title": "Wadada isku xirta magaalooyinka waaweyn oo dib loo furay ka dib dayactir",
+      "category_slug": "puntland",
+      "category_name": "Horumarka",
+      "published_at": "{{now-1h}}",
+      "content_locale": "so",
+      "excerpt": "Wadadan ayaa qaadda inta badan xamuulka labada magaalo, waxayna xidhnayd 11 toddobaad.",
+      "image_url": "https://picsum.photos/seed/pltv-road/800/500",
+      "reading_minutes": 2,
+      "is_breaking": false
+    },
+    {
+      "slug": "regional-football-tournament-monday",
+      "title": "Tartanka kubbadda cagta ee gobolada wuxuu bilaabmayaa Isniinta",
+      "category_slug": "sport",
+      "category_name": "Ciyaaraha",
+      "published_at": "{{now-2h}}",
+      "content_locale": "so",
+      "excerpt": "Siddeed kooxood oo gobolada ka socda ayaa ku tartami doona laba garoon muddo saddex toddobaad ah.",
+      "image_url": "https://picsum.photos/seed/pltv-football/800/500",
+      "reading_minutes": 2,
+      "is_breaking": false
+    },
+    {
+      "slug": "secondary-schools-new-academic-year",
+      "title": "Dugsiyada sare oo bilaabay sannad dugsiyeedka cusub",
+      "category_slug": "education",
+      "category_name": "Waxbarashada",
+      "published_at": "{{now-3h}}",
+      "content_locale": "so",
+      "excerpt": "Diiwaangelinta ayaa laga soo sheegay inay ka sarreyso tii sannadkii hore.",
+      "image_url": "https://picsum.photos/seed/pltv-school/800/500",
+      "reading_minutes": 4,
+      "is_breaking": false
+    },
+    {
+      "slug": "drainage-works-three-coastal-districts",
+      "title": "Shaqooyinka biyo-mareenka oo dhammaaday saddex degmo",
+      "category_slug": "puntland",
+      "category_name": "Dalka",
+      "published_at": "{{now-5h}}",
+      "content_locale": "so",
+      "excerpt": "Shaqooyinka waxaa la qorsheeyay inay dhammaadaan roobabka ka hor.",
+      "image_url": "https://picsum.photos/seed/pltv-drainage/800/500",
+      "reading_minutes": 2,
+      "is_breaking": false
+    },
+    {
+      "slug": "livestock-market-prices-steady",
+      "title": "Qiimaha suuqa xoolaha oo deggan xilliga roobaadka",
+      "category_slug": "economy",
+      "category_name": "Dhaqaalaha",
+      "published_at": "{{now-7h}}",
+      "content_locale": "so",
+      "excerpt": "Ganacsatada ayaa sheegay in baahidu deggan tahay suuqyada waaweyn ee gobolka.",
+      "image_url": "https://picsum.photos/seed/pltv-livestock/800/500",
+      "reading_minutes": 3,
+      "is_breaking": false
+    },
+    {
+      "slug": "fishing-fleets-advised-stay-in-port",
+      "title": "Kalluumeysatada oo lagula dardaarmay inay dekedda joogaan",
+      "category_slug": "puntland",
+      "category_name": "Dalka",
+      "published_at": "{{now-9h}}",
+      "content_locale": "so",
+      "excerpt": "Digniintu waxay gaadhaysaa afarta maalmood ee soo socota.",
+      "image_url": "https://picsum.photos/seed/pltv-fishing/800/500",
+      "reading_minutes": 2,
+      "is_breaking": false
+    },
+    {
+      "slug": "world-summit-opens",
+      "title": "Shirweyne gobolleed oo la furay, waxaana laga hadlayaa marinnada ganacsiga",
+      "category_slug": "world",
+      "category_name": "Caalamka",
+      "published_at": "{{now-11h}}",
+      "content_locale": "so",
+      "excerpt": "Wufuud ka socda lix dal ayaa ka qayb galaya.",
+      "image_url": "https://picsum.photos/seed/pltv-summit/800/500",
+      "reading_minutes": 3,
+      "is_breaking": false
+    }
+  ],
+  "article_bodies": {
+    "heavy-rains-forecast-eastern-regions": {
+      "author": "Qolka Wararka PLTV",
+      "image_caption": "Qoraal sawirka — halkan waxa ku qoran tixraaca sawirka.",
+      "body_html": "<p>Maamulka wuxuu ku booriyay qoysaska ku nool meelaha hooseeya inay hore u diyaargaroobaan xilliga roobaadka. Saadaasha waxay dabooshaa gobolada bariga toddobaadka soo socda, roobabka ugu culusna waxaa la filayaa badhtamaha toddobaadka.</p><blockquote>Diyaargarowga hortiisa roobka waxay yareyneysaa khasaaraha ka dib.</blockquote><p>Dadka deegaanka waxaa lagula taliyay inay hore u nadiifiyaan marinnada biyaha. Maamullada deegaanku waxay sheegeen in qalabka la geeyay degmooyinka ugu waxyeelloobay xilliyadii hore.</p><p>Warbixinno dheeraad ah waxaa lagu sii daayaa warka fiidka.</p>",
+      "related_slugs": [
+        "drainage-works-three-coastal-districts",
+        "livestock-market-prices-steady",
+        "fishing-fleets-advised-stay-in-port"
+      ]
+    }
+  },
+  "programs": [
+    {
+      "id": "evening-news",
+      "title": "Warbaahinta Fiidka",
+      "episode_count": 42,
+      "artwork_url": "https://picsum.photos/seed/pltv-evening/600/600",
+      "cadence": "Maalinle",
+      "genre": "Wararka"
+    },
+    {
+      "id": "dood-furan",
+      "title": "Dood Furan",
+      "episode_count": 18,
+      "artwork_url": "https://picsum.photos/seed/pltv-debate/600/600",
+      "cadence": "Toddobaadle",
+      "genre": "Doodda"
+    },
+    {
+      "id": "suugaan-dhaqan",
+      "title": "Suugaan iyo Dhaqan",
+      "episode_count": 24,
+      "artwork_url": "https://picsum.photos/seed/pltv-culture/600/600",
+      "cadence": "Toddobaadle",
+      "genre": "Dhaqanka"
+    },
+    {
+      "id": "late-news",
+      "title": "Wararka Habeenkii",
+      "episode_count": 36,
+      "artwork_url": "https://picsum.photos/seed/pltv-late/600/600",
+      "cadence": "Maalinle",
+      "genre": "Wararka"
+    }
+  ],
+  "episodes": [
+    {
+      "id": "ep-1",
+      "program_id": "evening-news",
+      "title": "Warka fiidka",
+      "aired_at": "{{now-1d}}",
+      "duration_seconds": 3480,
+      "playback_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      "thumbnail_url": "https://picsum.photos/seed/pltv-ep1/400/240"
+    },
+    {
+      "id": "ep-2",
+      "program_id": "evening-news",
+      "title": "Warka fiidka",
+      "aired_at": "{{now-2d}}",
+      "duration_seconds": 3660,
+      "playback_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      "thumbnail_url": "https://picsum.photos/seed/pltv-ep2/400/240"
+    },
+    {
+      "id": "ep-3",
+      "program_id": "dood-furan",
+      "title": "Dood furan: ganacsiga gobolka",
+      "aired_at": "{{now-3d}}",
+      "duration_seconds": 3600,
+      "playback_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      "thumbnail_url": "https://picsum.photos/seed/pltv-ep3/400/240"
+    },
+    {
+      "id": "ep-4",
+      "program_id": "suugaan-dhaqan",
+      "title": "Suugaan iyo hiddaha",
+      "aired_at": "{{now-4d}}",
+      "duration_seconds": 2700,
+      "playback_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      "thumbnail_url": "https://picsum.photos/seed/pltv-ep4/400/240"
+    },
+    {
+      "id": "ep-5",
+      "program_id": "late-news",
+      "title": "Warka habeenkii",
+      "aired_at": "{{now-1d}}",
+      "duration_seconds": 1800,
+      "playback_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      "thumbnail_url": "https://picsum.photos/seed/pltv-ep5/400/240"
+    }
+  ]
+}

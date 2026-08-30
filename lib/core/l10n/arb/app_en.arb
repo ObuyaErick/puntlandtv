@@ -1,0 +1,443 @@
+{
+  "@@locale": "en",
+  "appName": "Puntland TV",
+  "@appName": {
+    "description": "App name. Brand — never translated."
+  },
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Bottom navigation: news feed tab."
+  },
+  "navLive": "Live TV",
+  "@navLive": {
+    "description": "Bottom navigation: live television tab."
+  },
+  "navPrograms": "Programs",
+  "@navPrograms": {
+    "description": "Bottom navigation: video-on-demand tab."
+  },
+  "navRadio": "Radio",
+  "@navRadio": {
+    "description": "Bottom navigation: live radio tab."
+  },
+  "navSaved": "Saved",
+  "@navSaved": {
+    "description": "Bottom navigation: bookmarks tab."
+  },
+  "live": "LIVE",
+  "@live": {
+    "description": "Short live badge shown on the player. Uppercase."
+  },
+  "liveNow": "LIVE NOW",
+  "@liveNow": {
+    "description": "Live badge in the app bar and on buttons. Uppercase."
+  },
+  "watchLive": "Watch live",
+  "@watchLive": {
+    "description": "Primary button opening the live stream."
+  },
+  "leadStory": "LEAD STORY",
+  "@leadStory": {
+    "description": "Overline above the top story on the feed. Uppercase."
+  },
+  "refreshing": "Refreshing…",
+  "@refreshing": {
+    "description": "Pull-to-refresh indicator label."
+  },
+  "minutesAgo": "{count, plural, one{{count} MIN AGO} other{{count} MIN AGO}}",
+  "@minutesAgo": {
+    "description": "Relative timestamp in a card overline. Uppercase.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{count, plural, one{{count} H} other{{count} H}}",
+  "@hoursAgo": {
+    "description": "Relative timestamp in hours, card overline. Uppercase.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "relatedStories": "RELATED STORIES",
+  "@relatedStories": {
+    "description": "Section heading below an article. Uppercase."
+  },
+  "moreFrom": "More from {category}",
+  "@moreFrom": {
+    "description": "Link to a category from an article footer.",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "share": "Share",
+  "@share": {
+    "description": "Opens the OS share sheet."
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Bookmark this article."
+  },
+  "saved": "Saved",
+  "@saved": {
+    "description": "State of the bookmark control once saved."
+  },
+  "minRead": "{count, plural, one{{count} min read} other{{count} min read}}",
+  "@minRead": {
+    "description": "Estimated reading time in an article byline.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nowPlaying": "NOW PLAYING",
+  "@nowPlaying": {
+    "description": "Label above the current programme on the live screen. Uppercase."
+  },
+  "upNextToday": "UP NEXT TODAY",
+  "@upNextToday": {
+    "description": "Heading for the rest of today's schedule. Uppercase."
+  },
+  "audioOnly": "Audio only",
+  "@audioOnly": {
+    "description": "Toggle dropping the video track to save data."
+  },
+  "schedule": "Schedule",
+  "@schedule": {
+    "description": "Opens the programme schedule."
+  },
+  "seeSchedule": "See schedule",
+  "@seeSchedule": {
+    "description": "Action on the stream-offline slate."
+  },
+  "streamOfflineTitle": "The stream is offline",
+  "@streamOfflineTitle": {
+    "description": "Shown when the broadcaster is not transmitting."
+  },
+  "streamOfflineBody": "Broadcast resumes at {time}",
+  "@streamOfflineBody": {
+    "description": "When transmission returns.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "buffering": "Buffering",
+  "@buffering": {
+    "description": "Player is rebuffering."
+  },
+  "slowConnectionQualityReduced": "Slow connection — quality reduced",
+  "@slowConnectionQualityReduced": {
+    "description": "Shown when the player drops to the lowest rendition."
+  },
+  "programsTitle": "Programs",
+  "@programsTitle": {
+    "description": "Title of the video-on-demand screen."
+  },
+  "programsSubtitle": "Watch anytime",
+  "@programsSubtitle": {
+    "description": "Subtitle under the programmes heading."
+  },
+  "filterAll": "All",
+  "@filterAll": {
+    "description": "Filter chip showing every programme."
+  },
+  "playLatest": "Play latest",
+  "@playLatest": {
+    "description": "Plays the most recent episode of a programme."
+  },
+  "episodes": "EPISODES",
+  "@episodes": {
+    "description": "Section heading above an episode list. Uppercase."
+  },
+  "episodeCount": "{count, plural, one{{count} EP} other{{count} EPS}}",
+  "@episodeCount": {
+    "description": "Episode count badge on programme artwork. Uppercase.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sortNewest": "Newest",
+  "@sortNewest": {
+    "description": "Episode sort order."
+  },
+  "downloaded": "Downloaded",
+  "@downloaded": {
+    "description": "Badge on an episode available offline."
+  },
+  "minutesLeft": "{count, plural, one{{count} min left} other{{count} min left}}",
+  "@minutesLeft": {
+    "description": "Remaining time on a partly watched episode.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "durationMinutes": "{count, plural, one{{count} min} other{{count} min}}",
+  "@durationMinutes": {
+    "description": "Episode or programme duration.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "radioTitle": "Radio Puntland",
+  "@radioTitle": {
+    "description": "Name of the radio service."
+  },
+  "radioBackgroundNote": "Audio keeps playing when the app is closed — 48 kbps, tuned for 3G.",
+  "@radioBackgroundNote": {
+    "description": "Explains background playback and the low bitrate."
+  },
+  "savedTitle": "Saved",
+  "@savedTitle": {
+    "description": "Title of the bookmarks screen."
+  },
+  "tabArticles": "Articles",
+  "@tabArticles": {
+    "description": "Bookmarks tab for saved articles."
+  },
+  "tabEpisodes": "Episodes",
+  "@tabEpisodes": {
+    "description": "Bookmarks tab for downloaded episodes."
+  },
+  "availableOffline": "Available offline",
+  "@availableOffline": {
+    "description": "Chip on a fully cached article."
+  },
+  "noImage": "NO IMAGE",
+  "@noImage": {
+    "description": "Placeholder where an image could not be cached. Uppercase."
+  },
+  "textSavedImageOnline": "Text saved · image will load online",
+  "@textSavedImageOnline": {
+    "description": "Explains a partly cached saved article."
+  },
+  "savedRetentionNote": "Saved articles keep their text and images for 30 days. Episodes download only over Wi-Fi.",
+  "@savedRetentionNote": {
+    "description": "Footer note on the bookmarks screen."
+  },
+  "offlineShowingSaved": "{count, plural, one{No connection — showing your {count} saved item} other{No connection — showing your {count} saved items}}",
+  "@offlineShowingSaved": {
+    "description": "Offline banner on the bookmarks screen.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "emptySavedTitle": "Nothing saved yet",
+  "@emptySavedTitle": {
+    "description": "Empty state on the bookmarks screen."
+  },
+  "browseNews": "Browse news",
+  "@browseNews": {
+    "description": "Action from the empty bookmarks state."
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title of the settings screen."
+  },
+  "sectionGeneral": "GENERAL",
+  "@sectionGeneral": {
+    "description": "Settings section heading. Uppercase."
+  },
+  "sectionDataPlayback": "DATA & PLAYBACK",
+  "@sectionDataPlayback": {
+    "description": "Settings section heading. Uppercase."
+  },
+  "sectionAbout": "ABOUT",
+  "@sectionAbout": {
+    "description": "Settings section heading. Uppercase."
+  },
+  "settingLanguage": "Language",
+  "@settingLanguage": {
+    "description": "Opens the language picker."
+  },
+  "settingTheme": "Theme",
+  "@settingTheme": {
+    "description": "Opens the theme picker."
+  },
+  "settingTextSize": "Text size",
+  "@settingTextSize": {
+    "description": "Text scale setting, follows the OS."
+  },
+  "settingDataSaver": "Data saver",
+  "@settingDataSaver": {
+    "description": "Toggle reducing video quality on mobile data."
+  },
+  "settingDataSaverSub": "Lower video quality on mobile data",
+  "@settingDataSaverSub": {
+    "description": "Subtitle for the data saver toggle."
+  },
+  "settingWifiOnlyDownloads": "Download over Wi-Fi only",
+  "@settingWifiOnlyDownloads": {
+    "description": "Toggle restricting downloads to Wi-Fi."
+  },
+  "settingBreakingAlerts": "Breaking news alerts",
+  "@settingBreakingAlerts": {
+    "description": "Toggle for breaking-news push notifications."
+  },
+  "followSystem": "Follow system",
+  "@followSystem": {
+    "description": "Value meaning the OS setting is used."
+  },
+  "followSystemWithScale": "Follow system ({percent})",
+  "@followSystemWithScale": {
+    "description": "Text size value showing the OS scale.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Light theme option."
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Dark theme option."
+  },
+  "versionLine": "Puntland TV · v{version}",
+  "@versionLine": {
+    "description": "Version line at the foot of settings.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "languageSheetTitle": "Language · Luqadda",
+  "@languageSheetTitle": {
+    "description": "Title of the language picker sheet. Shown in both languages deliberately, so it is readable whichever locale is active."
+  },
+  "languageSystemDefault": "System default",
+  "@languageSystemDefault": {
+    "description": "Use the device language."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "English option. Always in English — an endonym."
+  },
+  "languageSomali": "Soomaali",
+  "@languageSomali": {
+    "description": "Somali option. Always in Somali — an endonym."
+  },
+  "languageEnglishSub": "en-US",
+  "@languageEnglishSub": {
+    "description": "Locale code under the English option."
+  },
+  "languageSomaliSub": "so · Latin script, LTR",
+  "@languageSomaliSub": {
+    "description": "Locale detail under the Somali option."
+  },
+  "languageSwitchNote": "The language changes immediately — no restart needed.",
+  "@languageSwitchNote": {
+    "description": "Reassurance in the language sheet."
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Dismisses a sheet or dialog."
+  },
+  "choose": "Choose",
+  "@choose": {
+    "description": "Confirms a selection in a sheet."
+  },
+  "retry": "Try again",
+  "@retry": {
+    "description": "Retries a failed request."
+  },
+  "feedErrorTitle": "News could not be loaded",
+  "@feedErrorTitle": {
+    "description": "Error state on the feed."
+  },
+  "openSaved": "Open saved",
+  "@openSaved": {
+    "description": "Fallback action from an error state — read bookmarks instead."
+  },
+  "errorCodeLine": "Error: {code}",
+  "@errorCodeLine": {
+    "description": "Technical error code, shown small under an error message.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "emptyCategoryTitle": "Nothing here yet",
+  "@emptyCategoryTitle": {
+    "description": "Empty state for a category with no articles."
+  },
+  "emptyCategoryBody": "New stories in this category will appear as soon as the newsroom publishes them.",
+  "@emptyCategoryBody": {
+    "description": "Body of the empty category state."
+  },
+  "offlineBanner": "No connection — offline mode",
+  "@offlineBanner": {
+    "description": "Banner shown while the device is offline."
+  },
+  "backOnlineBanner": "Back online — refreshed",
+  "@backOnlineBanner": {
+    "description": "Banner shown briefly when connectivity returns."
+  },
+  "breaking": "BREAKING",
+  "@breaking": {
+    "description": "Badge on a breaking-news item. Uppercase."
+  },
+  "tapToReadFullReport": "Tap to read the full report",
+  "@tapToReadFullReport": {
+    "description": "Body of a breaking-news push notification."
+  },
+  "a11yPlay": "Play",
+  "@a11yPlay": {
+    "description": "Screen-reader label for the play control."
+  },
+  "a11yPause": "Pause",
+  "@a11yPause": {
+    "description": "Screen-reader label for the pause control."
+  },
+  "a11yExpandPlayer": "Expand player",
+  "@a11yExpandPlayer": {
+    "description": "Screen-reader label for the mini-player tap target."
+  },
+  "a11yCollapsePlayer": "Collapse player",
+  "@a11yCollapsePlayer": {
+    "description": "Screen-reader label for collapsing the full player."
+  },
+  "a11yClosePlayer": "Stop and close player",
+  "@a11yClosePlayer": {
+    "description": "Screen-reader label for the mini-player close button."
+  },
+  "a11yMute": "Mute",
+  "@a11yMute": {
+    "description": "Screen-reader label for the mute control."
+  },
+  "a11yFullscreen": "Full screen",
+  "@a11yFullscreen": {
+    "description": "Screen-reader label for the fullscreen control."
+  },
+  "a11yBookmarkAdd": "Save article",
+  "@a11yBookmarkAdd": {
+    "description": "Screen-reader label for the bookmark control."
+  },
+  "a11yBookmarkRemove": "Remove from saved",
+  "@a11yBookmarkRemove": {
+    "description": "Screen-reader label when already bookmarked."
+  },
+  "textSizeSheetBody": "Text size follows your device's display settings. Change it in your phone's accessibility settings and the app will follow.",
+  "@textSizeSheetBody": {
+    "description": "Explains that text size follows the OS setting."
+  }
+}

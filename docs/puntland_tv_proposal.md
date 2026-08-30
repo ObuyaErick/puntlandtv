@@ -1,5 +1,7 @@
 # Puntland TV App Proposal
 
+> For the scoped first release and build sequence, see [`puntland_tv_mvp_plan.md`](./puntland_tv_mvp_plan.md).
+
 A modern media application requires a seamless blend of live broadcasting, rich text articles, and on-demand video, mirroring the standard set by apps like Citizen Digital and CNN.
 
 ## Core Feature Matrix
