@@ -1,0 +1,14 @@
+# Codegen options for the whole package.
+#
+# `checked: true` wraps every field read in the generated `fromJson`s, so a bad
+# value throws a `CheckedFromJsonException` naming the key instead of a bare
+# `type 'Null' is not a subtype of type 'String'`.
+#
+# The cost is a try/catch per field on the decode path, which is not measurable
+# against the network call that delivered the JSON.
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          checked: true
