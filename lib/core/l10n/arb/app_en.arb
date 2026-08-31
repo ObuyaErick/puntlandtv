@@ -616,5 +616,845 @@
   "errorLockedOut": "Too many attempts. Start again.",
   "@errorLockedOut": {
     "description": "Shown after the final failed verification attempt."
+  },
+  "articlesTitle": "Articles",
+  "@articlesTitle": {
+    "description": "Console article list heading for editors."
+  },
+  "myArticlesTitle": "My articles",
+  "@myArticlesTitle": {
+    "description": "Console article list heading for journalists."
+  },
+  "itemCount": "{count, plural, one{{count} item} other{{count} items}}",
+  "@itemCount": {
+    "description": "Row count under a list heading.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "newArticle": "New article",
+  "@newArticle": {
+    "description": "Creates an article."
+  },
+  "newDraft": "New draft",
+  "@newDraft": {
+    "description": "Creates an article, journalist wording."
+  },
+  "journalistNotice": "You can draft and submit for review. Publishing, scheduling and push are Editor actions.",
+  "@journalistNotice": {
+    "description": "Explains the journalist role limits on the article list."
+  },
+  "filterAllArticles": "All",
+  "@filterAllArticles": {
+    "description": "Filter chip: every article."
+  },
+  "filterMine": "Mine",
+  "@filterMine": {
+    "description": "Filter chip: the signed-in journalist own articles."
+  },
+  "colHeadline": "HEADLINE",
+  "@colHeadline": {
+    "description": "Table column. Uppercase."
+  },
+  "colCategory": "CATEGORY",
+  "@colCategory": {
+    "description": "Table column. Uppercase."
+  },
+  "colLocale": "LOCALE",
+  "@colLocale": {
+    "description": "Table column. Uppercase."
+  },
+  "colAuthor": "AUTHOR",
+  "@colAuthor": {
+    "description": "Table column. Uppercase."
+  },
+  "colUpdated": "UPDATED",
+  "@colUpdated": {
+    "description": "Table column. Uppercase."
+  },
+  "colStatus": "STATUS",
+  "@colStatus": {
+    "description": "Table column. Uppercase."
+  },
+  "noEnglishTranslation": "No English translation",
+  "@noEnglishTranslation": {
+    "description": "Sub-label on a row that exists only in Somali."
+  },
+  "translationBehind": "English is behind",
+  "@translationBehind": {
+    "description": "Sub-label on a row whose translation is older than the source."
+  },
+  "heroSet": "hero set",
+  "@heroSet": {
+    "description": "Sub-label fragment meaning the article has an image."
+  },
+  "selectedCount": "{count} selected",
+  "@selectedCount": {
+    "description": "Bulk action bar count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bulkPublish": "Publish",
+  "@bulkPublish": {
+    "description": "Bulk action."
+  },
+  "bulkUnpublish": "Unpublish",
+  "@bulkUnpublish": {
+    "description": "Bulk action."
+  },
+  "deselectAll": "Deselect all",
+  "@deselectAll": {
+    "description": "Clears the bulk selection."
+  },
+  "emptyArticles": "No articles here yet",
+  "@emptyArticles": {
+    "description": "Empty state for the article list."
+  },
+  "emptyArticlesBody": "Articles you create appear here. Use New article to start one.",
+  "@emptyArticlesBody": {
+    "description": "Empty state body."
+  },
+  "overviewTitle": "Overview",
+  "@overviewTitle": {
+    "description": "Console dashboard heading."
+  },
+  "onAirNow": "ON AIR NOW",
+  "@onAirNow": {
+    "description": "Overview panel heading. Uppercase."
+  },
+  "publishedToday": "PUBLISHED TODAY",
+  "@publishedToday": {
+    "description": "Overview stat heading. Uppercase."
+  },
+  "awaitingReview": "AWAITING REVIEW",
+  "@awaitingReview": {
+    "description": "Overview stat heading. Uppercase."
+  },
+  "failedIngests": "FAILED INGESTS",
+  "@failedIngests": {
+    "description": "Overview stat heading. Uppercase."
+  },
+  "breakingFlagged": "{count, plural, one{{count} breaking-flagged} other{{count} breaking-flagged}}",
+  "@breakingFlagged": {
+    "description": "Sub-label under the awaiting-review count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "concurrentViewers": "{count} concurrent",
+  "@concurrentViewers": {
+    "description": "Live viewer count on the overview. The number is formatted by AppNumberFormat before it gets here — intl has no Somali number data.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "allRenditionsHealthy": "all healthy",
+  "@allRenditionsHealthy": {
+    "description": "Sub-label when every stream rendition is up."
+  },
+  "renditionsDegraded": "degraded",
+  "@renditionsDegraded": {
+    "description": "Sub-label when a stream rendition is down."
+  },
+  "radioOnAir": "Radio: on air",
+  "@radioOnAir": {
+    "description": "Radio status on the overview."
+  },
+  "radioOffAir": "Radio: off air",
+  "@radioOffAir": {
+    "description": "Radio status on the overview."
+  },
+  "openLiveControl": "Open live control",
+  "@openLiveControl": {
+    "description": "Action on the on-air panel."
+  },
+  "reviewFailures": "Review failures",
+  "@reviewFailures": {
+    "description": "Action on the failed-ingests tile."
+  },
+  "editorHeadline": "HEADLINE · {locale}",
+  "@editorHeadline": {
+    "description": "Editor field label with the language code. Uppercase.",
+    "placeholders": {
+      "locale": {
+        "type": "String"
+      }
+    }
+  },
+  "editorExcerpt": "EXCERPT · {locale}",
+  "@editorExcerpt": {
+    "description": "Editor field label with the language code. Uppercase.",
+    "placeholders": {
+      "locale": {
+        "type": "String"
+      }
+    }
+  },
+  "editorBody": "BODY · {locale}",
+  "@editorBody": {
+    "description": "Editor field label with the language code. Uppercase.",
+    "placeholders": {
+      "locale": {
+        "type": "String"
+      }
+    }
+  },
+  "headlineHint": "Aim for under 90 characters",
+  "@headlineHint": {
+    "description": "Guidance under the headline field."
+  },
+  "charCount": "{used} / {limit}",
+  "@charCount": {
+    "description": "Character counter.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "wordCountAndRead": "{words} words · {minutes} min read",
+  "@wordCountAndRead": {
+    "description": "Body editor footer.",
+    "placeholders": {
+      "words": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sectionTranslation": "TRANSLATION",
+  "@sectionTranslation": {
+    "description": "Editor side panel section. Uppercase."
+  },
+  "sectionHeroImage": "HERO IMAGE",
+  "@sectionHeroImage": {
+    "description": "Editor side panel section. Uppercase."
+  },
+  "sectionPublishing": "PUBLISHING",
+  "@sectionPublishing": {
+    "description": "Editor side panel section. Uppercase."
+  },
+  "translationSource": "{language} — source",
+  "@translationSource": {
+    "description": "Row label for the language an article was written in.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "translationLinked": "{language} — linked",
+  "@translationLinked": {
+    "description": "Row label for a translation of the source.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "translationCurrent": "Current",
+  "@translationCurrent": {
+    "description": "Badge on an up-to-date translation."
+  },
+  "translationBehindBy": "BEHIND BY {count} EDITS",
+  "@translationBehindBy": {
+    "description": "Badge on a stale translation. Uppercase.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "translationStaleNote": "Publishing the source version marks the translation stale in the app rather than hiding it. Clear the flag by re-confirming the translation.",
+  "@translationStaleNote": {
+    "description": "Explains what staleness does, in the editor."
+  },
+  "reconfirmTranslation": "Re-confirm translation",
+  "@reconfirmTranslation": {
+    "description": "Clears the stale flag."
+  },
+  "openSideBySide": "Open side-by-side",
+  "@openSideBySide": {
+    "description": "Opens both languages together."
+  },
+  "altTextRequired": "Alt text is required before publishing.",
+  "@altTextRequired": {
+    "description": "Validation note on the hero image."
+  },
+  "fieldCategory": "Category",
+  "@fieldCategory": {
+    "description": "Editor field."
+  },
+  "fieldReadTime": "Read time",
+  "@fieldReadTime": {
+    "description": "Editor field."
+  },
+  "fieldSchedule": "Schedule",
+  "@fieldSchedule": {
+    "description": "Editor field."
+  },
+  "fieldBreaking": "Breaking news",
+  "@fieldBreaking": {
+    "description": "Editor toggle."
+  },
+  "breakingHint": "Adds the red flag in the app. Push is sent separately.",
+  "@breakingHint": {
+    "description": "Explains what the breaking toggle does — and does not — do."
+  },
+  "autoReadTime": "Auto · {minutes} min",
+  "@autoReadTime": {
+    "description": "Automatically computed read time.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "saveDraft": "Save draft",
+  "@saveDraft": {
+    "description": "Editor action."
+  },
+  "publishNow": "Publish now",
+  "@publishNow": {
+    "description": "Editor action."
+  },
+  "savedAt": "Saved {time} · autosave on",
+  "@savedAt": {
+    "description": "Editor header status.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pushTitle": "Push composer",
+  "@pushTitle": {
+    "description": "Console screen heading."
+  },
+  "pushIrreversible": "IRREVERSIBLE · {count} DEVICES",
+  "@pushIrreversible": {
+    "description": "Warning badge on the push composer. Uppercase. Pre-formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "messageInLocale": "MESSAGE · {language}",
+  "@messageInLocale": {
+    "description": "Push composer section per language. Uppercase.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "required": "REQUIRED",
+  "@required": {
+    "description": "Badge on a mandatory section. Uppercase."
+  },
+  "complete": "Complete",
+  "@complete": {
+    "description": "Badge on a finished section."
+  },
+  "bodyMissing": "Body missing",
+  "@bodyMissing": {
+    "description": "Badge on an unfinished push message."
+  },
+  "fieldTitle": "Title",
+  "@fieldTitle": {
+    "description": "Push message field."
+  },
+  "fieldBody": "Body",
+  "@fieldBody": {
+    "description": "Push message field."
+  },
+  "truncationHint": "Android truncates near {count} characters on the lock screen",
+  "@truncationHint": {
+    "description": "Guidance under the push title field.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bodyRequiredHint": "Required — push payloads cannot be translated on the device",
+  "@bodyRequiredHint": {
+    "description": "Explains why every locale needs its own body."
+  },
+  "copySomaliBody": "Copy Somali body as a starting point",
+  "@copySomaliBody": {
+    "description": "Convenience action in the push composer."
+  },
+  "sectionTarget": "TARGET & TOPICS",
+  "@sectionTarget": {
+    "description": "Push composer section. Uppercase."
+  },
+  "fieldDeepLink": "Deep link",
+  "@fieldDeepLink": {
+    "description": "Push composer field."
+  },
+  "estimatedReach": "Estimated reach {total} devices",
+  "@estimatedReach": {
+    "description": "Reach line in the push composer. Pre-formatted.",
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "lockScreenPreview": "Lock-screen preview",
+  "@lockScreenPreview": {
+    "description": "Preview section heading."
+  },
+  "previewIncomplete": "INCOMPLETE",
+  "@previewIncomplete": {
+    "description": "Badge on a preview whose payload is unfinished. Uppercase."
+  },
+  "sendBlocked": "Send is blocked until both locales are complete",
+  "@sendBlocked": {
+    "description": "Explains why the send button is disabled."
+  },
+  "reviewAndSend": "Review & send",
+  "@reviewAndSend": {
+    "description": "Opens the send confirmation."
+  },
+  "saveAsDraft": "Save as draft",
+  "@saveAsDraft": {
+    "description": "Saves a push without sending."
+  },
+  "sendHistory": "SEND HISTORY",
+  "@sendHistory": {
+    "description": "Push composer section. Uppercase."
+  },
+  "confirmSendTitle": "Send to {count} devices?",
+  "@confirmSendTitle": {
+    "description": "Send confirmation heading. Pre-formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmSendBody": "This cannot be recalled. Both language payloads will be delivered simultaneously.",
+  "@confirmSendBody": {
+    "description": "Send confirmation warning."
+  },
+  "typeToConfirm": "Type {word} to confirm",
+  "@typeToConfirm": {
+    "description": "Instruction for the type-to-confirm field.",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmWord": "SEND",
+  "@confirmWord": {
+    "description": "The word a user types to confirm sending. Uppercase."
+  },
+  "sentAsAudit": "Sent as {name} · recorded in the audit log",
+  "@sentAsAudit": {
+    "description": "Attribution note on the send confirmation.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendNow": "Send now",
+  "@sendNow": {
+    "description": "Confirms sending."
+  },
+  "pushSent": "Alert sent to {count} devices",
+  "@pushSent": {
+    "description": "Toast after a successful send. Pre-formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "liveControlTitle": "Live control",
+  "@liveControlTitle": {
+    "description": "Console screen heading."
+  },
+  "tvOnAir": "TV ON AIR",
+  "@tvOnAir": {
+    "description": "Badge when the channel is transmitting. Uppercase."
+  },
+  "tvOffAir": "TV OFF AIR",
+  "@tvOffAir": {
+    "description": "Badge when the channel is down. Uppercase."
+  },
+  "sectionTvChannel": "TV CHANNEL",
+  "@sectionTvChannel": {
+    "description": "Live control section. Uppercase."
+  },
+  "sectionRadio": "RADIO",
+  "@sectionRadio": {
+    "description": "Live control section. Uppercase."
+  },
+  "sectionRenditions": "RENDITIONS",
+  "@sectionRenditions": {
+    "description": "Live control section. Uppercase."
+  },
+  "sectionSlate": "OFF-AIR SLATE MESSAGE",
+  "@sectionSlate": {
+    "description": "Live control section. Uppercase."
+  },
+  "onAir": "On air",
+  "@onAir": {
+    "description": "Toggle label for transmitting."
+  },
+  "switchingOffShowsSlate": "Switching off shows the slate",
+  "@switchingOffShowsSlate": {
+    "description": "Explains what the on-air toggle does."
+  },
+  "uptimeAndViewers": "Uptime {uptime} · {viewers} concurrent",
+  "@uptimeAndViewers": {
+    "description": "Channel status line. Counts arrive pre-formatted.",
+    "placeholders": {
+      "uptime": {
+        "type": "String"
+      },
+      "viewers": {
+        "type": "String"
+      }
+    }
+  },
+  "radioStatusLine": "{bitrate} kbps AAC · {listeners} listeners",
+  "@radioStatusLine": {
+    "description": "Radio status line. Listener count arrives pre-formatted.",
+    "placeholders": {
+      "bitrate": {
+        "type": "int"
+      },
+      "listeners": {
+        "type": "String"
+      }
+    }
+  },
+  "protectedRungNote": "{rung} is the rung most of the audience receives — it cannot be disabled",
+  "@protectedRungNote": {
+    "description": "Explains why one rendition is locked on.",
+    "placeholders": {
+      "rung": {
+        "type": "String"
+      }
+    }
+  },
+  "colRung": "RUNG",
+  "@colRung": {
+    "description": "Renditions table column. Uppercase."
+  },
+  "colBitrate": "BITRATE",
+  "@colBitrate": {
+    "description": "Renditions table column. Uppercase."
+  },
+  "colHealth": "HEALTH",
+  "@colHealth": {
+    "description": "Renditions table column. Uppercase."
+  },
+  "colEnabled": "ENABLED",
+  "@colEnabled": {
+    "description": "Renditions table column. Uppercase."
+  },
+  "healthy": "Healthy",
+  "@healthy": {
+    "description": "Rendition health value."
+  },
+  "degraded": "Degraded",
+  "@degraded": {
+    "description": "Rendition health value."
+  },
+  "keyRung": "KEY",
+  "@keyRung": {
+    "description": "Badge on the protected rendition. Uppercase."
+  },
+  "slateBothRequired": "Both locales are required before the channel can be taken off air.",
+  "@slateBothRequired": {
+    "description": "Explains the off-air gate."
+  },
+  "slatePreview": "SLATE PREVIEW",
+  "@slatePreview": {
+    "description": "Heading above the rendered slate. Uppercase."
+  },
+  "categoriesTitle": "Categories",
+  "@categoriesTitle": {
+    "description": "Console screen heading."
+  },
+  "newCategory": "New category",
+  "@newCategory": {
+    "description": "Creates a category."
+  },
+  "slugPermanentNote": "The slug is permanent — it is baked into app deep links and push topics. Display names are per-locale and safe to change at any time.",
+  "@slugPermanentNote": {
+    "description": "Explains the slug versus name distinction."
+  },
+  "untranslatedHiddenNote": "A category with no name in a locale is hidden from that locale's tab bar rather than shown untranslated.",
+  "@untranslatedHiddenNote": {
+    "description": "Explains what an untranslated category does."
+  },
+  "colSlug": "SLUG",
+  "@colSlug": {
+    "description": "Categories column. Uppercase."
+  },
+  "colArticles": "ARTICLES",
+  "@colArticles": {
+    "description": "Categories column. Uppercase."
+  },
+  "colInApp": "IN APP",
+  "@colInApp": {
+    "description": "Categories column showing which locales display it. Uppercase."
+  },
+  "notTranslated": "Not translated",
+  "@notTranslated": {
+    "description": "Value in a category name column with no translation."
+  },
+  "scheduleTitle": "Schedule",
+  "@scheduleTitle": {
+    "description": "Console screen heading."
+  },
+  "gapsAndOverlaps": "{gaps} gap · {overlaps} overlap",
+  "@gapsAndOverlaps": {
+    "description": "Schedule issue summary.",
+    "placeholders": {
+      "gaps": {
+        "type": "int"
+      },
+      "overlaps": {
+        "type": "int"
+      }
+    }
+  },
+  "publishDay": "Publish day",
+  "@publishDay": {
+    "description": "Publishes the day schedule."
+  },
+  "autoResolveOverlap": "Auto-resolve overlap",
+  "@autoResolveOverlap": {
+    "description": "Pushes colliding slots later."
+  },
+  "gapLabel": "GAP {from} – {to} · fills with continuity slate",
+  "@gapLabel": {
+    "description": "Marker on a schedule gap.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "overlapLabel": "OVERLAP · collides by {minutes} min",
+  "@overlapLabel": {
+    "description": "Marker on a schedule overlap.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "dayTotal": "Day total {hours}h {minutes}m programmed",
+  "@dayTotal": {
+    "description": "Schedule footer.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "publishBlockedByOverlap": "Resolve the overlap before publishing the day.",
+  "@publishBlockedByOverlap": {
+    "description": "Explains why publishing is blocked."
+  },
+  "colName": "NAME",
+  "@colName": {
+    "description": "Categories table column for the display name. Uppercase."
+  },
+  "collapseSidebar": "Collapse sidebar",
+  "@collapseSidebar": {
+    "description": "Tooltip on the rail collapse control."
+  },
+  "expandSidebar": "Expand sidebar",
+  "@expandSidebar": {
+    "description": "Tooltip on the rail expand control."
+  },
+  "clearFilters": "Clear filters",
+  "@clearFilters": {
+    "description": "Resets every article list filter."
+  },
+  "filterCategory": "Category: {value}",
+  "@filterCategory": {
+    "description": "Category filter button label.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "filterLocale": "Locale: {value}",
+  "@filterLocale": {
+    "description": "Locale filter button label.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "filterAuthor": "Author: {value}",
+  "@filterAuthor": {
+    "description": "Author filter button label.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "filterAnyone": "Anyone",
+  "@filterAnyone": {
+    "description": "Author filter value meaning no author filter."
+  },
+  "bulkSchedule": "Schedule…",
+  "@bulkSchedule": {
+    "description": "Bulk action opening the scheduling dialog."
+  },
+  "bulkChangeCategory": "Change category",
+  "@bulkChangeCategory": {
+    "description": "Bulk action."
+  },
+  "rowsRange": "Rows {from}–{to} of {total}",
+  "@rowsRange": {
+    "description": "Pagination summary.",
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "perPage": "{count} per page",
+  "@perPage": {
+    "description": "Page size selector.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rowActions": "Row actions",
+  "@rowActions": {
+    "description": "Tooltip on the per-row overflow button."
+  },
+  "languageNameSomali": "Somali",
+  "@languageNameSomali": {
+    "description": "Name of the Somali language, in the active UI language. Distinct from the picker, which uses endonyms."
+  },
+  "languageNameEnglish": "English",
+  "@languageNameEnglish": {
+    "description": "Name of the English language, in the active UI language."
+  },
+  "missingTranslation": "No {language} translation",
+  "@missingTranslation": {
+    "description": "Sub-label on an article missing a required translation.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "translationBehindIn": "{language} is behind",
+  "@translationBehindIn": {
+    "description": "Sub-label on an article whose translation is older than the source.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "consoleLanguage": "Console language",
+  "@consoleLanguage": {
+    "description": "Tooltip on the console language switch."
+  },
+  "tagline": "The Voice of the Puntland Government, Somalia",
+  "@tagline": {
+    "description": "Institutional tagline under the wordmark. A descriptive phrase, so it is translated — unlike the name \"Puntland TV\", which is a proper noun. Confirm the English wording with the broadcaster."
+  },
+  "newAlert": "New alert",
+  "@newAlert": {
+    "description": "Overview action that opens the push composer."
+  },
+  "todaysQueue": "Today's publishing queue",
+  "@todaysQueue": {
+    "description": "Overview panel heading."
+  },
+  "openArticles": "Open articles",
+  "@openArticles": {
+    "description": "Link from the queue panel to the article list."
+  },
+  "recentPushes": "Recent pushes",
+  "@recentPushes": {
+    "description": "Overview panel heading."
+  },
+  "deliveredOf": "Delivered {delivered} / {targeted}",
+  "@deliveredOf": {
+    "description": "Delivery result on a sent alert. Both numbers arrive pre-formatted.",
+    "placeholders": {
+      "delivered": {
+        "type": "String"
+      },
+      "targeted": {
+        "type": "String"
+      }
+    }
+  },
+  "colTime": "TIME",
+  "@colTime": {
+    "description": "Queue table column. Uppercase."
+  },
+  "liveFor": "LIVE {duration}",
+  "@liveFor": {
+    "description": "On-air pill showing how long the channel has been up. Uppercase.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "queueEmpty": "Nothing scheduled for today",
+  "@queueEmpty": {
+    "description": "Empty state for the publishing queue."
+  },
+  "justNow": "now",
+  "@justNow": {
+    "description": "Relative time for something that has just happened."
+  },
+  "colUrl": "URL",
+  "@colUrl": {
+    "description": "Renditions table column for the manifest URL. Uppercase."
   }
 }

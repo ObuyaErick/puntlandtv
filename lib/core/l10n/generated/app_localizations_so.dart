@@ -500,4 +500,569 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get errorLockedOut => 'Isku dayo badan. Dib u bilow.';
+
+  @override
+  String get articlesTitle => 'Maqaallada';
+
+  @override
+  String get myArticlesTitle => 'Maqaalladayda';
+
+  @override
+  String itemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count shay',
+      one: '$count shay',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get newArticle => 'Maqaal cusub';
+
+  @override
+  String get newDraft => 'Qabyo cusub';
+
+  @override
+  String get journalistNotice =>
+      'Waad qori kartaa oo u gudbin kartaa dib u eegis. Daabacaadda, jadwalaynta iyo digniinaha waa hawlaha tifaftiraha.';
+
+  @override
+  String get filterAllArticles => 'Dhammaan';
+
+  @override
+  String get filterMine => 'Kayga';
+
+  @override
+  String get colHeadline => 'CINWAANKA';
+
+  @override
+  String get colCategory => 'QAYBTA';
+
+  @override
+  String get colLocale => 'LUQADDA';
+
+  @override
+  String get colAuthor => 'QORAAGA';
+
+  @override
+  String get colUpdated => 'LA CUSBOONEYSIIYAY';
+
+  @override
+  String get colStatus => 'XAALADDA';
+
+  @override
+  String get noEnglishTranslation => 'Turjumaad Ingiriisi ah ma jirto';
+
+  @override
+  String get translationBehind => 'Ingiriisku wuu ka daahay';
+
+  @override
+  String get heroSet => 'sawir la dhigay';
+
+  @override
+  String selectedCount(int count) {
+    return '$count la doortay';
+  }
+
+  @override
+  String get bulkPublish => 'Daabac';
+
+  @override
+  String get bulkUnpublish => 'Ka saar daabacaadda';
+
+  @override
+  String get deselectAll => 'Ka saar doorashada';
+
+  @override
+  String get emptyArticles => 'Weli maqaallo ma jiraan';
+
+  @override
+  String get emptyArticlesBody =>
+      'Maqaallada aad abuurto halkan ayay ka muuqan doonaan. Isticmaal Maqaal cusub si aad u bilowdo.';
+
+  @override
+  String get overviewTitle => 'Guudmar';
+
+  @override
+  String get onAirNow => 'HADDA WAA BAAHINAYAA';
+
+  @override
+  String get publishedToday => 'MAANTA LA DAABACAY';
+
+  @override
+  String get awaitingReview => 'SUGAYA DIB U EEGIS';
+
+  @override
+  String get failedIngests => 'SOO GELIN FASHILMAY';
+
+  @override
+  String breakingFlagged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count deg deg ah',
+      one: '$count deg deg ah',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String concurrentViewers(String count) {
+    return '$count isku mar';
+  }
+
+  @override
+  String get allRenditionsHealthy => 'dhammaan waa fiican yihiin';
+
+  @override
+  String get renditionsDegraded => 'waa liitaa';
+
+  @override
+  String get radioOnAir => 'Raadiyaha: waa baahinayaa';
+
+  @override
+  String get radioOffAir => 'Raadiyaha: ma baahinayo';
+
+  @override
+  String get openLiveControl => 'Fur maamulka tooska';
+
+  @override
+  String get reviewFailures => 'Eeg fashilkooda';
+
+  @override
+  String editorHeadline(String locale) {
+    return 'CINWAANKA · $locale';
+  }
+
+  @override
+  String editorExcerpt(String locale) {
+    return 'SOO KOOBID · $locale';
+  }
+
+  @override
+  String editorBody(String locale) {
+    return 'QORAALKA · $locale';
+  }
+
+  @override
+  String get headlineHint => 'Isku day inuu ka yar yahay 90 xaraf';
+
+  @override
+  String charCount(int used, int limit) {
+    return '$used / $limit';
+  }
+
+  @override
+  String wordCountAndRead(int words, int minutes) {
+    return '$words eray · $minutes daq. akhris';
+  }
+
+  @override
+  String get sectionTranslation => 'TURJUMAADDA';
+
+  @override
+  String get sectionHeroImage => 'SAWIRKA WEYN';
+
+  @override
+  String get sectionPublishing => 'DAABACAADDA';
+
+  @override
+  String translationSource(String language) {
+    return '$language — isha';
+  }
+
+  @override
+  String translationLinked(String language) {
+    return '$language — ku xiran';
+  }
+
+  @override
+  String get translationCurrent => 'Waa cusub yahay';
+
+  @override
+  String translationBehindBy(int count) {
+    return 'WUXUU KA DAAHAY $count WAX-KA-BEDDEL';
+  }
+
+  @override
+  String get translationStaleNote =>
+      'Daabacaadda nuqulka isha ah waxay turjumaadda ku calaamadinaysaa mid duugoobay abka gudihiisa, halkii la qarin lahaa. Calaamadda waxaad ka saartaa adigoo turjumaadda dib u xaqiijiya.';
+
+  @override
+  String get reconfirmTranslation => 'Dib u xaqiiji turjumaadda';
+
+  @override
+  String get openSideBySide => 'Fur labada dhinac';
+
+  @override
+  String get altTextRequired =>
+      'Qoraalka sawirka waa loo baahan yahay ka hor daabacaadda.';
+
+  @override
+  String get fieldCategory => 'Qaybta';
+
+  @override
+  String get fieldReadTime => 'Waqtiga akhriska';
+
+  @override
+  String get fieldSchedule => 'Jadwalka';
+
+  @override
+  String get fieldBreaking => 'War deg deg ah';
+
+  @override
+  String get breakingHint =>
+      'Waxay ku darsataa calaamadda cas abka. Digniinta gooni ayaa loo diraa.';
+
+  @override
+  String autoReadTime(int minutes) {
+    return 'Toos · $minutes daq.';
+  }
+
+  @override
+  String get saveDraft => 'Kaydi qabyada';
+
+  @override
+  String get publishNow => 'Hadda daabac';
+
+  @override
+  String savedAt(String time) {
+    return 'La kaydiyay $time · kaydinta toosa waa shidan';
+  }
+
+  @override
+  String get pushTitle => 'Qoraaga digniinaha';
+
+  @override
+  String pushIrreversible(String count) {
+    return 'LAMA CELIN KARO · $count QALAB';
+  }
+
+  @override
+  String messageInLocale(String language) {
+    return 'FARRIINTA · $language';
+  }
+
+  @override
+  String get required => 'WAA LOO BAAHAN YAHAY';
+
+  @override
+  String get complete => 'Waa dhammaystiran';
+
+  @override
+  String get bodyMissing => 'Qoraalka waa maqan';
+
+  @override
+  String get fieldTitle => 'Cinwaanka';
+
+  @override
+  String get fieldBody => 'Qoraalka';
+
+  @override
+  String truncationHint(int count) {
+    return 'Android wuxuu gooyaa ku dhawaad $count xaraf shaashadda qufulka';
+  }
+
+  @override
+  String get bodyRequiredHint =>
+      'Waa loo baahan yahay — digniinaha lagama turjumi karo qalabka';
+
+  @override
+  String get copySomaliBody => 'Koobi qoraalka Soomaaliga si aad uga bilowdo';
+
+  @override
+  String get sectionTarget => 'BARTILMAAMEEDKA IYO MAWDUUCYADA';
+
+  @override
+  String get fieldDeepLink => 'Xiriirka toosa';
+
+  @override
+  String estimatedReach(String total) {
+    return 'Gaadhista la filayo $total qalab';
+  }
+
+  @override
+  String get lockScreenPreview => 'Muuqaalka shaashadda qufulka';
+
+  @override
+  String get previewIncomplete => 'MA DHAMMAYSTIRNA';
+
+  @override
+  String get sendBlocked =>
+      'Dirista waa la joojiyay ilaa labada luqadood dhammaystiraan';
+
+  @override
+  String get reviewAndSend => 'Eeg oo dir';
+
+  @override
+  String get saveAsDraft => 'Kaydi qabyo ahaan';
+
+  @override
+  String get sendHistory => 'TAARIIKHDA DIRISTA';
+
+  @override
+  String confirmSendTitle(String count) {
+    return 'Ma u dirayaa $count qalab?';
+  }
+
+  @override
+  String get confirmSendBody =>
+      'Tan lama celin karo. Labada luqadood isku mar ayaa la gaadhsiinayaa.';
+
+  @override
+  String typeToConfirm(String word) {
+    return 'Ku qor $word si aad u xaqiijiso';
+  }
+
+  @override
+  String get confirmWord => 'DIR';
+
+  @override
+  String sentAsAudit(String name) {
+    return 'Waxaa diray $name · waxaa lagu duubay diiwaanka hawlaha';
+  }
+
+  @override
+  String get sendNow => 'Hadda dir';
+
+  @override
+  String pushSent(String count) {
+    return 'Digniinta waxaa loo diray $count qalab';
+  }
+
+  @override
+  String get liveControlTitle => 'Maamulka tooska';
+
+  @override
+  String get tvOnAir => 'TV WAA BAAHINAYAA';
+
+  @override
+  String get tvOffAir => 'TV MA BAAHINAYO';
+
+  @override
+  String get sectionTvChannel => 'KANAALKA TV';
+
+  @override
+  String get sectionRadio => 'RAADIYAHA';
+
+  @override
+  String get sectionRenditions => 'TAYADA';
+
+  @override
+  String get sectionSlate => 'FARRIINTA MARKA LA JOOJIYO';
+
+  @override
+  String get onAir => 'Waa baahinayaa';
+
+  @override
+  String get switchingOffShowsSlate => 'Joojintu waxay tusaysaa farriinta';
+
+  @override
+  String uptimeAndViewers(String uptime, String viewers) {
+    return 'Muddada $uptime · $viewers isku mar';
+  }
+
+  @override
+  String radioStatusLine(int bitrate, String listeners) {
+    return '$bitrate kbps AAC · $listeners dhegeyste';
+  }
+
+  @override
+  String protectedRungNote(String rung) {
+    return '$rung waa tayada ay dadka badankoodu helaan — lama demin karo';
+  }
+
+  @override
+  String get colRung => 'TAYADA';
+
+  @override
+  String get colBitrate => 'XAWLIGA';
+
+  @override
+  String get colHealth => 'CAAFIMAADKA';
+
+  @override
+  String get colEnabled => 'SHIDAN';
+
+  @override
+  String get healthy => 'Waa fiican';
+
+  @override
+  String get degraded => 'Waa liitaa';
+
+  @override
+  String get keyRung => 'MUHIIM';
+
+  @override
+  String get slateBothRequired =>
+      'Labada luqadood waa loo baahan yahay ka hor inta aan kanaalka la joojin.';
+
+  @override
+  String get slatePreview => 'MUUQAALKA FARRIINTA';
+
+  @override
+  String get categoriesTitle => 'Qaybaha';
+
+  @override
+  String get newCategory => 'Qayb cusub';
+
+  @override
+  String get slugPermanentNote =>
+      'Slug-ga waa mid joogto ah — wuxuu ku dhex jiraa xiriirada abka iyo mawduucyada digniinaha. Magacyada bandhigga ah waa mid luqad kasta oo waqti kasta la beddeli karo.';
+
+  @override
+  String get untranslatedHiddenNote =>
+      'Qayb aan magac ku lahayn luqad waxaa laga qariyaa liiska luqaddaas, halkii aan la tusi lahayn mid aan la turjumin.';
+
+  @override
+  String get colSlug => 'SLUG';
+
+  @override
+  String get colArticles => 'MAQAALLO';
+
+  @override
+  String get colInApp => 'ABKA GUDIHIISA';
+
+  @override
+  String get notTranslated => 'Lama turjumin';
+
+  @override
+  String get scheduleTitle => 'Jadwalka';
+
+  @override
+  String gapsAndOverlaps(int gaps, int overlaps) {
+    return '$gaps bannaan · $overlaps isku dhac';
+  }
+
+  @override
+  String get publishDay => 'Daabac maalinta';
+
+  @override
+  String get autoResolveOverlap => 'Si toos ah u xalli isku dhaca';
+
+  @override
+  String gapLabel(String from, String to) {
+    return 'BANNAAN $from – $to · waxaa buuxinaya farriin sii socoto';
+  }
+
+  @override
+  String overlapLabel(int minutes) {
+    return 'ISKU DHAC · wuxuu ku dhacayaa $minutes daq.';
+  }
+
+  @override
+  String dayTotal(int hours, int minutes) {
+    return 'Wadarta maalinta ${hours}s ${minutes}d ayaa la qorsheeyay';
+  }
+
+  @override
+  String get publishBlockedByOverlap =>
+      'Xalli isku dhaca ka hor inta aanad daabicin maalinta.';
+
+  @override
+  String get colName => 'MAGACA';
+
+  @override
+  String get collapseSidebar => 'Yaree liiska dhinaca';
+
+  @override
+  String get expandSidebar => 'Ballaari liiska dhinaca';
+
+  @override
+  String get clearFilters => 'Nadiifi shaandhaynta';
+
+  @override
+  String filterCategory(String value) {
+    return 'Qaybta: $value';
+  }
+
+  @override
+  String filterLocale(String value) {
+    return 'Luqadda: $value';
+  }
+
+  @override
+  String filterAuthor(String value) {
+    return 'Qoraaga: $value';
+  }
+
+  @override
+  String get filterAnyone => 'Qof kasta';
+
+  @override
+  String get bulkSchedule => 'Jadwalee…';
+
+  @override
+  String get bulkChangeCategory => 'Beddel qaybta';
+
+  @override
+  String rowsRange(int from, int to, int total) {
+    return 'Safafka $from–$to ee $total';
+  }
+
+  @override
+  String perPage(int count) {
+    return '$count bog kasta';
+  }
+
+  @override
+  String get rowActions => 'Hawlaha safka';
+
+  @override
+  String get languageNameSomali => 'Soomaali';
+
+  @override
+  String get languageNameEnglish => 'Ingiriisi';
+
+  @override
+  String missingTranslation(String language) {
+    return 'Turjumaad $language ah ma jirto';
+  }
+
+  @override
+  String translationBehindIn(String language) {
+    return '$language wuu ka daahay';
+  }
+
+  @override
+  String get consoleLanguage => 'Luqadda xarunta';
+
+  @override
+  String get tagline => 'Codka Dawladda Puntland, Soomaaliya';
+
+  @override
+  String get newAlert => 'Digniin cusub';
+
+  @override
+  String get todaysQueue => 'Safka daabacaadda maanta';
+
+  @override
+  String get openArticles => 'Fur maqaallada';
+
+  @override
+  String get recentPushes => 'Digniinihii ugu dambeeyay';
+
+  @override
+  String deliveredOf(String delivered, String targeted) {
+    return 'La gaadhsiiyay $delivered / $targeted';
+  }
+
+  @override
+  String get colTime => 'WAQTIGA';
+
+  @override
+  String liveFor(String duration) {
+    return 'TOOS $duration';
+  }
+
+  @override
+  String get queueEmpty => 'Waxba maanta looma jadwalayn';
+
+  @override
+  String get justNow => 'hadda';
+
+  @override
+  String get colUrl => 'URL';
 }

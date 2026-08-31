@@ -496,4 +496,567 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get errorLockedOut => 'Too many attempts. Start again.';
+
+  @override
+  String get articlesTitle => 'Articles';
+
+  @override
+  String get myArticlesTitle => 'My articles';
+
+  @override
+  String itemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '$count item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get newArticle => 'New article';
+
+  @override
+  String get newDraft => 'New draft';
+
+  @override
+  String get journalistNotice =>
+      'You can draft and submit for review. Publishing, scheduling and push are Editor actions.';
+
+  @override
+  String get filterAllArticles => 'All';
+
+  @override
+  String get filterMine => 'Mine';
+
+  @override
+  String get colHeadline => 'HEADLINE';
+
+  @override
+  String get colCategory => 'CATEGORY';
+
+  @override
+  String get colLocale => 'LOCALE';
+
+  @override
+  String get colAuthor => 'AUTHOR';
+
+  @override
+  String get colUpdated => 'UPDATED';
+
+  @override
+  String get colStatus => 'STATUS';
+
+  @override
+  String get noEnglishTranslation => 'No English translation';
+
+  @override
+  String get translationBehind => 'English is behind';
+
+  @override
+  String get heroSet => 'hero set';
+
+  @override
+  String selectedCount(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get bulkPublish => 'Publish';
+
+  @override
+  String get bulkUnpublish => 'Unpublish';
+
+  @override
+  String get deselectAll => 'Deselect all';
+
+  @override
+  String get emptyArticles => 'No articles here yet';
+
+  @override
+  String get emptyArticlesBody =>
+      'Articles you create appear here. Use New article to start one.';
+
+  @override
+  String get overviewTitle => 'Overview';
+
+  @override
+  String get onAirNow => 'ON AIR NOW';
+
+  @override
+  String get publishedToday => 'PUBLISHED TODAY';
+
+  @override
+  String get awaitingReview => 'AWAITING REVIEW';
+
+  @override
+  String get failedIngests => 'FAILED INGESTS';
+
+  @override
+  String breakingFlagged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count breaking-flagged',
+      one: '$count breaking-flagged',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String concurrentViewers(String count) {
+    return '$count concurrent';
+  }
+
+  @override
+  String get allRenditionsHealthy => 'all healthy';
+
+  @override
+  String get renditionsDegraded => 'degraded';
+
+  @override
+  String get radioOnAir => 'Radio: on air';
+
+  @override
+  String get radioOffAir => 'Radio: off air';
+
+  @override
+  String get openLiveControl => 'Open live control';
+
+  @override
+  String get reviewFailures => 'Review failures';
+
+  @override
+  String editorHeadline(String locale) {
+    return 'HEADLINE · $locale';
+  }
+
+  @override
+  String editorExcerpt(String locale) {
+    return 'EXCERPT · $locale';
+  }
+
+  @override
+  String editorBody(String locale) {
+    return 'BODY · $locale';
+  }
+
+  @override
+  String get headlineHint => 'Aim for under 90 characters';
+
+  @override
+  String charCount(int used, int limit) {
+    return '$used / $limit';
+  }
+
+  @override
+  String wordCountAndRead(int words, int minutes) {
+    return '$words words · $minutes min read';
+  }
+
+  @override
+  String get sectionTranslation => 'TRANSLATION';
+
+  @override
+  String get sectionHeroImage => 'HERO IMAGE';
+
+  @override
+  String get sectionPublishing => 'PUBLISHING';
+
+  @override
+  String translationSource(String language) {
+    return '$language — source';
+  }
+
+  @override
+  String translationLinked(String language) {
+    return '$language — linked';
+  }
+
+  @override
+  String get translationCurrent => 'Current';
+
+  @override
+  String translationBehindBy(int count) {
+    return 'BEHIND BY $count EDITS';
+  }
+
+  @override
+  String get translationStaleNote =>
+      'Publishing the source version marks the translation stale in the app rather than hiding it. Clear the flag by re-confirming the translation.';
+
+  @override
+  String get reconfirmTranslation => 'Re-confirm translation';
+
+  @override
+  String get openSideBySide => 'Open side-by-side';
+
+  @override
+  String get altTextRequired => 'Alt text is required before publishing.';
+
+  @override
+  String get fieldCategory => 'Category';
+
+  @override
+  String get fieldReadTime => 'Read time';
+
+  @override
+  String get fieldSchedule => 'Schedule';
+
+  @override
+  String get fieldBreaking => 'Breaking news';
+
+  @override
+  String get breakingHint =>
+      'Adds the red flag in the app. Push is sent separately.';
+
+  @override
+  String autoReadTime(int minutes) {
+    return 'Auto · $minutes min';
+  }
+
+  @override
+  String get saveDraft => 'Save draft';
+
+  @override
+  String get publishNow => 'Publish now';
+
+  @override
+  String savedAt(String time) {
+    return 'Saved $time · autosave on';
+  }
+
+  @override
+  String get pushTitle => 'Push composer';
+
+  @override
+  String pushIrreversible(String count) {
+    return 'IRREVERSIBLE · $count DEVICES';
+  }
+
+  @override
+  String messageInLocale(String language) {
+    return 'MESSAGE · $language';
+  }
+
+  @override
+  String get required => 'REQUIRED';
+
+  @override
+  String get complete => 'Complete';
+
+  @override
+  String get bodyMissing => 'Body missing';
+
+  @override
+  String get fieldTitle => 'Title';
+
+  @override
+  String get fieldBody => 'Body';
+
+  @override
+  String truncationHint(int count) {
+    return 'Android truncates near $count characters on the lock screen';
+  }
+
+  @override
+  String get bodyRequiredHint =>
+      'Required — push payloads cannot be translated on the device';
+
+  @override
+  String get copySomaliBody => 'Copy Somali body as a starting point';
+
+  @override
+  String get sectionTarget => 'TARGET & TOPICS';
+
+  @override
+  String get fieldDeepLink => 'Deep link';
+
+  @override
+  String estimatedReach(String total) {
+    return 'Estimated reach $total devices';
+  }
+
+  @override
+  String get lockScreenPreview => 'Lock-screen preview';
+
+  @override
+  String get previewIncomplete => 'INCOMPLETE';
+
+  @override
+  String get sendBlocked => 'Send is blocked until both locales are complete';
+
+  @override
+  String get reviewAndSend => 'Review & send';
+
+  @override
+  String get saveAsDraft => 'Save as draft';
+
+  @override
+  String get sendHistory => 'SEND HISTORY';
+
+  @override
+  String confirmSendTitle(String count) {
+    return 'Send to $count devices?';
+  }
+
+  @override
+  String get confirmSendBody =>
+      'This cannot be recalled. Both language payloads will be delivered simultaneously.';
+
+  @override
+  String typeToConfirm(String word) {
+    return 'Type $word to confirm';
+  }
+
+  @override
+  String get confirmWord => 'SEND';
+
+  @override
+  String sentAsAudit(String name) {
+    return 'Sent as $name · recorded in the audit log';
+  }
+
+  @override
+  String get sendNow => 'Send now';
+
+  @override
+  String pushSent(String count) {
+    return 'Alert sent to $count devices';
+  }
+
+  @override
+  String get liveControlTitle => 'Live control';
+
+  @override
+  String get tvOnAir => 'TV ON AIR';
+
+  @override
+  String get tvOffAir => 'TV OFF AIR';
+
+  @override
+  String get sectionTvChannel => 'TV CHANNEL';
+
+  @override
+  String get sectionRadio => 'RADIO';
+
+  @override
+  String get sectionRenditions => 'RENDITIONS';
+
+  @override
+  String get sectionSlate => 'OFF-AIR SLATE MESSAGE';
+
+  @override
+  String get onAir => 'On air';
+
+  @override
+  String get switchingOffShowsSlate => 'Switching off shows the slate';
+
+  @override
+  String uptimeAndViewers(String uptime, String viewers) {
+    return 'Uptime $uptime · $viewers concurrent';
+  }
+
+  @override
+  String radioStatusLine(int bitrate, String listeners) {
+    return '$bitrate kbps AAC · $listeners listeners';
+  }
+
+  @override
+  String protectedRungNote(String rung) {
+    return '$rung is the rung most of the audience receives — it cannot be disabled';
+  }
+
+  @override
+  String get colRung => 'RUNG';
+
+  @override
+  String get colBitrate => 'BITRATE';
+
+  @override
+  String get colHealth => 'HEALTH';
+
+  @override
+  String get colEnabled => 'ENABLED';
+
+  @override
+  String get healthy => 'Healthy';
+
+  @override
+  String get degraded => 'Degraded';
+
+  @override
+  String get keyRung => 'KEY';
+
+  @override
+  String get slateBothRequired =>
+      'Both locales are required before the channel can be taken off air.';
+
+  @override
+  String get slatePreview => 'SLATE PREVIEW';
+
+  @override
+  String get categoriesTitle => 'Categories';
+
+  @override
+  String get newCategory => 'New category';
+
+  @override
+  String get slugPermanentNote =>
+      'The slug is permanent — it is baked into app deep links and push topics. Display names are per-locale and safe to change at any time.';
+
+  @override
+  String get untranslatedHiddenNote =>
+      'A category with no name in a locale is hidden from that locale\'s tab bar rather than shown untranslated.';
+
+  @override
+  String get colSlug => 'SLUG';
+
+  @override
+  String get colArticles => 'ARTICLES';
+
+  @override
+  String get colInApp => 'IN APP';
+
+  @override
+  String get notTranslated => 'Not translated';
+
+  @override
+  String get scheduleTitle => 'Schedule';
+
+  @override
+  String gapsAndOverlaps(int gaps, int overlaps) {
+    return '$gaps gap · $overlaps overlap';
+  }
+
+  @override
+  String get publishDay => 'Publish day';
+
+  @override
+  String get autoResolveOverlap => 'Auto-resolve overlap';
+
+  @override
+  String gapLabel(String from, String to) {
+    return 'GAP $from – $to · fills with continuity slate';
+  }
+
+  @override
+  String overlapLabel(int minutes) {
+    return 'OVERLAP · collides by $minutes min';
+  }
+
+  @override
+  String dayTotal(int hours, int minutes) {
+    return 'Day total ${hours}h ${minutes}m programmed';
+  }
+
+  @override
+  String get publishBlockedByOverlap =>
+      'Resolve the overlap before publishing the day.';
+
+  @override
+  String get colName => 'NAME';
+
+  @override
+  String get collapseSidebar => 'Collapse sidebar';
+
+  @override
+  String get expandSidebar => 'Expand sidebar';
+
+  @override
+  String get clearFilters => 'Clear filters';
+
+  @override
+  String filterCategory(String value) {
+    return 'Category: $value';
+  }
+
+  @override
+  String filterLocale(String value) {
+    return 'Locale: $value';
+  }
+
+  @override
+  String filterAuthor(String value) {
+    return 'Author: $value';
+  }
+
+  @override
+  String get filterAnyone => 'Anyone';
+
+  @override
+  String get bulkSchedule => 'Schedule…';
+
+  @override
+  String get bulkChangeCategory => 'Change category';
+
+  @override
+  String rowsRange(int from, int to, int total) {
+    return 'Rows $from–$to of $total';
+  }
+
+  @override
+  String perPage(int count) {
+    return '$count per page';
+  }
+
+  @override
+  String get rowActions => 'Row actions';
+
+  @override
+  String get languageNameSomali => 'Somali';
+
+  @override
+  String get languageNameEnglish => 'English';
+
+  @override
+  String missingTranslation(String language) {
+    return 'No $language translation';
+  }
+
+  @override
+  String translationBehindIn(String language) {
+    return '$language is behind';
+  }
+
+  @override
+  String get consoleLanguage => 'Console language';
+
+  @override
+  String get tagline => 'The Voice of the Puntland Government, Somalia';
+
+  @override
+  String get newAlert => 'New alert';
+
+  @override
+  String get todaysQueue => 'Today\'s publishing queue';
+
+  @override
+  String get openArticles => 'Open articles';
+
+  @override
+  String get recentPushes => 'Recent pushes';
+
+  @override
+  String deliveredOf(String delivered, String targeted) {
+    return 'Delivered $delivered / $targeted';
+  }
+
+  @override
+  String get colTime => 'TIME';
+
+  @override
+  String liveFor(String duration) {
+    return 'LIVE $duration';
+  }
+
+  @override
+  String get queueEmpty => 'Nothing scheduled for today';
+
+  @override
+  String get justNow => 'now';
+
+  @override
+  String get colUrl => 'URL';
 }

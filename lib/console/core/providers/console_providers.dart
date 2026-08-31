@@ -7,6 +7,36 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../admin_api/fixture_admin_api.dart';
 import '../admin_api/puntland_admin_api.dart';
 
+/// Whether the navigation rail is collapsed to icons.
+///
+/// The canvas shows both states: expanded on the overview, collapsed on the
+/// article list where the table wants the width. It is the operator's choice
+/// rather than a per-screen rule, so it persists.
+class RailCollapsed extends Notifier<bool> {
+  static const _key = 'console.rail.collapsed';
+
+  @override
+  bool build() => ref.watch(sharedPreferencesProvider).getBool(_key) ?? false;
+
+  Future<void> toggle() async {
+    state = !state;
+    await ref.read(sharedPreferencesProvider).setBool(_key, state);
+  }
+}
+
+final railCollapsedProvider = NotifierProvider<RailCollapsed, bool>(
+  RailCollapsed.new,
+);
+
+/// Wall-clock time, as a provider.
+///
+/// The push composer's lock-screen preview renders the current time, which is
+/// correct in the app and a time bomb in a golden — the frame would differ
+/// every minute. Overriding this in tests pins it.
+final consoleClockProvider = Provider<DateTime Function()>(
+  (ref) => DateTime.now,
+);
+
 /// The console's swap point, mirroring `puntlandApiProvider` in the app.
 /// Pointing at a real backend is a change here and nowhere else.
 final adminApiProvider = Provider<PuntlandAdminApi>((ref) => FixtureAdminApi());

@@ -8,16 +8,14 @@ library;
 
 import 'package:material_ui/material_ui.dart';
 
-/// Fixed brand strings — part of the lockup, not UI copy.
+/// Fixed brand strings.
+///
+/// Only the *name* lives here. The tagline is a descriptive phrase, not a
+/// proper noun, so it is an ordinary localised string like any other — see
+/// `tagline` in the ARB files. Rendering it in Somali inside an English UI
+/// was a misreading of the canvas, which simply happened to be drawn in
+/// Somali.
 abstract final class BrandLockup {
-  /// The institutional tagline beneath the wordmark.
-  ///
-  /// Deliberately **not** localised: the canvas renders it in Somali on the
-  /// English settings screen too, the same way a masthead keeps its motto in
-  /// the original language. Localise it only if the broadcaster asks.
-  static const tagline = 'Codka Dawladda Puntland, Soomaaliya';
-
-  /// Shown in the About row.
   static const name = 'Puntland TV';
 }
 

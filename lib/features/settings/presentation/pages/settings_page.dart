@@ -200,7 +200,7 @@ class _AboutCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  BrandLockup.tagline,
+                  l10n.tagline,
                   style: context.text.meta.copyWith(
                     color: context.scheme.onSurfaceVariant,
                   ),

@@ -1,6 +1,9 @@
 import '../../features/auth/domain/entities/console_user.dart';
 import 'dto/admin_article_dto.dart';
+import 'dto/broadcast_dto.dart';
 import 'dto/newsroom_summary_dto.dart';
+import 'dto/push_dto.dart';
+import 'dto/schedule_dto.dart';
 
 /// The console's write surface.
 ///
@@ -44,6 +47,32 @@ abstract interface class PuntlandAdminApi {
 
   /// Staff directory, for the users screen and author attribution.
   Future<List<ConsoleUser>> fetchStaff();
+
+  // ---- Operations ----
+
+  Future<BroadcastControlDto> fetchBroadcastControl();
+
+  Future<BroadcastControlDto> saveBroadcastControl(BroadcastControlDto value);
+
+  Future<DayScheduleDto> fetchSchedule(DateTime day);
+
+  Future<DayScheduleDto> saveSchedule(DayScheduleDto schedule);
+
+  Future<List<CategoryConfigDto>> fetchCategories();
+
+  Future<List<CategoryConfigDto>> saveCategories(
+    List<CategoryConfigDto> categories,
+  );
+
+  /// How many devices an alert would reach, split by language preference.
+  Future<PushReachDto> fetchPushReach(Set<String> topics);
+
+  Future<List<PushHistoryEntryDto>> fetchPushHistory();
+
+  /// Sends an alert. Refuses a draft that is not complete in every required
+  /// locale — the UI blocks this too, but the boundary should not depend on
+  /// the UI having done so.
+  Future<PushHistoryEntryDto> sendPush(PushDraftDto draft);
 }
 
 enum ArticleStatusFilter { all, draft, inReview, scheduled, published }

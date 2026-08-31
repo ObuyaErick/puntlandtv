@@ -9,6 +9,7 @@ import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../core/providers/console_providers.dart';
 import '../../domain/entities/console_user.dart';
+import 'pin_field.dart';
 
 /// The second-factor step.
 ///
@@ -17,18 +18,20 @@ import '../../domain/entities/console_user.dart';
 Future<void> showTwoFactorDialog(BuildContext context) {
   return showAdaptiveSheet<void>(
     context: context,
-    builder: (context) => const _TwoFactorForm(),
+    builder: (context) => const TwoFactorForm(),
   );
 }
 
-class _TwoFactorForm extends ConsumerStatefulWidget {
-  const _TwoFactorForm();
+/// Public so it can be rendered directly in goldens; the dialog is the
+/// normal way in.
+class TwoFactorForm extends ConsumerStatefulWidget {
+  const TwoFactorForm({super.key});
 
   @override
-  ConsumerState<_TwoFactorForm> createState() => _TwoFactorFormState();
+  ConsumerState<TwoFactorForm> createState() => TwoFactorFormState();
 }
 
-class _TwoFactorFormState extends ConsumerState<_TwoFactorForm> {
+class TwoFactorFormState extends ConsumerState<TwoFactorForm> {
   final _controller = TextEditingController();
   final _focus = FocusNode();
   var _submitting = false;
@@ -85,9 +88,32 @@ class _TwoFactorFormState extends ConsumerState<_TwoFactorForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.twoFactorTitle,
-            style: context.text.title.copyWith(color: context.scheme.primary),
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: context.colors.accentContainer,
+                  borderRadius: BorderRadius.circular(Radii.button),
+                ),
+                child: Icon(
+                  Icons.lock_outline_rounded,
+                  size: 19,
+                  color: context.colors.onAccentContainer,
+                ),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Text(
+                  l10n.twoFactorTitle,
+                  style: context.text.title.copyWith(
+                    color: context.scheme.primary,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: Spacing.chip),
           Text(
@@ -97,33 +123,18 @@ class _TwoFactorFormState extends ConsumerState<_TwoFactorForm> {
             ),
           ),
           const SizedBox(height: Spacing.gutter),
-          TextField(
+          PinField(
             controller: _controller,
-            focusNode: _focus,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            maxLength: 6,
-            onSubmitted: (_) => _verify(),
-            style: context.text.display.copyWith(
-              letterSpacing: 12,
-              color: context.scheme.primary,
-            ),
-            decoration: InputDecoration(
-              counterText: '',
-              filled: true,
-              fillColor: context.scheme.surfaceContainerLow,
-              errorText: pending?.errorCode == 'INVALID_CODE'
-                  ? l10n.errorInvalidCode
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(Radii.button),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(Radii.button),
-                borderSide: BorderSide(color: context.colors.link, width: 2),
-              ),
-            ),
+            hasError: pending?.errorCode == 'INVALID_CODE',
+            onCompleted: (_) => _verify(),
           ),
+          if (pending?.errorCode == 'INVALID_CODE') ...[
+            const SizedBox(height: Spacing.chip),
+            Text(
+              l10n.errorInvalidCode,
+              style: context.text.meta.copyWith(color: context.scheme.error),
+            ),
+          ],
           const SizedBox(height: Spacing.cardInternal),
           Row(
             children: [
@@ -151,20 +162,24 @@ class _TwoFactorFormState extends ConsumerState<_TwoFactorForm> {
             ],
           ),
           const SizedBox(height: Spacing.gutter),
+          Divider(height: Spacing.gutter, color: context.colors.outlineSubtle),
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(
-                onPressed: () {
-                  ref.read(authControllerProvider.notifier).cancel();
-                  Navigator.of(context).pop();
-                },
-                child: Text(l10n.cancel),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    ref.read(authControllerProvider.notifier).cancel();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(l10n.cancel),
+                ),
               ),
-              const SizedBox(width: Spacing.chip),
-              FilledButton(
-                onPressed: _submitting ? null : _verify,
-                child: Text(l10n.actionVerify),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton(
+                  onPressed: _submitting ? null : _verify,
+                  child: Text(l10n.actionVerify),
+                ),
               ),
             ],
           ),

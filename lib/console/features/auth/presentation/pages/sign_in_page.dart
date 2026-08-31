@@ -121,7 +121,7 @@ class _BrandPanel extends StatelessWidget {
         const PltvLockup(),
         const SizedBox(height: 6),
         Text(
-          BrandLockup.tagline,
+          l10n.tagline,
           style: context.text.meta.copyWith(
             color: context.scheme.onSurfaceVariant,
           ),

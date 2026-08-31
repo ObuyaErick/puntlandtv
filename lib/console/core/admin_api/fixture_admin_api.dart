@@ -3,7 +3,10 @@ import 'dart:math';
 import '../../../core/error/failure.dart';
 import '../../features/auth/domain/entities/console_user.dart';
 import 'dto/admin_article_dto.dart';
+import 'dto/broadcast_dto.dart';
 import 'dto/newsroom_summary_dto.dart';
+import 'dto/push_dto.dart';
+import 'dto/schedule_dto.dart';
 import 'puntland_admin_api.dart';
 
 /// [PuntlandAdminApi] over an in-memory store.
@@ -13,11 +16,19 @@ import 'puntland_admin_api.dart';
 /// to the reader app's fixtures so publishing in the console makes the story
 /// appear in the app.
 class FixtureAdminApi implements PuntlandAdminApi {
-  FixtureAdminApi({this.latency = const Duration(milliseconds: 350)}) {
+  FixtureAdminApi({
+    this.latency = const Duration(milliseconds: 350),
+    DateTime? now,
+  }) : _now = now ?? DateTime.now() {
     _seed();
   }
 
   final Duration latency;
+
+  /// Injectable clock. The article list renders absolute wall-clock times, so
+  /// seeding from a live `DateTime.now()` makes every golden shift by a minute
+  /// between runs. Tests pin it; production leaves it alone.
+  final DateTime _now;
 
   final _articles = <String, AdminArticleDto>{};
   final _random = Random();
@@ -173,8 +184,226 @@ class FixtureAdminApi implements PuntlandAdminApi {
   @override
   Future<List<ConsoleUser>> fetchStaff() => _respond(() => _staff);
 
+  // ---- Operations ----
+
+  late BroadcastControlDto _broadcast = BroadcastControlDto(
+    tvOnAir: true,
+    radioOnAir: true,
+    channelName: 'Puntland TV — main',
+    uptime: const Duration(hours: 2, minutes: 4),
+    concurrentViewers: 4182,
+    radioListeners: 1904,
+    renditions: const [
+      RenditionConfigDto(
+        rung: '1080p',
+        url: 'https://cdn.pltv.so/live/1080/index.m3u8',
+        bitrateKbps: 4500,
+        healthy: true,
+        enabled: true,
+      ),
+      RenditionConfigDto(
+        rung: '720p',
+        url: 'https://cdn.pltv.so/live/720/index.m3u8',
+        bitrateKbps: 2200,
+        healthy: true,
+        enabled: true,
+      ),
+      RenditionConfigDto(
+        rung: '240p',
+        url: 'https://cdn.pltv.so/live/240/index.m3u8',
+        bitrateKbps: 420,
+        healthy: true,
+        enabled: true,
+      ),
+    ],
+    // Seeded with only Somali, so the off-air toggle starts blocked and the
+    // screen has to explain why.
+    slate: const {
+      'so': SlateMessageDto(
+        title: 'Baahinta ma socoto hadda',
+        detail: 'Waxaan dib u bilaabeynaa 18:00',
+      ),
+    },
+  );
+
+  late List<CategoryConfigDto> _categories = const [
+    CategoryConfigDto(
+      slug: 'national',
+      names: {'so': 'Dalka', 'en': 'Puntland'},
+      articleCount: 96,
+      order: 0,
+    ),
+    CategoryConfigDto(
+      slug: 'infrastructure',
+      names: {'so': 'Horumarka', 'en': 'Infrastructure'},
+      articleCount: 23,
+      order: 1,
+    ),
+    CategoryConfigDto(
+      slug: 'world',
+      names: {'so': 'Caalamka', 'en': 'World'},
+      articleCount: 61,
+      order: 1,
+    ),
+    CategoryConfigDto(
+      slug: 'sport',
+      names: {'so': 'Ciyaaraha', 'en': 'Sport'},
+      articleCount: 44,
+      order: 2,
+    ),
+    CategoryConfigDto(
+      slug: 'economy',
+      names: {'so': 'Dhaqaalaha', 'en': 'Economy'},
+      articleCount: 38,
+      order: 3,
+    ),
+    // Untranslated on purpose: this is the row that demonstrates a category
+    // being hidden from the English tab bar.
+    CategoryConfigDto(
+      slug: 'education',
+      names: {'so': 'Waxbarasho'},
+      articleCount: 17,
+      order: 4,
+    ),
+  ];
+
+  late DayScheduleDto _schedule = _seedSchedule();
+
+  final _pushHistory = <PushHistoryEntryDto>[];
+
+  @override
+  Future<BroadcastControlDto> fetchBroadcastControl() =>
+      _respond(() => _broadcast);
+
+  @override
+  Future<BroadcastControlDto> saveBroadcastControl(BroadcastControlDto value) =>
+      _respond(() => _broadcast = value);
+
+  @override
+  Future<DayScheduleDto> fetchSchedule(DateTime day) =>
+      _respond(() => _schedule);
+
+  @override
+  Future<DayScheduleDto> saveSchedule(DayScheduleDto schedule) =>
+      _respond(() => _schedule = schedule);
+
+  @override
+  Future<List<CategoryConfigDto>> fetchCategories() =>
+      _respond(() => _categories);
+
+  @override
+  Future<List<CategoryConfigDto>> saveCategories(
+    List<CategoryConfigDto> categories,
+  ) => _respond(() => _categories = categories);
+
+  @override
+  Future<PushReachDto> fetchPushReach(Set<String> topics) => _respond(() {
+    // Reach scales with how many topics are targeted, and the split reflects
+    // the audience: Somali-preference devices are roughly two thirds.
+    final base = 12000 + topics.length * 9000;
+    return PushReachDto(
+      byLocale: {'so': (base * 0.68).round(), 'en': (base * 0.32).round()},
+    );
+  });
+
+  @override
+  Future<List<PushHistoryEntryDto>> fetchPushHistory() => _respond(() {
+    if (_pushHistory.isEmpty) {
+      _pushHistory.addAll([
+        PushHistoryEntryDto(
+          id: 'p-1',
+          title: 'Wadada weyn oo dib loo furay',
+          sentAt: _now.subtract(const Duration(minutes: 2)),
+          sentBy: 'A. Yuusuf',
+          topic: 'breaking',
+          delivered: 38410,
+          targeted: 38902,
+        ),
+        PushHistoryEntryDto(
+          id: 'p-2',
+          title: 'Jadwalka barnaamijyada toddobaadkan',
+          sentAt: _now.subtract(const Duration(hours: 4)),
+          sentBy: 'M. Cali',
+          topic: 'schedule',
+          delivered: 36004,
+          targeted: 38902,
+        ),
+      ]);
+    }
+    return List.unmodifiable(_pushHistory);
+  });
+
+  @override
+  Future<PushHistoryEntryDto> sendPush(PushDraftDto draft) => _respond(() {
+    // The UI blocks this, but the boundary must not rely on the UI having
+    // done so — a half-translated alert is the exact failure this whole
+    // feature exists to prevent.
+    if (!draft.canSend) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: 'PUSH_INCOMPLETE_LOCALES',
+      );
+    }
+
+    final entry = PushHistoryEntryDto(
+      id: 'p-${_pushHistory.length + 3}',
+      title: draft.message('so').title,
+      sentAt: DateTime.now(),
+      sentBy: 'A. Yuusuf',
+      topic: draft.topics.first,
+      delivered: 38902,
+      targeted: 38902,
+    );
+    _pushHistory.insert(0, entry);
+    return entry;
+  });
+
+  DayScheduleDto _seedSchedule() {
+    final day = DateTime(_now.year, _now.month, _now.day);
+    ScheduleSlotDto at(
+      String id,
+      String title,
+      int hour,
+      int minute,
+      int minutes, {
+      String? genre,
+      bool live = false,
+      bool repeat = false,
+    }) => ScheduleSlotDto(
+      id: id,
+      title: title,
+      startsAt: DateTime(day.year, day.month, day.day, hour, minute),
+      duration: Duration(minutes: minutes),
+      genre: genre,
+      isLive: live,
+      isRepeat: repeat,
+    );
+
+    // Seeded with one gap and one overlap, matching the canvas — the screen's
+    // job is to surface them, so the fixture has to contain them.
+    return DayScheduleDto(
+      day: day,
+      slots: [
+        at('s1', 'Barnaamijka Caruurta', 18, 0, 30, genre: 'Kids'),
+        at('s2', 'Suugaan iyo Dhaqan', 19, 0, 60, genre: 'Culture'),
+        at(
+          's3',
+          'Wararka Duhurnimo (repeat)',
+          20,
+          0,
+          60,
+          genre: 'News',
+          repeat: true,
+        ),
+        at('s4', 'Warbaahinta Fiidka', 21, 0, 60, genre: 'News', live: true),
+        at('s5', 'Dood Furan', 22, 0, 60, genre: 'Debate'),
+        at('s6', 'Wararka Habeenkii', 22, 30, 30, genre: 'News'),
+      ],
+    );
+  }
+
   void _seed() {
-    final now = DateTime.now();
+    final now = _now;
 
     void add({
       required String id,
@@ -186,14 +415,30 @@ class FixtureAdminApi implements PuntlandAdminApi {
       int minutesAgo = 0,
       bool breaking = false,
       DateTime? scheduledFor,
+      // Minutes by which the English version trails the Somali one. Non-zero
+      // seeds the "translation behind" state the editor has to surface.
+      int englishBehindMinutes = 0,
     }) {
+      final editedAt = now.subtract(Duration(minutes: minutesAgo));
       _articles[id] = AdminArticleDto(
         id: id,
         status: status,
         translations: {
-          'so': ArticleTranslationDto(title: so, bodyHtml: '<p>$so</p>'),
+          'so': ArticleTranslationDto(
+            title: so,
+            bodyHtml: '<p>$so</p>',
+            updatedAt: editedAt,
+            updatedBy: author.name,
+          ),
           if (en != null)
-            'en': ArticleTranslationDto(title: en, bodyHtml: '<p>$en</p>'),
+            'en': ArticleTranslationDto(
+              title: en,
+              bodyHtml: '<p>$en</p>',
+              updatedAt: editedAt.subtract(
+                Duration(minutes: englishBehindMinutes),
+              ),
+              updatedBy: author.name,
+            ),
         },
         categorySlug: category,
         authorId: author.id,
@@ -215,16 +460,17 @@ class FixtureAdminApi implements PuntlandAdminApi {
       status: ArticleStatus.scheduled,
       so: 'Saadaasha hawada: roobab culus gobolada bariga',
       en: 'Heavy rains forecast for the eastern regions',
-      category: 'puntland',
+      category: 'national',
       author: editor,
       minutesAgo: 12,
+      englishBehindMinutes: 90,
       scheduledFor: DateTime(now.year, now.month, now.day, 21, 30),
     );
     add(
       id: 'a-road',
       status: ArticleStatus.inReview,
       so: 'Wadada weyn oo dib loo furay',
-      category: 'puntland',
+      category: 'infrastructure',
       author: journalist,
       minutesAgo: 40,
       breaking: true,
@@ -251,7 +497,7 @@ class FixtureAdminApi implements PuntlandAdminApi {
       id: 'a-drainage',
       status: ArticleStatus.published,
       so: 'Shaqooyinka biyo-mareenka oo dhammaaday saddex degmo',
-      category: 'puntland',
+      category: 'national',
       author: editor,
       minutesAgo: 300,
     );

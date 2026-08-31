@@ -912,6 +912,936 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Too many attempts. Start again.'**
   String get errorLockedOut;
+
+  /// Console article list heading for editors.
+  ///
+  /// In en, this message translates to:
+  /// **'Articles'**
+  String get articlesTitle;
+
+  /// Console article list heading for journalists.
+  ///
+  /// In en, this message translates to:
+  /// **'My articles'**
+  String get myArticlesTitle;
+
+  /// Row count under a list heading.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} item} other{{count} items}}'**
+  String itemCount(int count);
+
+  /// Creates an article.
+  ///
+  /// In en, this message translates to:
+  /// **'New article'**
+  String get newArticle;
+
+  /// Creates an article, journalist wording.
+  ///
+  /// In en, this message translates to:
+  /// **'New draft'**
+  String get newDraft;
+
+  /// Explains the journalist role limits on the article list.
+  ///
+  /// In en, this message translates to:
+  /// **'You can draft and submit for review. Publishing, scheduling and push are Editor actions.'**
+  String get journalistNotice;
+
+  /// Filter chip: every article.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAllArticles;
+
+  /// Filter chip: the signed-in journalist own articles.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get filterMine;
+
+  /// Table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'HEADLINE'**
+  String get colHeadline;
+
+  /// Table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'CATEGORY'**
+  String get colCategory;
+
+  /// Table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCALE'**
+  String get colLocale;
+
+  /// Table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'AUTHOR'**
+  String get colAuthor;
+
+  /// Table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'UPDATED'**
+  String get colUpdated;
+
+  /// Table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'STATUS'**
+  String get colStatus;
+
+  /// Sub-label on a row that exists only in Somali.
+  ///
+  /// In en, this message translates to:
+  /// **'No English translation'**
+  String get noEnglishTranslation;
+
+  /// Sub-label on a row whose translation is older than the source.
+  ///
+  /// In en, this message translates to:
+  /// **'English is behind'**
+  String get translationBehind;
+
+  /// Sub-label fragment meaning the article has an image.
+  ///
+  /// In en, this message translates to:
+  /// **'hero set'**
+  String get heroSet;
+
+  /// Bulk action bar count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String selectedCount(int count);
+
+  /// Bulk action.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get bulkPublish;
+
+  /// Bulk action.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpublish'**
+  String get bulkUnpublish;
+
+  /// Clears the bulk selection.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get deselectAll;
+
+  /// Empty state for the article list.
+  ///
+  /// In en, this message translates to:
+  /// **'No articles here yet'**
+  String get emptyArticles;
+
+  /// Empty state body.
+  ///
+  /// In en, this message translates to:
+  /// **'Articles you create appear here. Use New article to start one.'**
+  String get emptyArticlesBody;
+
+  /// Console dashboard heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overviewTitle;
+
+  /// Overview panel heading. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'ON AIR NOW'**
+  String get onAirNow;
+
+  /// Overview stat heading. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'PUBLISHED TODAY'**
+  String get publishedToday;
+
+  /// Overview stat heading. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'AWAITING REVIEW'**
+  String get awaitingReview;
+
+  /// Overview stat heading. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'FAILED INGESTS'**
+  String get failedIngests;
+
+  /// Sub-label under the awaiting-review count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} breaking-flagged} other{{count} breaking-flagged}}'**
+  String breakingFlagged(int count);
+
+  /// Live viewer count on the overview. The number is formatted by AppNumberFormat before it gets here — intl has no Somali number data.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} concurrent'**
+  String concurrentViewers(String count);
+
+  /// Sub-label when every stream rendition is up.
+  ///
+  /// In en, this message translates to:
+  /// **'all healthy'**
+  String get allRenditionsHealthy;
+
+  /// Sub-label when a stream rendition is down.
+  ///
+  /// In en, this message translates to:
+  /// **'degraded'**
+  String get renditionsDegraded;
+
+  /// Radio status on the overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio: on air'**
+  String get radioOnAir;
+
+  /// Radio status on the overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio: off air'**
+  String get radioOffAir;
+
+  /// Action on the on-air panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open live control'**
+  String get openLiveControl;
+
+  /// Action on the failed-ingests tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Review failures'**
+  String get reviewFailures;
+
+  /// Editor field label with the language code. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'HEADLINE · {locale}'**
+  String editorHeadline(String locale);
+
+  /// Editor field label with the language code. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'EXCERPT · {locale}'**
+  String editorExcerpt(String locale);
+
+  /// Editor field label with the language code. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'BODY · {locale}'**
+  String editorBody(String locale);
+
+  /// Guidance under the headline field.
+  ///
+  /// In en, this message translates to:
+  /// **'Aim for under 90 characters'**
+  String get headlineHint;
+
+  /// Character counter.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} / {limit}'**
+  String charCount(int used, int limit);
+
+  /// Body editor footer.
+  ///
+  /// In en, this message translates to:
+  /// **'{words} words · {minutes} min read'**
+  String wordCountAndRead(int words, int minutes);
+
+  /// Editor side panel section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'TRANSLATION'**
+  String get sectionTranslation;
+
+  /// Editor side panel section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'HERO IMAGE'**
+  String get sectionHeroImage;
+
+  /// Editor side panel section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'PUBLISHING'**
+  String get sectionPublishing;
+
+  /// Row label for the language an article was written in.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} — source'**
+  String translationSource(String language);
+
+  /// Row label for a translation of the source.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} — linked'**
+  String translationLinked(String language);
+
+  /// Badge on an up-to-date translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Current'**
+  String get translationCurrent;
+
+  /// Badge on a stale translation. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'BEHIND BY {count} EDITS'**
+  String translationBehindBy(int count);
+
+  /// Explains what staleness does, in the editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing the source version marks the translation stale in the app rather than hiding it. Clear the flag by re-confirming the translation.'**
+  String get translationStaleNote;
+
+  /// Clears the stale flag.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-confirm translation'**
+  String get reconfirmTranslation;
+
+  /// Opens both languages together.
+  ///
+  /// In en, this message translates to:
+  /// **'Open side-by-side'**
+  String get openSideBySide;
+
+  /// Validation note on the hero image.
+  ///
+  /// In en, this message translates to:
+  /// **'Alt text is required before publishing.'**
+  String get altTextRequired;
+
+  /// Editor field.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get fieldCategory;
+
+  /// Editor field.
+  ///
+  /// In en, this message translates to:
+  /// **'Read time'**
+  String get fieldReadTime;
+
+  /// Editor field.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get fieldSchedule;
+
+  /// Editor toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Breaking news'**
+  String get fieldBreaking;
+
+  /// Explains what the breaking toggle does — and does not — do.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds the red flag in the app. Push is sent separately.'**
+  String get breakingHint;
+
+  /// Automatically computed read time.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto · {minutes} min'**
+  String autoReadTime(int minutes);
+
+  /// Editor action.
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft'**
+  String get saveDraft;
+
+  /// Editor action.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish now'**
+  String get publishNow;
+
+  /// Editor header status.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {time} · autosave on'**
+  String savedAt(String time);
+
+  /// Console screen heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Push composer'**
+  String get pushTitle;
+
+  /// Warning badge on the push composer. Uppercase. Pre-formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'IRREVERSIBLE · {count} DEVICES'**
+  String pushIrreversible(String count);
+
+  /// Push composer section per language. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'MESSAGE · {language}'**
+  String messageInLocale(String language);
+
+  /// Badge on a mandatory section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'REQUIRED'**
+  String get required;
+
+  /// Badge on a finished section.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get complete;
+
+  /// Badge on an unfinished push message.
+  ///
+  /// In en, this message translates to:
+  /// **'Body missing'**
+  String get bodyMissing;
+
+  /// Push message field.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get fieldTitle;
+
+  /// Push message field.
+  ///
+  /// In en, this message translates to:
+  /// **'Body'**
+  String get fieldBody;
+
+  /// Guidance under the push title field.
+  ///
+  /// In en, this message translates to:
+  /// **'Android truncates near {count} characters on the lock screen'**
+  String truncationHint(int count);
+
+  /// Explains why every locale needs its own body.
+  ///
+  /// In en, this message translates to:
+  /// **'Required — push payloads cannot be translated on the device'**
+  String get bodyRequiredHint;
+
+  /// Convenience action in the push composer.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Somali body as a starting point'**
+  String get copySomaliBody;
+
+  /// Push composer section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'TARGET & TOPICS'**
+  String get sectionTarget;
+
+  /// Push composer field.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep link'**
+  String get fieldDeepLink;
+
+  /// Reach line in the push composer. Pre-formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated reach {total} devices'**
+  String estimatedReach(String total);
+
+  /// Preview section heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock-screen preview'**
+  String get lockScreenPreview;
+
+  /// Badge on a preview whose payload is unfinished. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'INCOMPLETE'**
+  String get previewIncomplete;
+
+  /// Explains why the send button is disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Send is blocked until both locales are complete'**
+  String get sendBlocked;
+
+  /// Opens the send confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Review & send'**
+  String get reviewAndSend;
+
+  /// Saves a push without sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as draft'**
+  String get saveAsDraft;
+
+  /// Push composer section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'SEND HISTORY'**
+  String get sendHistory;
+
+  /// Send confirmation heading. Pre-formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {count} devices?'**
+  String confirmSendTitle(String count);
+
+  /// Send confirmation warning.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be recalled. Both language payloads will be delivered simultaneously.'**
+  String get confirmSendBody;
+
+  /// Instruction for the type-to-confirm field.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {word} to confirm'**
+  String typeToConfirm(String word);
+
+  /// The word a user types to confirm sending. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'SEND'**
+  String get confirmWord;
+
+  /// Attribution note on the send confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent as {name} · recorded in the audit log'**
+  String sentAsAudit(String name);
+
+  /// Confirms sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Send now'**
+  String get sendNow;
+
+  /// Toast after a successful send. Pre-formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert sent to {count} devices'**
+  String pushSent(String count);
+
+  /// Console screen heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Live control'**
+  String get liveControlTitle;
+
+  /// Badge when the channel is transmitting. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'TV ON AIR'**
+  String get tvOnAir;
+
+  /// Badge when the channel is down. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'TV OFF AIR'**
+  String get tvOffAir;
+
+  /// Live control section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'TV CHANNEL'**
+  String get sectionTvChannel;
+
+  /// Live control section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'RADIO'**
+  String get sectionRadio;
+
+  /// Live control section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'RENDITIONS'**
+  String get sectionRenditions;
+
+  /// Live control section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'OFF-AIR SLATE MESSAGE'**
+  String get sectionSlate;
+
+  /// Toggle label for transmitting.
+  ///
+  /// In en, this message translates to:
+  /// **'On air'**
+  String get onAir;
+
+  /// Explains what the on-air toggle does.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching off shows the slate'**
+  String get switchingOffShowsSlate;
+
+  /// Channel status line. Counts arrive pre-formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Uptime {uptime} · {viewers} concurrent'**
+  String uptimeAndViewers(String uptime, String viewers);
+
+  /// Radio status line. Listener count arrives pre-formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{bitrate} kbps AAC · {listeners} listeners'**
+  String radioStatusLine(int bitrate, String listeners);
+
+  /// Explains why one rendition is locked on.
+  ///
+  /// In en, this message translates to:
+  /// **'{rung} is the rung most of the audience receives — it cannot be disabled'**
+  String protectedRungNote(String rung);
+
+  /// Renditions table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'RUNG'**
+  String get colRung;
+
+  /// Renditions table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'BITRATE'**
+  String get colBitrate;
+
+  /// Renditions table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'HEALTH'**
+  String get colHealth;
+
+  /// Renditions table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'ENABLED'**
+  String get colEnabled;
+
+  /// Rendition health value.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthy'**
+  String get healthy;
+
+  /// Rendition health value.
+  ///
+  /// In en, this message translates to:
+  /// **'Degraded'**
+  String get degraded;
+
+  /// Badge on the protected rendition. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'KEY'**
+  String get keyRung;
+
+  /// Explains the off-air gate.
+  ///
+  /// In en, this message translates to:
+  /// **'Both locales are required before the channel can be taken off air.'**
+  String get slateBothRequired;
+
+  /// Heading above the rendered slate. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'SLATE PREVIEW'**
+  String get slatePreview;
+
+  /// Console screen heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categoriesTitle;
+
+  /// Creates a category.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get newCategory;
+
+  /// Explains the slug versus name distinction.
+  ///
+  /// In en, this message translates to:
+  /// **'The slug is permanent — it is baked into app deep links and push topics. Display names are per-locale and safe to change at any time.'**
+  String get slugPermanentNote;
+
+  /// Explains what an untranslated category does.
+  ///
+  /// In en, this message translates to:
+  /// **'A category with no name in a locale is hidden from that locale\'s tab bar rather than shown untranslated.'**
+  String get untranslatedHiddenNote;
+
+  /// Categories column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'SLUG'**
+  String get colSlug;
+
+  /// Categories column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'ARTICLES'**
+  String get colArticles;
+
+  /// Categories column showing which locales display it. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'IN APP'**
+  String get colInApp;
+
+  /// Value in a category name column with no translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Not translated'**
+  String get notTranslated;
+
+  /// Console screen heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get scheduleTitle;
+
+  /// Schedule issue summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{gaps} gap · {overlaps} overlap'**
+  String gapsAndOverlaps(int gaps, int overlaps);
+
+  /// Publishes the day schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish day'**
+  String get publishDay;
+
+  /// Pushes colliding slots later.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-resolve overlap'**
+  String get autoResolveOverlap;
+
+  /// Marker on a schedule gap.
+  ///
+  /// In en, this message translates to:
+  /// **'GAP {from} – {to} · fills with continuity slate'**
+  String gapLabel(String from, String to);
+
+  /// Marker on a schedule overlap.
+  ///
+  /// In en, this message translates to:
+  /// **'OVERLAP · collides by {minutes} min'**
+  String overlapLabel(int minutes);
+
+  /// Schedule footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Day total {hours}h {minutes}m programmed'**
+  String dayTotal(int hours, int minutes);
+
+  /// Explains why publishing is blocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve the overlap before publishing the day.'**
+  String get publishBlockedByOverlap;
+
+  /// Categories table column for the display name. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'NAME'**
+  String get colName;
+
+  /// Tooltip on the rail collapse control.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse sidebar'**
+  String get collapseSidebar;
+
+  /// Tooltip on the rail expand control.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand sidebar'**
+  String get expandSidebar;
+
+  /// Resets every article list filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get clearFilters;
+
+  /// Category filter button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Category: {value}'**
+  String filterCategory(String value);
+
+  /// Locale filter button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Locale: {value}'**
+  String filterLocale(String value);
+
+  /// Author filter button label.
+  ///
+  /// In en, this message translates to:
+  /// **'Author: {value}'**
+  String filterAuthor(String value);
+
+  /// Author filter value meaning no author filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone'**
+  String get filterAnyone;
+
+  /// Bulk action opening the scheduling dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule…'**
+  String get bulkSchedule;
+
+  /// Bulk action.
+  ///
+  /// In en, this message translates to:
+  /// **'Change category'**
+  String get bulkChangeCategory;
+
+  /// Pagination summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows {from}–{to} of {total}'**
+  String rowsRange(int from, int to, int total);
+
+  /// Page size selector.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} per page'**
+  String perPage(int count);
+
+  /// Tooltip on the per-row overflow button.
+  ///
+  /// In en, this message translates to:
+  /// **'Row actions'**
+  String get rowActions;
+
+  /// Name of the Somali language, in the active UI language. Distinct from the picker, which uses endonyms.
+  ///
+  /// In en, this message translates to:
+  /// **'Somali'**
+  String get languageNameSomali;
+
+  /// Name of the English language, in the active UI language.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageNameEnglish;
+
+  /// Sub-label on an article missing a required translation.
+  ///
+  /// In en, this message translates to:
+  /// **'No {language} translation'**
+  String missingTranslation(String language);
+
+  /// Sub-label on an article whose translation is older than the source.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} is behind'**
+  String translationBehindIn(String language);
+
+  /// Tooltip on the console language switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Console language'**
+  String get consoleLanguage;
+
+  /// Institutional tagline under the wordmark. A descriptive phrase, so it is translated — unlike the name "Puntland TV", which is a proper noun. Confirm the English wording with the broadcaster.
+  ///
+  /// In en, this message translates to:
+  /// **'The Voice of the Puntland Government, Somalia'**
+  String get tagline;
+
+  /// Overview action that opens the push composer.
+  ///
+  /// In en, this message translates to:
+  /// **'New alert'**
+  String get newAlert;
+
+  /// Overview panel heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s publishing queue'**
+  String get todaysQueue;
+
+  /// Link from the queue panel to the article list.
+  ///
+  /// In en, this message translates to:
+  /// **'Open articles'**
+  String get openArticles;
+
+  /// Overview panel heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent pushes'**
+  String get recentPushes;
+
+  /// Delivery result on a sent alert. Both numbers arrive pre-formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered {delivered} / {targeted}'**
+  String deliveredOf(String delivered, String targeted);
+
+  /// Queue table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'TIME'**
+  String get colTime;
+
+  /// On-air pill showing how long the channel has been up. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE {duration}'**
+  String liveFor(String duration);
+
+  /// Empty state for the publishing queue.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing scheduled for today'**
+  String get queueEmpty;
+
+  /// Relative time for something that has just happened.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get justNow;
+
+  /// Renditions table column for the manifest URL. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'URL'**
+  String get colUrl;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

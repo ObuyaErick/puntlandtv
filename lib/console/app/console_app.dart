@@ -10,7 +10,13 @@ import '../../core/theme/tokens.dart';
 import '../../features/settings/domain/entities/app_preferences.dart';
 import '../core/providers/console_providers.dart';
 import '../features/auth/domain/entities/console_user.dart';
+import '../features/articles/presentation/pages/article_list_page.dart';
 import '../features/auth/presentation/pages/sign_in_page.dart';
+import '../features/operations/presentation/pages/categories_page.dart';
+import '../features/operations/presentation/pages/live_control_page.dart';
+import '../features/operations/presentation/pages/push_composer_page.dart';
+import '../features/operations/presentation/pages/schedule_page.dart';
+import '../features/overview/presentation/pages/overview_page.dart';
 import 'console_shell.dart';
 
 /// The content console.
@@ -83,12 +89,23 @@ class _ConsoleRootState extends ConsumerState<ConsoleRoot> {
     return ConsoleShell(
       currentRoute: _route,
       onNavigate: (route) => setState(() => _route = route),
-      child: _ConsolePlaceholder(route: _route),
+      child: _routeBody(_route),
     );
   }
 }
 
-/// Stands in until each screen lands in Phases 4–6.
+/// Screens that exist; everything else falls through to the placeholder.
+Widget _routeBody(String route) => switch (route) {
+  '/overview' => const OverviewPage(),
+  '/articles' => const ArticleListPage(),
+  '/live' => const LiveControlPage(),
+  '/schedule' => const SchedulePage(),
+  '/push' => const PushComposerPage(),
+  '/categories' => const CategoriesPage(),
+  _ => _ConsolePlaceholder(route: route),
+};
+
+/// Stands in until each screen lands in Phases 5–6.
 ///
 /// Deliberately explicit about what is missing rather than rendering an empty
 /// pane that looks like a bug.

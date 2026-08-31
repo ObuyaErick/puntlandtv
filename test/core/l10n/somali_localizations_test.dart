@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:puntland/core/l10n/app_date_format.dart';
+import 'package:puntland/core/l10n/app_number_format.dart';
 import 'package:puntland/core/l10n/l10n.dart';
+import 'package:puntland/core/theme/tokens.dart';
 import 'package:puntland/core/l10n/so_material_localizations.dart';
 
 import '../../helpers/pump_app.dart';
@@ -73,6 +75,58 @@ void main() {
         );
         expect(l10n.watchLive, expected);
       }
+    });
+  });
+
+  group('AppNumberFormat', () {
+    // The same gap as dates: `intl` has no Somali number data, so grouping
+    // has to be done by hand rather than by asking `NumberFormat` for a
+    // locale it does not have.
+    test('groups thousands in Somali without intl', () {
+      expect(AppNumberFormat.decimal(38410, 'so'), '38,410');
+      expect(AppNumberFormat.decimal(4182, 'so'), '4,182');
+      expect(AppNumberFormat.decimal(999, 'so'), '999');
+      expect(AppNumberFormat.decimal(1000000, 'so'), '1,000,000');
+    });
+
+    test('delegates to intl for English', () {
+      expect(AppNumberFormat.decimal(38410, 'en'), '38,410');
+    });
+
+    test('handles zero and negatives', () {
+      expect(AppNumberFormat.decimal(0, 'so'), '0');
+      expect(AppNumberFormat.decimal(-1500, 'so'), '-1,500');
+    });
+  });
+
+  group('brand strings', () {
+    // The name is a proper noun and stays put; the tagline is a descriptive
+    // phrase and follows the active locale. Getting this backwards — because
+    // the design canvas happens to be drawn in Somali — leaves an English UI
+    // with a Somali line under the logo.
+    testWidgets('the tagline follows the active locale', (tester) async {
+      final taglines = <String, String>{};
+
+      for (final locale in [const Locale('en', 'US'), const Locale('so')]) {
+        await pumpApp(
+          tester,
+          Builder(
+            builder: (context) {
+              taglines[locale.languageCode] = context.l10n.tagline;
+              return const SizedBox();
+            },
+          ),
+          locale: locale,
+        );
+      }
+
+      expect(taglines['en'], 'The Voice of the Puntland Government, Somalia');
+      expect(taglines['so'], 'Codka Dawladda Puntland, Soomaaliya');
+      expect(taglines['en'], isNot(taglines['so']));
+    });
+
+    test('the brand name is the same in every locale', () {
+      expect(BrandLockup.name, 'Puntland TV');
     });
   });
 

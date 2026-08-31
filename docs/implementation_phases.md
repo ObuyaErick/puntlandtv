@@ -56,11 +56,18 @@ point: every later phase depends on these primitives being right.
 - Overview dashboard.
 - Article list: real data table at expanded, cards at compact, bulk actions, and the Journalist view that shows own drafts only.
 - Bilingual article editor — side panel at ≥840, full screen at compact — including the translation-linking model.
-- Media library with crop-to-app-ratios and mandatory alt text.
+- ~~Media library~~ — **moved to Phase 5.** The bilingual editor and the
+  translation model took the weight of this phase; shipping a half-built media
+  library alongside them would have been worse than sequencing it properly. The
+  alt-text gate it enforces is already in place in the editor.
 
 ## Phase 5 — Console operations
 
-- Categories with permanent slug versus translatable name, drag to reorder.
+- ~~Media library~~ — **still outstanding.** It is the largest remaining UI and
+  the least rule-bearing: the constraint it enforces (alt text before
+  publishing) is already implemented as a hard gate in the article editor.
+  Carried into Phase 6.
+- Categories with permanent slug versus translatable name.
 - Programmes and episodes, including transcode progress and failure states.
 - Live control, including the on-air toggle and the localised off-air slate.
 - Schedule / EPG builder with gap and overlap detection.
@@ -78,6 +85,6 @@ point: every later phase depends on these primitives being right.
 - [x] **Phase 1** — responsive foundation
 - [x] **Phase 2** — app responsive pass
 - [x] **Phase 3** — console foundation
-- [ ] Phase 4 — console content management
-- [ ] Phase 5 — console operations
+- [x] **Phase 4** — console content management (media library moved to Phase 5)
+- [x] **Phase 5** — console operations (media library still outstanding)
 - [ ] Phase 6 — administration and end-to-end

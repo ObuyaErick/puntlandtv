@@ -8,6 +8,7 @@ import 'package:puntland/console/core/providers/console_providers.dart';
 import 'package:puntland/console/core/widgets/status_badge.dart';
 import 'package:puntland/console/features/auth/domain/entities/console_user.dart';
 import 'package:puntland/console/features/auth/presentation/pages/sign_in_page.dart';
+import 'package:puntland/console/features/auth/presentation/widgets/two_factor_dialog.dart';
 import 'package:puntland/core/providers/preferences_providers.dart';
 import 'package:puntland/core/theme/theme_context.dart';
 import 'package:puntland/core/theme/tokens.dart';
@@ -90,6 +91,26 @@ void main() {
     }
   });
 
+  testWidgets('console · two-factor step · so', (tester) async {
+    await pumpGolden(
+      tester,
+      const Center(
+        child: SizedBox(width: 460, child: Card(child: TwoFactorForm())),
+      ),
+      width: 900,
+      height: 560,
+      locale: const Locale('so'),
+      overrides: [
+        ...await baseOverrides(),
+        authControllerProvider.overrideWith(_AwaitingCode.new),
+      ],
+    );
+    await expectLater(
+      find.byType(TwoFactorForm),
+      matchesGoldenFile('../goldens/console_two_factor_so.png'),
+    );
+  });
+
   testWidgets('console · status badges', (tester) async {
     await pumpGolden(
       tester,
@@ -139,4 +160,10 @@ class _SignedInAuth extends AuthController {
       role: role,
     ),
   );
+}
+
+/// Sits on the second-factor step, so the PIN boxes render.
+class _AwaitingCode extends AuthController {
+  @override
+  AuthState build() => const AwaitingSecondFactor(email: 'a.yuusuf@pltv.so');
 }
