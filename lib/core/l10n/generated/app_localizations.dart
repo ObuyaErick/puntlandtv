@@ -678,6 +678,240 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Choose a headline from the list and it opens here.'**
   String get selectArticleBody;
+
+  /// Article status badge. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'DRAFT'**
+  String get statusDraft;
+
+  /// Article status badge. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'IN REVIEW'**
+  String get statusInReview;
+
+  /// Article status badge. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'SCHEDULED'**
+  String get statusScheduled;
+
+  /// Article status badge. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'PUBLISHED'**
+  String get statusPublished;
+
+  /// Status badge for a failed ingest or publish. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'FAILED'**
+  String get statusFailed;
+
+  /// Status badge while an episode encodes. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'TRANSCODING'**
+  String get statusTranscoding;
+
+  /// Name of the internal console.
+  ///
+  /// In en, this message translates to:
+  /// **'Content console'**
+  String get consoleTitle;
+
+  /// Sign-in page description of the console.
+  ///
+  /// In en, this message translates to:
+  /// **'Newsroom and operations tooling for the Puntland TV app — articles, programmes, live streams and alerts.'**
+  String get consoleSubtitle;
+
+  /// Footer notice on the console sign-in page.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal system. Access is logged.'**
+  String get consoleInternalNotice;
+
+  /// Console navigation: dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get navOverview;
+
+  /// Console navigation: article list.
+  ///
+  /// In en, this message translates to:
+  /// **'Articles'**
+  String get navArticles;
+
+  /// Console navigation: programmes and episodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Programs'**
+  String get navProgramsConsole;
+
+  /// Console navigation: broadcast control.
+  ///
+  /// In en, this message translates to:
+  /// **'Live control'**
+  String get navLiveControl;
+
+  /// Console navigation: EPG builder.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get navSchedule;
+
+  /// Console navigation: push composer.
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
+  String get navPush;
+
+  /// Console navigation: media library.
+  ///
+  /// In en, this message translates to:
+  /// **'Media'**
+  String get navMedia;
+
+  /// Console navigation: taxonomy.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get navCategories;
+
+  /// Console navigation: staff accounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Users & roles'**
+  String get navUsers;
+
+  /// Console navigation: flags and build settings.
+  ///
+  /// In en, this message translates to:
+  /// **'App config'**
+  String get navAppConfig;
+
+  /// Staff role. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'JOURNALIST'**
+  String get roleJournalist;
+
+  /// Staff role. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'EDITOR'**
+  String get roleEditor;
+
+  /// Staff role. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'OPERATIONS'**
+  String get roleOperations;
+
+  /// Staff role. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'ADMIN'**
+  String get roleAdmin;
+
+  /// Heading of the sign-in card.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInTitle;
+
+  /// Subtitle of the sign-in card.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your PLTV staff account.'**
+  String get signInSubtitle;
+
+  /// Email field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get fieldEmail;
+
+  /// Password field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get fieldPassword;
+
+  /// Submits the sign-in form.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get actionContinue;
+
+  /// Link to password recovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password'**
+  String get forgotPassword;
+
+  /// Ends the console session.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// Heading of the two-factor step.
+  ///
+  /// In en, this message translates to:
+  /// **'Second verification'**
+  String get twoFactorTitle;
+
+  /// Instruction for the two-factor step.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code from the authenticator app on your phone.'**
+  String get twoFactorBody;
+
+  /// Resend action with its cooldown timer.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code ({seconds})'**
+  String resendCode(String seconds);
+
+  /// How many verification attempts have been used.
+  ///
+  /// In en, this message translates to:
+  /// **'Attempt {used} / {total}'**
+  String attemptCount(int used, int total);
+
+  /// Submits the verification code.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get actionVerify;
+
+  /// Sign-in failure. Deliberately does not say which half was wrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That email or password was not recognised.'**
+  String get errorInvalidCredentials;
+
+  /// Validation message for an empty password.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password.'**
+  String get errorPasswordRequired;
+
+  /// Two-factor failure.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not correct.'**
+  String get errorInvalidCode;
+
+  /// Shown after the final failed verification attempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Start again.'**
+  String get errorLockedOut;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -28,7 +28,7 @@ class Rule {
   /// Printed on violation, so the failure teaches rather than just blocks.
   final String because;
 
-  /// Paths exempted, with the reason recorded at the definition site.
+  /// Path fragments exempted, with the reason recorded at the definition site.
   final List<String> exempt;
 }
 
@@ -85,8 +85,30 @@ const rules = <Rule>[
     because: 'Repositories and mappers must not reach into widgets.',
   ),
   Rule(
+    name: 'The reader app cannot reach the console',
+    appliesTo: ['lib/features/', 'lib/app/'],
+    forbidden: ['console/'],
+    because:
+        'The console holds write operations — publishing, taking the '
+        'channel off air, sending a push to every phone in the region. The '
+        'reader app must not be able to link them, and that is a compile-time '
+        'property only while this rule holds.',
+  ),
+  Rule(
+    name: 'The console owns no reader-app screens',
+    appliesTo: ['lib/console/'],
+    forbidden: ['features/news/presentation/', 'features/live/presentation/'],
+    because:
+        'Sharing `core/` is intended; reaching into the reader app\'s '
+        'screens is how two products quietly become one tangled one.',
+  ),
+  Rule(
     name: 'Presentation never touches DTOs or HTTP',
     appliesTo: ['/presentation/'],
+    // The console's own screens legitimately work with admin DTOs: its editor
+    // *is* the thing that writes them, so there is no domain layer to map
+    // through and inventing one would add a translation with one caller.
+    exempt: ['lib/console/'],
     forbidden: [
       'package:dio/',
       '/api/dto/',
@@ -124,7 +146,7 @@ void main() {
 
     for (final rule in rules) {
       if (!rule.appliesTo.any(path.contains)) continue;
-      if (rule.exempt.any(path.endsWith)) continue;
+      if (rule.exempt.any(path.contains)) continue;
 
       for (final import in imports) {
         for (final bad in rule.forbidden) {

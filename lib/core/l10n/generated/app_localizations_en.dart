@@ -372,4 +372,128 @@ class AppL10nEn extends AppL10n {
   @override
   String get selectArticleBody =>
       'Choose a headline from the list and it opens here.';
+
+  @override
+  String get statusDraft => 'DRAFT';
+
+  @override
+  String get statusInReview => 'IN REVIEW';
+
+  @override
+  String get statusScheduled => 'SCHEDULED';
+
+  @override
+  String get statusPublished => 'PUBLISHED';
+
+  @override
+  String get statusFailed => 'FAILED';
+
+  @override
+  String get statusTranscoding => 'TRANSCODING';
+
+  @override
+  String get consoleTitle => 'Content console';
+
+  @override
+  String get consoleSubtitle =>
+      'Newsroom and operations tooling for the Puntland TV app — articles, programmes, live streams and alerts.';
+
+  @override
+  String get consoleInternalNotice => 'Internal system. Access is logged.';
+
+  @override
+  String get navOverview => 'Overview';
+
+  @override
+  String get navArticles => 'Articles';
+
+  @override
+  String get navProgramsConsole => 'Programs';
+
+  @override
+  String get navLiveControl => 'Live control';
+
+  @override
+  String get navSchedule => 'Schedule';
+
+  @override
+  String get navPush => 'Push';
+
+  @override
+  String get navMedia => 'Media';
+
+  @override
+  String get navCategories => 'Categories';
+
+  @override
+  String get navUsers => 'Users & roles';
+
+  @override
+  String get navAppConfig => 'App config';
+
+  @override
+  String get roleJournalist => 'JOURNALIST';
+
+  @override
+  String get roleEditor => 'EDITOR';
+
+  @override
+  String get roleOperations => 'OPERATIONS';
+
+  @override
+  String get roleAdmin => 'ADMIN';
+
+  @override
+  String get signInTitle => 'Sign in';
+
+  @override
+  String get signInSubtitle => 'Use your PLTV staff account.';
+
+  @override
+  String get fieldEmail => 'Email';
+
+  @override
+  String get fieldPassword => 'Password';
+
+  @override
+  String get actionContinue => 'Continue';
+
+  @override
+  String get forgotPassword => 'Forgot password';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String get twoFactorTitle => 'Second verification';
+
+  @override
+  String get twoFactorBody =>
+      'Enter the 6-digit code from the authenticator app on your phone.';
+
+  @override
+  String resendCode(String seconds) {
+    return 'Resend code ($seconds)';
+  }
+
+  @override
+  String attemptCount(int used, int total) {
+    return 'Attempt $used / $total';
+  }
+
+  @override
+  String get actionVerify => 'Verify';
+
+  @override
+  String get errorInvalidCredentials =>
+      'That email or password was not recognised.';
+
+  @override
+  String get errorPasswordRequired => 'Enter your password.';
+
+  @override
+  String get errorInvalidCode => 'That code is not correct.';
+
+  @override
+  String get errorLockedOut => 'Too many attempts. Start again.';
 }

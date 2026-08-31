@@ -375,4 +375,129 @@ class AppL10nSo extends AppL10n {
   @override
   String get selectArticleBody =>
       'Ka dooro cinwaan liiska, halkanna ayuu ka furmayaa.';
+
+  @override
+  String get statusDraft => 'QABYO';
+
+  @override
+  String get statusInReview => 'DIB U EEGIS';
+
+  @override
+  String get statusScheduled => 'LA JADWALEEYAY';
+
+  @override
+  String get statusPublished => 'LA DAABACAY';
+
+  @override
+  String get statusFailed => 'WAA FASHILMAY';
+
+  @override
+  String get statusTranscoding => 'WAA LA BEDDELAYAA';
+
+  @override
+  String get consoleTitle => 'Xarunta maamulka';
+
+  @override
+  String get consoleSubtitle =>
+      'Qalabka qolka wararka iyo hawlgallada ee abka Puntland TV — maqaallada, barnaamijyada, baahinta tooska ah iyo digniinaha.';
+
+  @override
+  String get consoleInternalNotice =>
+      'Nidaam gudaha ah. Gelitaanka waa la diiwaangeliyaa.';
+
+  @override
+  String get navOverview => 'Guudmar';
+
+  @override
+  String get navArticles => 'Maqaallada';
+
+  @override
+  String get navProgramsConsole => 'Barnaamijyada';
+
+  @override
+  String get navLiveControl => 'Maamulka tooska';
+
+  @override
+  String get navSchedule => 'Jadwalka';
+
+  @override
+  String get navPush => 'Digniinaha';
+
+  @override
+  String get navMedia => 'Warbaahinta';
+
+  @override
+  String get navCategories => 'Qaybaha';
+
+  @override
+  String get navUsers => 'Isticmaalayaasha';
+
+  @override
+  String get navAppConfig => 'Goobaha abka';
+
+  @override
+  String get roleJournalist => 'WERIYE';
+
+  @override
+  String get roleEditor => 'TIFAFTIRE';
+
+  @override
+  String get roleOperations => 'HAWLGALLO';
+
+  @override
+  String get roleAdmin => 'MAAMULE';
+
+  @override
+  String get signInTitle => 'Gal';
+
+  @override
+  String get signInSubtitle => 'Isticmaal akoonkaaga shaqaalaha PLTV.';
+
+  @override
+  String get fieldEmail => 'Iimayl';
+
+  @override
+  String get fieldPassword => 'Furaha sirta ah';
+
+  @override
+  String get actionContinue => 'Sii wad';
+
+  @override
+  String get forgotPassword => 'Ma illowday furaha?';
+
+  @override
+  String get signOut => 'Ka bax';
+
+  @override
+  String get twoFactorTitle => 'Xaqiijinta labaad';
+
+  @override
+  String get twoFactorBody =>
+      'Geli koodhka 6-god ee ka yimid abka xaqiijinta ee taleefankaaga.';
+
+  @override
+  String resendCode(String seconds) {
+    return 'Dib u dir koodhka ($seconds)';
+  }
+
+  @override
+  String attemptCount(int used, int total) {
+    return 'Isku day $used / $total';
+  }
+
+  @override
+  String get actionVerify => 'Xaqiiji';
+
+  @override
+  String get errorInvalidCredentials =>
+      'Iimaylka ama furaha sirta ah lama aqoonsan.';
+
+  @override
+  String get errorPasswordRequired => 'Geli furahaaga sirta ah.';
+
+  @override
+  String get errorInvalidCode => 'Koodhkaas sax ma aha.';
+
+  @override
+  String get errorLockedOut => 'Isku dayo badan. Dib u bilow.';
 }

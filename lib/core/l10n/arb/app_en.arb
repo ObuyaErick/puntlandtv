@@ -447,5 +447,174 @@
   "selectArticleBody": "Choose a headline from the list and it opens here.",
   "@selectArticleBody": {
     "description": "Body of the empty detail pane."
+  },
+  "statusDraft": "DRAFT",
+  "@statusDraft": {
+    "description": "Article status badge. Uppercase."
+  },
+  "statusInReview": "IN REVIEW",
+  "@statusInReview": {
+    "description": "Article status badge. Uppercase."
+  },
+  "statusScheduled": "SCHEDULED",
+  "@statusScheduled": {
+    "description": "Article status badge. Uppercase."
+  },
+  "statusPublished": "PUBLISHED",
+  "@statusPublished": {
+    "description": "Article status badge. Uppercase."
+  },
+  "statusFailed": "FAILED",
+  "@statusFailed": {
+    "description": "Status badge for a failed ingest or publish. Uppercase."
+  },
+  "statusTranscoding": "TRANSCODING",
+  "@statusTranscoding": {
+    "description": "Status badge while an episode encodes. Uppercase."
+  },
+  "consoleTitle": "Content console",
+  "@consoleTitle": {
+    "description": "Name of the internal console."
+  },
+  "consoleSubtitle": "Newsroom and operations tooling for the Puntland TV app — articles, programmes, live streams and alerts.",
+  "@consoleSubtitle": {
+    "description": "Sign-in page description of the console."
+  },
+  "consoleInternalNotice": "Internal system. Access is logged.",
+  "@consoleInternalNotice": {
+    "description": "Footer notice on the console sign-in page."
+  },
+  "navOverview": "Overview",
+  "@navOverview": {
+    "description": "Console navigation: dashboard."
+  },
+  "navArticles": "Articles",
+  "@navArticles": {
+    "description": "Console navigation: article list."
+  },
+  "navProgramsConsole": "Programs",
+  "@navProgramsConsole": {
+    "description": "Console navigation: programmes and episodes."
+  },
+  "navLiveControl": "Live control",
+  "@navLiveControl": {
+    "description": "Console navigation: broadcast control."
+  },
+  "navSchedule": "Schedule",
+  "@navSchedule": {
+    "description": "Console navigation: EPG builder."
+  },
+  "navPush": "Push",
+  "@navPush": {
+    "description": "Console navigation: push composer."
+  },
+  "navMedia": "Media",
+  "@navMedia": {
+    "description": "Console navigation: media library."
+  },
+  "navCategories": "Categories",
+  "@navCategories": {
+    "description": "Console navigation: taxonomy."
+  },
+  "navUsers": "Users & roles",
+  "@navUsers": {
+    "description": "Console navigation: staff accounts."
+  },
+  "navAppConfig": "App config",
+  "@navAppConfig": {
+    "description": "Console navigation: flags and build settings."
+  },
+  "roleJournalist": "JOURNALIST",
+  "@roleJournalist": {
+    "description": "Staff role. Uppercase."
+  },
+  "roleEditor": "EDITOR",
+  "@roleEditor": {
+    "description": "Staff role. Uppercase."
+  },
+  "roleOperations": "OPERATIONS",
+  "@roleOperations": {
+    "description": "Staff role. Uppercase."
+  },
+  "roleAdmin": "ADMIN",
+  "@roleAdmin": {
+    "description": "Staff role. Uppercase."
+  },
+  "signInTitle": "Sign in",
+  "@signInTitle": {
+    "description": "Heading of the sign-in card."
+  },
+  "signInSubtitle": "Use your PLTV staff account.",
+  "@signInSubtitle": {
+    "description": "Subtitle of the sign-in card."
+  },
+  "fieldEmail": "Email",
+  "@fieldEmail": {
+    "description": "Email field label."
+  },
+  "fieldPassword": "Password",
+  "@fieldPassword": {
+    "description": "Password field label."
+  },
+  "actionContinue": "Continue",
+  "@actionContinue": {
+    "description": "Submits the sign-in form."
+  },
+  "forgotPassword": "Forgot password",
+  "@forgotPassword": {
+    "description": "Link to password recovery."
+  },
+  "signOut": "Sign out",
+  "@signOut": {
+    "description": "Ends the console session."
+  },
+  "twoFactorTitle": "Second verification",
+  "@twoFactorTitle": {
+    "description": "Heading of the two-factor step."
+  },
+  "twoFactorBody": "Enter the 6-digit code from the authenticator app on your phone.",
+  "@twoFactorBody": {
+    "description": "Instruction for the two-factor step."
+  },
+  "resendCode": "Resend code ({seconds})",
+  "@resendCode": {
+    "description": "Resend action with its cooldown timer.",
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "attemptCount": "Attempt {used} / {total}",
+  "@attemptCount": {
+    "description": "How many verification attempts have been used.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "actionVerify": "Verify",
+  "@actionVerify": {
+    "description": "Submits the verification code."
+  },
+  "errorInvalidCredentials": "That email or password was not recognised.",
+  "@errorInvalidCredentials": {
+    "description": "Sign-in failure. Deliberately does not say which half was wrong."
+  },
+  "errorPasswordRequired": "Enter your password.",
+  "@errorPasswordRequired": {
+    "description": "Validation message for an empty password."
+  },
+  "errorInvalidCode": "That code is not correct.",
+  "@errorInvalidCode": {
+    "description": "Two-factor failure."
+  },
+  "errorLockedOut": "Too many attempts. Start again.",
+  "@errorLockedOut": {
+    "description": "Shown after the final failed verification attempt."
   }
 }

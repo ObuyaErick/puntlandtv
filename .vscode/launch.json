@@ -19,6 +19,22 @@
       ]
     },
     {
+      "name": "puntland (console)",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "--web-port",
+        "9001",
+        "-d",
+        "chrome",
+        "-v",
+        "--dart-define",
+        "USE_FIXTURES=true",
+        "-t",
+        "lib/main_console.dart"
+      ]
+    },
+    {
       "name": "puntland (profile mode)",
       "request": "launch",
       "type": "dart",
