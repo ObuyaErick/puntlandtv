@@ -4,127 +4,88 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:puntland/core/providers/repository_providers.dart';
-import 'package:puntland/core/theme/tokens.dart';
-import 'package:puntland/features/live/domain/entities/live_channel.dart';
-import 'package:puntland/features/live/domain/repositories/live_repository.dart';
 import 'package:puntland/features/live/presentation/pages/live_page.dart';
-import 'package:puntland/features/live/presentation/widgets/player_controls.dart';
-import 'package:puntland/features/player/presentation/controllers/playback_controller.dart';
 
+import '../helpers/fake_repositories.dart';
 import '../helpers/golden.dart';
 
-/// A channel that is on air but whose stream never initialises, which is the
-/// state the controls render over.
-class _FakeLiveRepository implements LiveRepository {
-  const _FakeLiveRepository({this.isLive = true});
-
-  final bool isLive;
-
-  @override
-  Future<LiveChannel> channel() async {
-    final base = DateTime(2026, 8, 31, 21);
-    return LiveChannel(
-      isLive: isLive,
-      streamUrl: isLive ? 'https://example.invalid/live.m3u8' : null,
-      offlineMessage: isLive
-          ? null
-          : 'Baahintu waxay dib u bilaabaneysaa 18:00',
-      nowPlaying: ScheduleEntry(
-        title: 'Warbaahinta Fiidka — Evening News',
-        startsAt: base,
-        endsAt: base.add(const Duration(hours: 1)),
-        subtitle: 'Evening News',
-        genre: 'News',
-      ),
-      upNext: [
-        ScheduleEntry(
-          title: 'Dood Furan — Open Debate',
-          startsAt: base.add(const Duration(hours: 1)),
-          endsAt: base.add(const Duration(hours: 2)),
-          genre: 'Current affairs',
-        ),
-        ScheduleEntry(
-          title: 'Wararka Habeenkii — Late News',
-          startsAt: base.add(const Duration(hours: 2)),
-          endsAt: base.add(const Duration(hours: 2, minutes: 30)),
-          genre: 'News',
-        ),
-      ],
-    );
-  }
-}
-
+/// The three live layouts, and the widths where the player chrome changes.
+///
+/// 360dp is where the old controls overflowed by 12px; 320dp is where the
+/// transport collapses. Both get a frame, because "no exception thrown" is a
+/// weaker claim than "this is what it looks like".
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(loadAppFonts);
 
-  // 360dp is where the controls overflowed by 12px: the player sits in a 16:9
-  // box, so its height falls out of the device width. Goldens at the narrowest
-  // supported width, the most common Android width, and the design width —
-  // the last of which is the only one the original layout actually fitted.
-  //
-  // These render `PlayerControls` directly rather than through `LivePage`,
-  // because the page shows a "Watch live" button until playback starts and the
-  // controls would never appear.
-  for (final width in <double>[320, 360, 390]) {
-    testWidgets('player controls · ${width.toInt()}dp', (tester) async {
-      await pumpGolden(
-        tester,
-        Scaffold(
-          backgroundColor: DarkTokens.background,
-          body: Column(
-            children: [
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: ColoredBox(
-                  color: DarkTokens.surfaceRaised,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: PlayerControls(
-                          state: const PlaybackState(isPlaying: true),
-                          onPlayPause: () {},
-                          onMute: () {},
-                          onFullscreen: () {},
-                          onCollapse: () {},
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+  Future<void> pumpLive(
+    WidgetTester tester, {
+    required double width,
+    required double height,
+    bool isLive = true,
+    Locale locale = const Locale('en', 'US'),
+    double textScale = 1,
+  }) async {
+    await pumpGolden(
+      tester,
+      const LivePage(),
+      width: width,
+      height: height,
+      locale: locale,
+      textScale: textScale,
+      overrides: [
+        liveRepositoryProvider.overrideWithValue(
+          FakeLiveRepository(isLive: isLive),
         ),
-        width: width,
-        overrides: [
-          liveRepositoryProvider.overrideWithValue(const _FakeLiveRepository()),
-        ],
-      );
+      ],
+    );
+  }
+
+  const cases = <(String, double, double)>[
+    ('stacked_320', 320, 568),
+    ('stacked_360', 360, 800),
+    ('stacked_390', 390, 844),
+    ('immersive_landscape_800x360', 800, 360),
+    ('medium_768', 768, 1024),
+    ('side_by_side_1440', 1440, 900),
+  ];
+
+  for (final (name, width, height) in cases) {
+    testWidgets('live · $name', (tester) async {
+      await pumpLive(tester, width: width, height: height);
       await expectLater(
-        find.byType(PlayerControls),
-        matchesGoldenFile('../goldens/player_controls_${width.toInt()}.png'),
+        find.byType(LivePage),
+        matchesGoldenFile('../goldens/live_$name.png'),
       );
     });
   }
 
   testWidgets('live · off air slate · so', (tester) async {
-    await pumpGolden(
+    await pumpLive(
       tester,
-      const LivePage(),
+      width: 390,
+      height: 844,
+      isLive: false,
       locale: const Locale('so'),
-      overrides: [
-        liveRepositoryProvider.overrideWithValue(
-          const _FakeLiveRepository(isLive: false),
-        ),
-      ],
     );
     await expectLater(
       find.byType(LivePage),
       matchesGoldenFile('../goldens/live_offline_so.png'),
+    );
+  });
+
+  testWidgets('live · 360dp · soomaali · 130% text', (tester) async {
+    await pumpLive(
+      tester,
+      width: 360,
+      height: 800,
+      locale: const Locale('so'),
+      textScale: 1.3,
+    );
+    await expectLater(
+      find.byType(LivePage),
+      matchesGoldenFile('../goldens/live_so_130.png'),
     );
   });
 }

@@ -666,6 +666,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Text size follows your device\'s display settings. Change it in your phone\'s accessibility settings and the app will follow.'**
   String get textSizeSheetBody;
+
+  /// Empty detail pane on wide windows, before anything is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a story to read'**
+  String get selectArticleTitle;
+
+  /// Body of the empty detail pane.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a headline from the list and it opens here.'**
+  String get selectArticleBody;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

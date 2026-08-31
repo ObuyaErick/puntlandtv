@@ -94,5 +94,7 @@
   "a11yFullscreen": "Shaashad buuxda",
   "a11yBookmarkAdd": "Kaydi maqaalka",
   "a11yBookmarkRemove": "Ka saar kaydka",
-  "textSizeSheetBody": "Cabbirka qoraalku wuxuu raacaa goobaha muuqaalka ee taleefankaaga. Ka beddel goobaha helitaanka ee taleefanka, app-kuna wuu raaci doonaa."
+  "textSizeSheetBody": "Cabbirka qoraalku wuxuu raacaa goobaha muuqaalka ee taleefankaaga. Ka beddel goobaha helitaanka ee taleefanka, app-kuna wuu raaci doonaa.",
+  "selectArticleTitle": "Dooro war aad akhrido",
+  "selectArticleBody": "Ka dooro cinwaan liiska, halkanna ayuu ka furmayaa."
 }

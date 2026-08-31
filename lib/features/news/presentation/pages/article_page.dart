@@ -8,6 +8,7 @@ import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/app_date_format.dart';
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/providers/repository_providers.dart';
+import '../../../../core/responsive/adaptive_layout.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/tokens.dart';
 import '../../../../core/widgets/feedback_views.dart';
@@ -18,9 +19,14 @@ import '../controllers/news_controllers.dart';
 import '../widgets/article_card.dart';
 
 class ArticlePage extends ConsumerWidget {
-  const ArticlePage({super.key, required this.slug});
+  const ArticlePage({super.key, required this.slug, this.embedded = false});
 
   final String slug;
+
+  /// True when rendered inside the feed's detail pane rather than pushed as
+  /// its own route. Drops the back button — the list is still on screen beside
+  /// it, so there is nothing to go back to.
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +34,8 @@ class ArticlePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(onPressed: () => context.pop()),
+        automaticallyImplyLeading: !embedded,
+        leading: embedded ? null : BackButton(onPressed: () => context.pop()),
         actions: [
           _SaveAction(slug: slug),
           const SizedBox(width: Spacing.chip),
@@ -61,6 +68,9 @@ class _ArticleBody extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: Spacing.emptyState),
       children: [
+        // The hero may bleed to the full width of the pane; the text below it
+        // never does. Each block gets its own `ReadingColumn` rather than
+        // wrapping the whole list, so the image keeps the bleed.
         if (summary.imageUrl != null) ...[
           RemoteImage(
             url: summary.imageUrl,
@@ -68,7 +78,7 @@ class _ArticleBody extends ConsumerWidget {
             width: double.infinity,
           ),
           if (article.imageCaption != null)
-            Padding(
+            ReadingColumn(
               padding: const EdgeInsets.fromLTRB(
                 Spacing.gutter,
                 Spacing.chip,
@@ -83,7 +93,7 @@ class _ArticleBody extends ConsumerWidget {
               ),
             ),
         ],
-        Padding(
+        ReadingColumn(
           padding: const EdgeInsets.fromLTRB(
             Spacing.gutter,
             Spacing.gutter,
@@ -95,9 +105,7 @@ class _ArticleBody extends ConsumerWidget {
             children: [
               Text(
                 '${summary.categoryName.toUpperCase()} · '
-                        '${summary.excerpt != null ? '' : ''}'
-                        '${l10n.minRead(summary.readingMinutes ?? 3)}'
-                    .toUpperCase(),
+                '${l10n.minRead(summary.readingMinutes ?? 3).toUpperCase()}',
                 style: context.text.overline.copyWith(
                   color: context.colors.accent,
                 ),

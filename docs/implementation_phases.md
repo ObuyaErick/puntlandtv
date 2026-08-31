@@ -76,7 +76,7 @@ point: every later phase depends on these primitives being right.
 ## Status
 
 - [x] **Phase 1** — responsive foundation
-- [ ] Phase 2 — app responsive pass
+- [x] **Phase 2** — app responsive pass
 - [ ] Phase 3 — console foundation
 - [ ] Phase 4 — console content management
 - [ ] Phase 5 — console operations

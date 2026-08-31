@@ -124,10 +124,17 @@ class PltvLockup extends StatelessWidget {
         PltvMark(height: 26, onDark: onDark),
         if (showWordmark) ...[
           const SizedBox(width: 9),
-          Text(
-            'PUNTLAND TV',
-            style: context.text.wordmark.copyWith(
-              color: onDark ? Colors.white : context.scheme.primary,
+          // Flexible with an ellipsis is the last line of defence: callers are
+          // expected to drop the wordmark before it gets this tight, but a
+          // clipped wordmark still beats a yellow-and-black overflow stripe.
+          Flexible(
+            child: Text(
+              'PUNTLAND TV',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.wordmark.copyWith(
+                color: onDark ? Colors.white : context.scheme.primary,
+              ),
             ),
           ),
         ],

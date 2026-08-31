@@ -365,4 +365,11 @@ class AppL10nEn extends AppL10n {
   @override
   String get textSizeSheetBody =>
       'Text size follows your device\'s display settings. Change it in your phone\'s accessibility settings and the app will follow.';
+
+  @override
+  String get selectArticleTitle => 'Select a story to read';
+
+  @override
+  String get selectArticleBody =>
+      'Choose a headline from the list and it opens here.';
 }

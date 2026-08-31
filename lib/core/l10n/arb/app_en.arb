@@ -439,5 +439,13 @@
   "textSizeSheetBody": "Text size follows your device's display settings. Change it in your phone's accessibility settings and the app will follow.",
   "@textSizeSheetBody": {
     "description": "Explains that text size follows the OS setting."
+  },
+  "selectArticleTitle": "Select a story to read",
+  "@selectArticleTitle": {
+    "description": "Empty detail pane on wide windows, before anything is chosen."
+  },
+  "selectArticleBody": "Choose a headline from the list and it opens here.",
+  "@selectArticleBody": {
+    "description": "Body of the empty detail pane."
   }
 }

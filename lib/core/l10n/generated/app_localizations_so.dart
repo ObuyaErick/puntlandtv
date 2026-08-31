@@ -368,4 +368,11 @@ class AppL10nSo extends AppL10n {
   @override
   String get textSizeSheetBody =>
       'Cabbirka qoraalku wuxuu raacaa goobaha muuqaalka ee taleefankaaga. Ka beddel goobaha helitaanka ee taleefanka, app-kuna wuu raaci doonaa.';
+
+  @override
+  String get selectArticleTitle => 'Dooro war aad akhrido';
+
+  @override
+  String get selectArticleBody =>
+      'Ka dooro cinwaan liiska, halkanna ayuu ka furmayaa.';
 }

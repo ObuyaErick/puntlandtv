@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:video_player/video_player.dart';
@@ -5,6 +8,7 @@ import 'package:video_player/video_player.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/app_date_format.dart';
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/responsive/window_size.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/tokens.dart';
 import '../../../../core/widgets/feedback_views.dart';
@@ -14,13 +18,20 @@ import '../../../player/domain/entities/playback_source.dart';
 import '../../../player/presentation/controllers/playback_controller.dart';
 import '../../domain/entities/live_channel.dart';
 import '../controllers/live_controllers.dart';
+import '../widgets/now_playing_panel.dart';
 import '../widgets/player_controls.dart';
 
-/// Live television: the player, what is on now, and the rest of today.
+/// Live television.
 ///
-/// Owns the "expanded" state of the app-wide player. Entering the page expands
-/// it, leaving docks it — which is how playback follows the user out to the
-/// news feed instead of stopping.
+/// Three layouts, chosen from the space actually available:
+///
+/// * **Immersive** — landscape, or any window that cannot reserve 132dp below
+///   a 16:9 video. The video fills the surface, chrome hides, and the controls
+///   overlay it with a 3s auto-dismiss.
+/// * **Stacked** — the default. 16:9 player on top, now-playing and schedule
+///   beneath.
+/// * **Side-by-side** — from Large up. The player caps at 740dp wide and the
+///   schedule sits beside it; the video never stretches to fill 1360dp.
 class LivePage extends ConsumerStatefulWidget {
   const LivePage({super.key});
 
@@ -33,6 +44,7 @@ class _LivePageState extends ConsumerState<LivePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final playback = ref.read(playbackControllerProvider);
       if (playback.source?.kind == PlaybackKind.liveTv) {
         ref.read(playbackControllerProvider.notifier).expand();
@@ -44,8 +56,7 @@ class _LivePageState extends ConsumerState<LivePage> {
   void deactivate() {
     // Dock rather than stop. The stream keeps running and the mini-player
     // picks it up in the shell.
-    final playback = ref.read(playbackControllerProvider);
-    if (playback.hasSource) {
+    if (ref.read(playbackControllerProvider).hasSource) {
       ref.read(playbackControllerProvider.notifier).collapse();
     }
     super.deactivate();
@@ -78,87 +89,160 @@ class _LiveBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final state = ref.watch(playbackControllerProvider);
-    final controller = ref.read(playbackControllerProvider.notifier);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final size = WindowSizeClass.fromWidth(constraints.maxWidth);
+        final landscape = constraints.maxWidth > constraints.maxHeight;
 
+        // Large and up always pairs the player with the schedule; the
+        // immersive checks below only apply to smaller windows.
+        if (size.isAtLeastLarge) {
+          return _SideBySideLayout(channel: channel);
+        }
+
+        final playerHeight = constraints.maxWidth * 9 / 16;
+        final bandBelow = constraints.maxHeight - playerHeight;
+
+        // The band scales with text: the now-playing block is mostly type, so
+        // at 130% it needs proportionally more room before it is worth showing
+        // at all.
+        final requiredBand =
+            Layout.playerControlBand *
+            MediaQuery.textScalerOf(context).scale(1);
+
+        if (landscape || bandBelow < requiredBand) {
+          return _ImmersiveLayout(channel: channel);
+        }
+
+        return _StackedLayout(channel: channel);
+      },
+    );
+  }
+}
+
+/// Player on top, content beneath.
+class _StackedLayout extends StatelessWidget {
+  const _StackedLayout({required this.channel});
+
+  final LiveChannel channel;
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AspectRatio(
             aspectRatio: 16 / 9,
-            // child: _OfflineSlate(channel: channel),
-            child: channel.isPlayable
-                ? _PlayerSurface(channel: channel)
-                : _OfflineSlate(channel: channel),
+            child: PlayerSurface(channel: channel),
           ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(Spacing.gutter),
-              children: [
-                if (channel.nowPlaying != null) ...[
-                  Text(
-                    l10n.nowPlaying,
-                    style: context.text.overline.copyWith(
-                      color: context.colors.onPlayerSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: Spacing.chip),
-                  Text(
-                    channel.nowPlaying!.title,
-                    style: context.text.title.copyWith(
-                      color: context.colors.onPlayerSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${AppDateFormat.time(channel.nowPlaying!.startsAt, context.languageCode)}'
-                    ' – '
-                    '${AppDateFormat.time(channel.nowPlaying!.endsAt, context.languageCode)}',
-                    style: context.text.meta.copyWith(
-                      color: context.colors.onPlayerSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: Spacing.gutter),
-                  Row(
-                    children: [
-                      _AudioOnlyToggle(
-                        enabled: state.audioOnly,
-                        onChanged: controller.toggleAudioOnly,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Spacing.sectionBreak),
-                ],
-                Text(
-                  l10n.upNextToday,
-                  style: context.text.overline.copyWith(
-                    color: context.colors.onPlayerSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: Spacing.cardInternal),
-                for (final entry in channel.upNext) _ScheduleRow(entry: entry),
-              ],
-            ),
-          ),
+          Expanded(child: NowPlayingPanel(channel: channel)),
         ],
       ),
     );
   }
 }
 
-class _PlayerSurface extends ConsumerStatefulWidget {
-  const _PlayerSurface({required this.channel});
+/// The video fills the surface; chrome auto-dismisses.
+class _ImmersiveLayout extends StatelessWidget {
+  const _ImmersiveLayout({required this.channel});
 
   final LiveChannel channel;
 
   @override
-  ConsumerState<_PlayerSurface> createState() => _PlayerSurfaceState();
+  Widget build(BuildContext context) {
+    return PlayerSurface(channel: channel, immersive: true);
+  }
 }
 
-class _PlayerSurfaceState extends ConsumerState<_PlayerSurface> {
+/// Large and up: a capped player with the schedule beside it.
+class _SideBySideLayout extends StatelessWidget {
+  const _SideBySideLayout({required this.channel});
+
+  final LiveChannel channel;
+
+  /// The video stops growing here. Stretching a broadcast feed across 1360dp
+  /// makes it soft, not impressive.
+  static const playerMaxWidth = 740.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: Layout.contentCap),
+          child: Padding(
+            padding: const EdgeInsets.all(Spacing.sectionBreak),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: playerMaxWidth),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: ClipRRect(
+                      borderRadius: Radii.cardBorder,
+                      child: PlayerSurface(channel: channel),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: Spacing.sectionBreak),
+                Expanded(child: NowPlayingPanel(channel: channel)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The video surface and its overlaid chrome.
+class PlayerSurface extends ConsumerStatefulWidget {
+  const PlayerSurface({
+    super.key,
+    required this.channel,
+    this.immersive = false,
+  });
+
+  final LiveChannel channel;
+
+  /// Hides chrome after [_autoDismiss] and lets the video fill the surface.
+  final bool immersive;
+
+  static const _autoDismiss = Duration(seconds: 3);
+
+  @override
+  ConsumerState<PlayerSurface> createState() => _PlayerSurfaceState();
+}
+
+class _PlayerSurfaceState extends ConsumerState<PlayerSurface> {
   bool _chromeVisible = true;
+  Timer? _dismissTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.immersive) _scheduleDismiss();
+  }
+
+  @override
+  void dispose() {
+    _dismissTimer?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleDismiss() {
+    _dismissTimer?.cancel();
+    _dismissTimer = Timer(PlayerSurface._autoDismiss, () {
+      if (mounted) setState(() => _chromeVisible = false);
+    });
+  }
+
+  void _toggleChrome() {
+    setState(() => _chromeVisible = !_chromeVisible);
+    if (_chromeVisible && widget.immersive) _scheduleDismiss();
+  }
 
   PlaybackSource get _source => PlaybackSource(
     id: 'live',
@@ -170,19 +254,25 @@ class _PlayerSurfaceState extends ConsumerState<_PlayerSurface> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.channel.isPlayable) {
+      return _OfflineSlate(channel: widget.channel);
+    }
+
     final state = ref.watch(playbackControllerProvider);
     final controller = ref.read(playbackControllerProvider.notifier);
     final isThisSource = state.source?.id == 'live';
     final video = controller.videoController;
+    final showVideo =
+        isThisSource && video != null && video.value.isInitialized;
 
     return GestureDetector(
-      onTap: () => setState(() => _chromeVisible = !_chromeVisible),
+      onTap: _toggleChrome,
       child: ColoredBox(
-        color: context.colors.playerSurface,
+        color: const Color(0xFF04101F),
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (isThisSource && video != null && video.value.isInitialized)
+            if (showVideo)
               FittedBox(
                 fit: BoxFit.contain,
                 child: SizedBox(
@@ -190,23 +280,24 @@ class _PlayerSurfaceState extends ConsumerState<_PlayerSurface> {
                   height: video.value.size.height,
                   child: VideoPlayer(video),
                 ),
-              )
-            else
+              ),
+            if (!showVideo)
               Center(
                 child: isThisSource && state.isBuffering
                     ? const CircularProgressIndicator(color: Colors.white)
                     : _StartButton(onPressed: () => controller.play(_source)),
               ),
             if (isThisSource && _chromeVisible)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: PlayerControls(
-                  state: state,
-                  onPlayPause: controller.togglePlayPause,
-                  onMute: controller.toggleMute,
-                  onFullscreen: () {},
-                  onCollapse: controller.collapse,
+              PlayerControls(
+                state: state,
+                clockLabel: AppDateFormat.time(
+                  DateTime.now(),
+                  context.languageCode,
                 ),
+                onPlayPause: controller.togglePlayPause,
+                onMute: controller.toggleMute,
+                onFullscreen: _toggleChrome,
+                onCollapse: widget.immersive ? null : controller.collapse,
               ),
           ],
         ),
@@ -236,9 +327,8 @@ class _StartButton extends StatelessWidget {
 
 /// Branded slate shown when the broadcaster is off air.
 ///
-/// Never a failed player: the canvas is explicit that "off air" is a designed
-/// state, and the backend supplies the message so it can be localised and
-/// changed without an app release.
+/// Never a failed player: "off air" is a designed state, and the backend
+/// supplies the message so it can be localised and changed without a release.
 class _OfflineSlate extends StatelessWidget {
   const _OfflineSlate({required this.channel});
 
@@ -251,128 +341,39 @@ class _OfflineSlate extends StatelessWidget {
     return ColoredBox(
       color: context.colors.playerSurface,
       child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const PltvMark(height: 34, onDark: true),
-            const SizedBox(height: Spacing.listRhythm),
-            Text(
-              l10n.streamOfflineTitle,
-              style: context.text.title.copyWith(
-                color: context.colors.onPlayerSurface,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              channel.offlineMessage ??
-                  (channel.resumesAt != null
-                      ? l10n.streamOfflineBody(
-                          AppDateFormat.time(
-                            channel.resumesAt!,
-                            context.languageCode,
-                          ),
-                        )
-                      : ''),
-              textAlign: TextAlign.center,
-              style: context.text.meta.copyWith(
-                color: context.colors.onPlayerSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AudioOnlyToggle extends StatelessWidget {
-  const _AudioOnlyToggle({required this.enabled, required this.onChanged});
-
-  final bool enabled;
-  final VoidCallback onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onChanged,
-      borderRadius: BorderRadius.circular(Radii.chip),
-      child: Container(
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: enabled ? context.colors.accentContainer : Colors.transparent,
-          borderRadius: BorderRadius.circular(Radii.chip),
-          border: Border.all(color: context.colors.playerControlTrack),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.headphones_rounded,
-              size: 16,
-              color: enabled
-                  ? context.colors.accent
-                  : context.colors.onPlayerSurfaceVariant,
-            ),
-            const SizedBox(width: 7),
-            Text(
-              context.l10n.audioOnly,
-              style: context.text.label.copyWith(
-                color: enabled
-                    ? context.colors.accent
-                    : context.colors.onPlayerSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ScheduleRow extends StatelessWidget {
-  const _ScheduleRow({required this.entry});
-
-  final ScheduleEntry entry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.listRhythm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 56,
-            child: Text(
-              AppDateFormat.time(entry.startsAt, context.languageCode),
-              style: context.text.label.copyWith(
-                color: context.colors.onPlayerSurface,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  entry.title,
-                  style: context.text.body.copyWith(
-                    color: context.colors.onPlayerSurface,
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.all(Spacing.gutter),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const PltvMark(height: 34, onDark: true),
+              const SizedBox(height: Spacing.listRhythm),
+              Text(
+                l10n.streamOfflineTitle,
+                textAlign: TextAlign.center,
+                style: context.text.title.copyWith(
+                  color: context.colors.onPlayerSurface,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '${context.l10n.durationMinutes(entry.duration.inMinutes)}'
-                  '${entry.genre != null ? ' · ${entry.genre}' : ''}',
-                  style: context.text.meta.copyWith(
-                    color: context.colors.onPlayerSurfaceVariant,
-                  ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                channel.offlineMessage ??
+                    (channel.resumesAt != null
+                        ? l10n.streamOfflineBody(
+                            AppDateFormat.time(
+                              channel.resumesAt!,
+                              context.languageCode,
+                            ),
+                          )
+                        : ''),
+                textAlign: TextAlign.center,
+                style: context.text.meta.copyWith(
+                  color: context.colors.onPlayerSurfaceVariant,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -383,27 +384,43 @@ class _LiveSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AspectRatio(
-          aspectRatio: 16 / 9,
-          child: ColoredBox(color: context.colors.playerSurface),
-        ),
-        const Padding(
-          padding: EdgeInsets.all(Spacing.gutter),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SkeletonBox(width: 110, height: 10),
-              SizedBox(height: Spacing.cardInternal),
-              SkeletonBox(height: 20),
-              SizedBox(height: Spacing.gutter),
-              SkeletonBox(height: 14),
-            ],
-          ),
-        ),
-      ],
+    // The skeleton has to obey the same constraints the real layouts do. A
+    // hard 16:9 box plus a fixed content block overflows by 206px on a
+    // landscape phone and 26px on a desktop window — and because it is the
+    // *loading* state, that is what every cold load renders first.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final playerHeight = math.min(
+          constraints.maxWidth * 9 / 16,
+          constraints.maxHeight * 0.6,
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: playerHeight,
+              width: double.infinity,
+              child: ColoredBox(color: context.colors.playerSurface),
+            ),
+            const Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(Spacing.gutter),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SkeletonBox(width: 110, height: 10),
+                    SizedBox(height: Spacing.cardInternal),
+                    SkeletonBox(height: 20),
+                    SizedBox(height: Spacing.gutter),
+                    SkeletonBox(height: 14),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

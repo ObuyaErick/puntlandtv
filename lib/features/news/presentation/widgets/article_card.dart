@@ -19,15 +19,35 @@ String categoryOverline(BuildContext context, ArticleSummary article) {
   return '${article.categoryName.toUpperCase()} · $relative';
 }
 
-/// The standard feed row: 104×78 thumbnail, overline, serif headline.
+/// The standard feed row: thumbnail, overline, serif headline.
+///
+/// Two arrangements. Side-by-side is the default; at large text scales the
+/// thumbnail moves above the headline, because a 104dp side thumb leaves only
+/// ~150dp for what is often a three-line Somali title.
 class ArticleCard extends StatelessWidget {
-  const ArticleCard({super.key, required this.article, required this.onTap});
+  const ArticleCard({
+    super.key,
+    required this.article,
+    required this.onTap,
+    this.titleMaxLines = 3,
+  });
 
   final ArticleSummary article;
   final VoidCallback onTap;
 
+  /// Grid cells have a fixed height, so they allow one line fewer than the
+  /// list does.
+  final int titleMaxLines;
+
+  /// Above this scale the card stacks. Taken from the canvas, which shows the
+  /// switch at 130%.
+  static const stackAboveTextScale = 1.3;
+
   @override
   Widget build(BuildContext context) {
+    final stacked =
+        MediaQuery.textScalerOf(context).scale(1) >= stackAboveTextScale;
+
     return Material(
       color: context.scheme.surface,
       borderRadius: Radii.cardBorder,
@@ -40,51 +60,78 @@ class ArticleCard extends StatelessWidget {
             borderRadius: Radii.cardBorder,
             border: Border.all(color: context.colors.outline),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RemoteImage(
-                url: article.imageUrl,
-                width: 104,
-                height: 78,
-                borderRadius: Radii.thumbBorder,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
+          child: stacked
+              ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      categoryOverline(context, article),
-                      style: context.text.overline.copyWith(
-                        color: context.colors.accent,
-                      ),
+                    RemoteImage(
+                      url: article.imageUrl,
+                      height: 150,
+                      width: double.infinity,
+                      borderRadius: Radii.thumbBorder,
                     ),
-                    const SizedBox(height: 6),
-                    // The article's own language, not the UI's — so Somali
-                    // text in an English shell still gets the right font
-                    // resolution and screen-reader pronunciation.
-                    Localizations.override(
-                      context: context,
-                      locale: Locale(article.contentLanguage),
-                      child: Builder(
-                        builder: (context) => Text(
-                          article.title,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.text.cardTitle.copyWith(
-                            color: context.scheme.primary,
-                          ),
-                        ),
+                    const SizedBox(height: Spacing.cardInternal),
+                    _CardText(article: article),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RemoteImage(
+                      url: article.imageUrl,
+                      width: 104,
+                      height: 78,
+                      borderRadius: Radii.thumbBorder,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: _CardText(
+                        article: article,
+                        maxLines: titleMaxLines,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
+    );
+  }
+}
+
+class _CardText extends StatelessWidget {
+  const _CardText({required this.article, this.maxLines = 3});
+
+  final ArticleSummary article;
+  final int maxLines;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          categoryOverline(context, article),
+          style: context.text.overline.copyWith(color: context.colors.accent),
+        ),
+        const SizedBox(height: 6),
+        // The article's own language, not the UI's — so Somali text in an
+        // English shell still gets the right font resolution and screen-reader
+        // pronunciation.
+        Localizations.override(
+          context: context,
+          locale: Locale(article.contentLanguage),
+          child: Builder(
+            builder: (context) => Text(
+              article.title,
+              maxLines: maxLines,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.cardTitle.copyWith(
+                color: context.scheme.primary,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
