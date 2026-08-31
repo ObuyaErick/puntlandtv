@@ -3,20 +3,29 @@ import 'package:material_ui/material_ui.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../core/l10n/l10n.dart';
+import '../../../../core/responsive/window_size.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/theme/tokens.dart';
 import '../../../../core/widgets/remote_image.dart';
 import '../controllers/playback_controller.dart';
 
-/// The docked player: a 64dp bar above the navigation bar.
+/// The docked player.
+///
+/// Two shapes, per artboard 7A: a 58dp bar docked above the navigation at
+/// compact and medium, and a 360-wide rounded card floating bottom-right from
+/// expanded up, where docking it to a window edge would strand it far from the
+/// content it belongs to.
 ///
 /// Tapping it expands back to the full player. Because the underlying
 /// controller is app-scoped, expanding and collapsing move the video *surface*
 /// only — the stream is never re-established, and audio does not cut.
 class MiniPlayer extends ConsumerWidget {
-  const MiniPlayer({super.key});
+  const MiniPlayer({super.key, this.floating = false});
 
-  static const height = 64.0;
+  /// Renders the floating card variant instead of the docked bar.
+  final bool floating;
+
+  static const height = Layout.miniPlayerHeight;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,6 +42,9 @@ class MiniPlayer extends ConsumerWidget {
       label: '${source.title}. ${l10n.a11yExpandPlayer}',
       child: Material(
         color: context.colors.playerSurface,
+        borderRadius: floating ? Radii.cardBorder : null,
+        clipBehavior: floating ? Clip.antiAlias : Clip.none,
+        elevation: floating ? 1 : 0,
         child: InkWell(
           onTap: controller.expand,
           child: SizedBox(

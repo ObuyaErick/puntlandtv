@@ -33,10 +33,17 @@ Future<void> pumpApp(
           SoCupertinoLocalizations.delegate,
           ...GlobalMaterialLocalizations.delegates,
         ],
-        home: MediaQuery(
-          data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
-          child: child,
+        // `copyWith`, not a fresh `MediaQueryData`. Constructing a new one
+        // discards everything else the binding provides — including `size`,
+        // which silently becomes `Size.zero`. Anything under test that asks
+        // about the window then gets a nonsense answer and the test still
+        // passes, which is the worst kind of green.
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
         ),
+        home: child,
       ),
     ),
   );

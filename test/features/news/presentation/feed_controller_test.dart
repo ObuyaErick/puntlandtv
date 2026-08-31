@@ -55,7 +55,10 @@ class FakeNewsRepository implements NewsRepository {
     title: 'Title $slug',
     categorySlug: 'top',
     categoryName: 'Top news',
-    publishedAt: DateTime(2026, 8, 30),
+    // Relative, not absolute. Article cards render *elapsed* time, so a fixed
+    // date makes every golden drift by a digit each day — "24 H" becomes
+    // "48 H" overnight and the suite fails for no reason.
+    publishedAt: DateTime.now().subtract(const Duration(hours: 2)),
     contentLanguage: 'so',
   );
 }

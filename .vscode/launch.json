@@ -8,7 +8,15 @@
       "name": "puntland",
       "request": "launch",
       "type": "dart",
-      "args": ["--web-port", "9001", "-d", "chrome", "-v"]
+      "args": [
+        "--web-port",
+        "9001",
+        "-d",
+        "chrome",
+        "-v",
+        "--dart-define",
+        "USE_FIXTURES=true"
+      ]
     },
     {
       "name": "puntland (profile mode)",
