@@ -18,6 +18,7 @@ class ConsoleTextField extends StatelessWidget {
     this.autofocus = false,
     this.keyboardType,
     this.onSubmitted,
+    this.onChanged,
     this.enabled = true,
   });
 
@@ -29,6 +30,13 @@ class ConsoleTextField extends StatelessWidget {
   final bool autofocus;
   final TextInputType? keyboardType;
   final ValueChanged<String>? onSubmitted;
+
+  /// Fires per keystroke. Needed where a field's *validity* is part of the
+  /// screen — the app config's build floor says whether it would lock every
+  /// reader out, and an answer that waits for submit arrives after the
+  /// decision.
+  final ValueChanged<String>? onChanged;
+
   final bool enabled;
 
   @override
@@ -56,6 +64,7 @@ class ConsoleTextField extends StatelessWidget {
           autofocus: autofocus,
           keyboardType: keyboardType,
           onSubmitted: onSubmitted,
+          onChanged: onChanged,
           enabled: enabled,
           style: context.text.body.copyWith(color: context.scheme.primary),
           decoration: InputDecoration(

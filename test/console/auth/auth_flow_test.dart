@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puntland/console/core/providers/console_providers.dart';
-import 'package:puntland/console/features/auth/data/fixture_auth_repository.dart';
+import 'package:puntland/console/core/admin_api/fixture_admin_api.dart';
 import 'package:puntland/console/features/auth/domain/entities/console_user.dart';
 import 'package:puntland/core/providers/preferences_providers.dart';
 import 'package:riverpod/riverpod.dart';
@@ -56,7 +56,7 @@ void main() {
     final auth = c.read(authControllerProvider.notifier);
 
     await auth.signIn(email: 'f.xasan@pltv.so', password: 'x');
-    await auth.verify(FixtureAuthRepository.validCode);
+    await auth.verify(FixtureAdminApi.validSecondFactorCode);
 
     final state = c.read(authControllerProvider);
     expect(state, isA<SignedIn>());
@@ -96,7 +96,7 @@ void main() {
     final auth = c.read(authControllerProvider.notifier);
 
     await auth.signIn(email: 'a.yuusuf@pltv.so', password: 'x');
-    await auth.verify(FixtureAuthRepository.validCode);
+    await auth.verify(FixtureAdminApi.validSecondFactorCode);
 
     // A fresh container over the same preferences stands in for a page reload.
     final restored = ProviderContainer(

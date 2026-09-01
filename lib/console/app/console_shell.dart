@@ -8,6 +8,7 @@ import '../../features/settings/domain/entities/app_preferences.dart';
 import '../../core/theme/theme_context.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/pltv_logo.dart';
+import '../core/localised.dart';
 import '../core/providers/console_providers.dart';
 import '../features/auth/domain/entities/console_user.dart';
 
@@ -513,12 +514,11 @@ class _UserChip extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
-    final roleLabel = switch (user.role) {
-      ConsoleRole.journalist => l10n.roleJournalist,
-      ConsoleRole.editor => l10n.roleEditor,
-      ConsoleRole.operations => l10n.roleOperations,
-      ConsoleRole.admin => l10n.roleAdmin,
-    };
+    // One switch over `ConsoleRole` for the whole console, in `ConsoleLabels`.
+    // The stored strings are prose, because the users screen reads them as
+    // prose; the rail uppercases at render, exactly as its header already does
+    // with the console title.
+    final roleLabel = ConsoleLabels.role(l10n, user.role);
 
     final avatar = Container(
       width: 34,
@@ -578,7 +578,7 @@ class _UserChip extends ConsumerWidget {
                   style: context.text.label.copyWith(color: Colors.white),
                 ),
                 Text(
-                  roleLabel,
+                  roleLabel.toUpperCase(),
                   style: context.text.overline.copyWith(
                     fontSize: 9.5,
                     color: DarkTokens.onSurfaceVariant,

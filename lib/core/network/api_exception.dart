@@ -14,6 +14,23 @@ abstract final class ApiExceptionMapper {
     if (error is DioException) {
       final status = error.response?.statusCode;
 
+      // A refusal the backend can name: `MEDIA_ASSET_IN_USE`,
+      // `STAFF_LAST_ADMIN`, `CONFIG_FLOOR_ABOVE_RELEASE`. The API puts `code`
+      // at the top level of the error body for exactly this, and the console's
+      // screens switch on those constants — deriving a code from the status
+      // alone would collapse every domain rule into one `HTTP_409` the UI
+      // cannot tell apart, and the fixtures would be the only implementation
+      // the console could show a specific message for.
+      final declared = _declaredCode(error.response?.data);
+      if (declared != null) {
+        return Failure(
+          kind: _kindForStatus(status),
+          code: declared,
+          cause: error,
+          stackTrace: stackTrace,
+        );
+      }
+
       final kind = switch (error.type) {
         DioExceptionType.connectionTimeout ||
         DioExceptionType.sendTimeout ||
@@ -64,4 +81,28 @@ abstract final class ApiExceptionMapper {
       stackTrace: stackTrace,
     );
   }
+
+  /// The refusal code the response body names, if it names one.
+  ///
+  /// Only a non-empty string counts. A gateway error page or an HTML 502 parses
+  /// to something without this key, and must keep falling through to the
+  /// status-derived codes below rather than becoming a `Failure` claiming the
+  /// backend refused something.
+  static String? _declaredCode(Object? data) {
+    if (data is! Map) return null;
+    final code = data['code'];
+    return code is String && code.isNotEmpty ? code : null;
+  }
+
+  /// The kind a coded refusal reports.
+  ///
+  /// A domain refusal arrives as 409 and maps to [FailureKind.unknown], which
+  /// is what the fixtures throw for the same rules — so a screen behaves the
+  /// same against either implementation, and `isRetryable` stays false for a
+  /// refusal that retrying cannot change.
+  static FailureKind _kindForStatus(int? status) => switch (status) {
+    404 => FailureKind.notFound,
+    final int s when s >= 500 => FailureKind.server,
+    _ => FailureKind.unknown,
+  };
 }

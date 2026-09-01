@@ -1,10 +1,18 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/api_providers.dart';
+import '../../../core/network/interceptors/locale_interceptor.dart';
+import '../../../core/network/interceptors/logging_interceptor.dart';
+import '../../../core/network/interceptors/retry_interceptor.dart';
 import '../../../core/providers/preferences_providers.dart';
-import '../../features/auth/data/fixture_auth_repository.dart';
+import '../../features/auth/data/console_auth_repository.dart';
 import '../../features/auth/domain/entities/console_user.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../admin_api/console_credentials.dart';
 import '../admin_api/fixture_admin_api.dart';
+import '../admin_api/http_admin_api.dart';
 import '../admin_api/puntland_admin_api.dart';
 
 /// Whether the navigation rail is collapsed to icons.
@@ -37,12 +45,72 @@ final consoleClockProvider = Provider<DateTime Function()>(
   (ref) => DateTime.now,
 );
 
-/// The console's swap point, mirroring `puntlandApiProvider` in the app.
-/// Pointing at a real backend is a change here and nowhere else.
-final adminApiProvider = Provider<PuntlandAdminApi>((ref) => FixtureAdminApi());
+/// The live token pair, shared by the client that sends it and the repository
+/// that persists it. See [ConsoleCredentials].
+final consoleCredentialsProvider = Provider<ConsoleCredentials>(
+  (ref) => ConsoleCredentials(),
+);
+
+/// The console's HTTP client.
+///
+/// Deliberately not the app's [dioProvider]. That one is built for a reader on
+/// a congested cell — long timeouts, retries — and it must not grow an
+/// interceptor that attaches a staff credential: the reader app links the
+/// reader client, and a token on those requests would be a token in a build
+/// shipped to every phone in the region.
+///
+/// The retry interceptor is shared and safe to share: it retries `GET` only, so
+/// a dropped packet cannot publish an article twice.
+final consoleDioProvider = Provider<Dio>((ref) {
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: kApiBaseUrl,
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 20),
+      headers: {'Accept': 'application/json'},
+      // Sends `pltv_access` on the browser build, where the console runs from
+      // its own origin and the cookie is httpOnly — the point of which is that
+      // no script here, ours included, can read it.
+      extra: {'withCredentials': true},
+    ),
+  );
+
+  // No credential interceptor here on purpose: `HttpAdminApi` attaches the
+  // token itself, because the place that sends it is also the place that has to
+  // renew it when the backend says it has lapsed.
+
+  // The backend localises chrome it returns — category names, cadence and genre
+  // labels — from this header, so the console's own language choice reaches it.
+  dio.interceptors.add(LocaleInterceptor(() => ref.read(localeTagProvider)));
+  dio.interceptors.add(RetryInterceptor(dio: dio));
+  if (kDebugMode) dio.interceptors.add(LoggingInterceptor());
+
+  ref.onDispose(dio.close);
+  return dio;
+});
+
+/// **The console's swap point**, mirroring `puntlandApiProvider` in the app.
+///
+/// Everything above this line — controllers, every screen — is written against
+/// [PuntlandAdminApi] and cannot tell which implementation it got. Pointing the
+/// console at the real backend is this provider plus a `--dart-define`, and the
+/// same two flags decide it as decide the reader's: an empty `API_BASE_URL` or
+/// `USE_FIXTURES=true` keeps the fixtures, so a demo of the console and a demo
+/// of the app cannot end up disagreeing about whether there is a backend.
+final adminApiProvider = Provider<PuntlandAdminApi>((ref) {
+  if (kUseFixtures || kApiBaseUrl.isEmpty) return FixtureAdminApi();
+  return HttpAdminApi(
+    ref.watch(consoleDioProvider),
+    ref.watch(consoleCredentialsProvider),
+  );
+});
 
 final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => FixtureAuthRepository(ref.watch(sharedPreferencesProvider)),
+  (ref) => ConsoleAuthRepository(
+    ref.watch(adminApiProvider),
+    ref.watch(consoleCredentialsProvider),
+    ref.watch(sharedPreferencesProvider),
+  ),
 );
 
 /// Drives the whole sign-in flow, and is what the router guards on.

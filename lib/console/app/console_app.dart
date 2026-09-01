@@ -12,6 +12,10 @@ import '../core/providers/console_providers.dart';
 import '../features/auth/domain/entities/console_user.dart';
 import '../features/articles/presentation/pages/article_list_page.dart';
 import '../features/auth/presentation/pages/sign_in_page.dart';
+import '../features/administration/presentation/pages/app_config_page.dart';
+import '../features/administration/presentation/pages/users_page.dart';
+import '../features/media/presentation/pages/media_library_page.dart';
+import '../features/programs/presentation/pages/programs_page.dart';
 import '../features/operations/presentation/pages/categories_page.dart';
 import '../features/operations/presentation/pages/live_control_page.dart';
 import '../features/operations/presentation/pages/push_composer_page.dart';
@@ -94,7 +98,9 @@ class _ConsoleRootState extends ConsumerState<ConsoleRoot> {
   }
 }
 
-/// Screens that exist; everything else falls through to the placeholder.
+/// Every rail destination now resolves to a screen. The placeholder below is
+/// kept for an unknown route only — a `switch` that cannot fall through is one
+/// nobody notices is unreachable when a destination is added.
 Widget _routeBody(String route) => switch (route) {
   '/overview' => const OverviewPage(),
   '/articles' => const ArticleListPage(),
@@ -102,10 +108,14 @@ Widget _routeBody(String route) => switch (route) {
   '/schedule' => const SchedulePage(),
   '/push' => const PushComposerPage(),
   '/categories' => const CategoriesPage(),
+  '/media' => const MediaLibraryPage(),
+  '/programs' => const ProgramsPage(),
+  '/users' => const UsersPage(),
+  '/config' => const AppConfigPage(),
   _ => _ConsolePlaceholder(route: route),
 };
 
-/// Stands in until each screen lands in Phases 5–6.
+/// Reached only by a route with no screen behind it.
 ///
 /// Deliberately explicit about what is missing rather than rendering an empty
 /// pane that looks like a bug.

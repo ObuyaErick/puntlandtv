@@ -3,10 +3,15 @@ import 'dart:math';
 import '../../../core/error/failure.dart';
 import '../../features/auth/domain/entities/console_user.dart';
 import 'dto/admin_article_dto.dart';
+import 'dto/admin_program_dto.dart';
 import 'dto/broadcast_dto.dart';
+import 'dto/console_config_dto.dart';
+import 'dto/media_dto.dart';
 import 'dto/newsroom_summary_dto.dart';
 import 'dto/push_dto.dart';
 import 'dto/schedule_dto.dart';
+import 'dto/session_dto.dart';
+import 'dto/staff_dto.dart';
 import 'puntland_admin_api.dart';
 
 /// [PuntlandAdminApi] over an in-memory store.
@@ -64,6 +69,103 @@ class FixtureAdminApi implements PuntlandAdminApi {
     await Future<void>.delayed(latency);
     return build();
   }
+
+  // ---- Session ----
+
+  /// The one code the fixture accepts.
+  ///
+  /// Any password is taken; the code is not. That keeps the demo usable while
+  /// still exercising the failure path that matters — a wrong second factor,
+  /// three times, locking the operator out.
+  static const validSecondFactorCode = '418';
+
+  /// Prefix for the fixture's stand-in refresh token.
+  ///
+  /// It encodes the account rather than proving anything, which is the honest
+  /// shape for a fixture: there is no cryptography here to pretend otherwise,
+  /// and the console's restore path needs *some* credential to resolve so that
+  /// the code above it is written against the real flow.
+  static const _tokenPrefix = 'fixture-session:';
+
+  static ConsoleUser? _lookup(String email) {
+    final wanted = email.trim().toLowerCase();
+    for (final user in _staff) {
+      if (user.email.toLowerCase() == wanted) return user;
+    }
+    return null;
+  }
+
+  @override
+  Future<SecondFactorChallengeDto> signIn({
+    required String email,
+    required String password,
+  }) => _respond(() {
+    if (password.trim().isEmpty) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: 'INVALID_CREDENTIALS',
+      );
+    }
+    // Deliberately the same refusal an unknown address gets: telling an
+    // attacker which half was wrong is free reconnaissance.
+    if (_lookup(email) == null) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: 'INVALID_CREDENTIALS',
+      );
+    }
+    return SecondFactorChallengeDto(
+      email: email,
+      devCode: validSecondFactorCode,
+    );
+  });
+
+  @override
+  Future<ConsoleSessionDto> verifySecondFactor({
+    required String email,
+    required String code,
+  }) => _respond(() {
+    final user = _lookup(email);
+    if (user == null) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: 'INVALID_CREDENTIALS',
+      );
+    }
+    if (code.trim() != validSecondFactorCode) {
+      throw const Failure(kind: FailureKind.unknown, code: 'INVALID_CODE');
+    }
+    return ConsoleSessionDto(
+      user: user,
+      accessToken: '$_tokenPrefix${user.id}',
+      refreshToken: '$_tokenPrefix${user.id}',
+    );
+  });
+
+  @override
+  Future<ConsoleSessionDto?> restoreSession({String? refreshToken}) =>
+      _respond(() {
+        if (refreshToken == null ||
+            !refreshToken.startsWith(_tokenPrefix)) {
+          return null;
+        }
+        final id = refreshToken.substring(_tokenPrefix.length);
+        for (final user in _staff) {
+          if (user.id == id) {
+            return ConsoleSessionDto(
+              user: user,
+              accessToken: refreshToken,
+              refreshToken: refreshToken,
+            );
+          }
+        }
+        return null;
+      });
+
+  @override
+  Future<void> signOut({String? refreshToken}) => _respond(() {});
+
+  // ---- Newsroom ----
 
   @override
   Future<NewsroomSummaryDto> fetchNewsroomSummary() => _respond(() {
@@ -357,6 +459,733 @@ class FixtureAdminApi implements PuntlandAdminApi {
     _pushHistory.insert(0, entry);
     return entry;
   });
+
+  // ---- Programmes and episodes ----
+
+  late final _programs = <String, AdminProgramDto>{
+    for (final program in _seedPrograms()) program.id: program,
+  };
+
+  late final _episodes = <String, AdminEpisodeDto>{
+    for (final episode in _seedEpisodes()) episode.id: episode,
+  };
+
+  @override
+  Future<List<AdminProgramDto>> fetchPrograms() => _respond(() {
+    final rows = _programs.values.toList()
+      ..sort((a, b) => a.titleFor('so').compareTo(b.titleFor('so')));
+    return rows;
+  });
+
+  @override
+  Future<AdminProgramDto> saveProgram(AdminProgramDto program) => _respond(() {
+    // Episode count belongs to the episodes, not to whatever the form posted.
+    final saved = program.copyWith(
+      episodeCount: _episodes.values
+          .where((e) => e.programId == program.id)
+          .length,
+    );
+    _programs[saved.id] = saved;
+    return saved;
+  });
+
+  @override
+  Future<List<AdminEpisodeDto>> fetchEpisodes(String programId) => _respond(() {
+    final rows =
+        _episodes.values
+            .where((e) => e.programId == programId)
+            .map(_withLiveSource)
+            .toList()
+          ..sort((a, b) => b.number.compareTo(a.number));
+    return rows;
+  });
+
+  /// Re-reads an episode's source from the media store.
+  ///
+  /// Without this, an episode holds the asset as it looked when the fixture was
+  /// seeded, and retrying a failed transcode in the library would leave the
+  /// episodes screen still saying it had failed. The claim on
+  /// [AdminEpisodeDto.source] is that there is one asset and one truth about
+  /// whether it is ready; this is what makes that true rather than decorative.
+  AdminEpisodeDto _withLiveSource(AdminEpisodeDto episode) {
+    final id = episode.source?.id;
+    if (id == null) return episode;
+    final live = _media[id];
+    return live == null ? episode : episode.copyWith(source: live);
+  }
+
+  @override
+  Future<AdminEpisodeDto> saveEpisode(AdminEpisodeDto episode) => _respond(() {
+    final stored = _episodes[episode.id];
+    if (stored == null) {
+      throw const Failure(kind: FailureKind.notFound, code: 'HTTP_404');
+    }
+    // The source is the ingest pipeline's to set, not the form's — the same
+    // reason a media save cannot post its own byte size.
+    final saved = stored.copyWith(titles: episode.titles);
+    _episodes[saved.id] = saved;
+    return saved;
+  });
+
+  @override
+  Future<AdminEpisodeDto> setEpisodeStatus({
+    required String id,
+    required EpisodeStatus status,
+    DateTime? scheduledFor,
+  }) => _respond(() {
+    final episode = _episodes[id];
+    if (episode == null) {
+      throw const Failure(kind: FailureKind.notFound, code: 'HTTP_404');
+    }
+
+    // Publishing an episode whose transcode is at 62% ships a programme that
+    // opens to an error. The UI blocks it; this is why it cannot matter
+    // whether the UI did.
+    if (status == EpisodeStatus.published && !episode.canPublish) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: ProgramFailureCode.episodeBlocked,
+      );
+    }
+
+    final updated = episode.copyWith(
+      status: status,
+      scheduledFor: scheduledFor,
+      airedAt: status == EpisodeStatus.published
+          ? (episode.airedAt ?? DateTime.now())
+          : episode.airedAt,
+    );
+    _episodes[id] = updated;
+    return updated;
+  });
+
+  List<AdminProgramDto> _seedPrograms() => [
+    AdminProgramDto(
+      id: 'evening-news',
+      titles: const {'so': 'Warbaahinta Fiidka', 'en': 'Evening News'},
+      synopses: const {
+        'so': 'Wararka maalinta oo lasoo koobay, maalin kasta 21:00.',
+        'en': 'The day\'s news, every evening at 21:00.',
+      },
+      cadence: ProgramCadence.daily,
+      genre: ProgramGenre.news,
+      episodeCount: 42,
+      updatedAt: _now.subtract(const Duration(hours: 3)),
+      artworkUrl: 'https://picsum.photos/seed/pltv-evening/600/600',
+      isPublished: true,
+    ),
+    AdminProgramDto(
+      id: 'dood-furan',
+      titles: const {'so': 'Dood Furan', 'en': 'Open Debate'},
+      synopses: const {'so': 'Dood toos ah oo ku saabsan arrimaha bulshada.'},
+      cadence: ProgramCadence.weekly,
+      genre: ProgramGenre.debate,
+      episodeCount: 18,
+      updatedAt: _now.subtract(const Duration(hours: 6)),
+      artworkUrl: 'https://picsum.photos/seed/pltv-debate/600/600',
+      isPublished: true,
+    ),
+    AdminProgramDto(
+      id: 'suugaan-dhaqan',
+      titles: const {'so': 'Suugaan iyo Dhaqan', 'en': 'Poetry and Culture'},
+      cadence: ProgramCadence.weekly,
+      genre: ProgramGenre.culture,
+      episodeCount: 24,
+      updatedAt: _now.subtract(const Duration(days: 1)),
+      artworkUrl: 'https://picsum.photos/seed/pltv-culture/600/600',
+      isPublished: true,
+    ),
+    // Published with no English title on purpose: this is the row that
+    // demonstrates a programme live on the Somali shelf and invisible on the
+    // English one.
+    AdminProgramDto(
+      id: 'barnaamijka-caruurta',
+      titles: const {'so': 'Barnaamijka Caruurta'},
+      cadence: ProgramCadence.weekly,
+      genre: ProgramGenre.kids,
+      episodeCount: 9,
+      updatedAt: _now.subtract(const Duration(days: 2)),
+      isPublished: true,
+    ),
+    // A draft nobody has finished — untitled in both, and correctly not live.
+    AdminProgramDto(
+      id: 'ciyaaraha-toddobaadka',
+      titles: const {'so': 'Ciyaaraha Toddobaadka'},
+      cadence: ProgramCadence.weekly,
+      genre: ProgramGenre.sport,
+      episodeCount: 0,
+      updatedAt: _now.subtract(const Duration(days: 4)),
+    ),
+  ];
+
+  /// Episodes seeded to cover every blocker at once.
+  ///
+  /// The two Dood Furan episodes deliberately point at the same media assets
+  /// the library seeds as mid-transcode and failed — one asset, one truth about
+  /// whether it is ready, visible from both screens.
+  List<AdminEpisodeDto> _seedEpisodes() {
+    final assets = _media;
+
+    return [
+      AdminEpisodeDto(
+        id: 'ep-en-42',
+        programId: 'evening-news',
+        titles: const {'so': 'Warka fiidka', 'en': 'Evening bulletin'},
+        number: 42,
+        status: EpisodeStatus.published,
+        duration: const Duration(minutes: 58),
+        source: assets['m-warka-42'],
+        airedAt: _now.subtract(const Duration(days: 1)),
+      ),
+      AdminEpisodeDto(
+        id: 'ep-en-41',
+        programId: 'evening-news',
+        titles: const {'so': 'Warka fiidka', 'en': 'Evening bulletin'},
+        number: 41,
+        status: EpisodeStatus.published,
+        duration: const Duration(minutes: 61),
+        airedAt: _now.subtract(const Duration(days: 2)),
+        source: assets['m-slate-bed'],
+      ),
+      // Attached, still transcoding: needs time, not a decision.
+      AdminEpisodeDto(
+        id: 'ep-df-18',
+        programId: 'dood-furan',
+        titles: const {'so': 'Dood ku saabsan biyaha', 'en': 'Water debate'},
+        number: 18,
+        status: EpisodeStatus.draft,
+        duration: const Duration(minutes: 48, seconds: 12),
+        source: assets['m-dood-18'],
+      ),
+      // Attached, transcode failed: needs a retry in the media library.
+      AdminEpisodeDto(
+        id: 'ep-df-17',
+        programId: 'dood-furan',
+        titles: const {'so': 'Dood ku saabsan waxbarashada'},
+        number: 17,
+        status: EpisodeStatus.draft,
+        duration: const Duration(minutes: 51, seconds: 4),
+        source: assets['m-dood-17'],
+      ),
+      // Nothing attached at all — a different problem, and the screen says so.
+      AdminEpisodeDto(
+        id: 'ep-df-16',
+        programId: 'dood-furan',
+        titles: const {'so': 'Dood ku saabsan dhaqaalaha', 'en': 'Economy'},
+        number: 16,
+        status: EpisodeStatus.draft,
+        duration: Duration.zero,
+      ),
+      AdminEpisodeDto(
+        id: 'ep-sd-24',
+        programId: 'suugaan-dhaqan',
+        titles: const {'so': 'Gabayada Xeebta', 'en': 'Coastal poetry'},
+        number: 24,
+        status: EpisodeStatus.scheduled,
+        duration: const Duration(minutes: 44),
+        source: assets['m-gabay-24'],
+        scheduledFor: DateTime(_now.year, _now.month, _now.day, 19),
+      ),
+      AdminEpisodeDto(
+        id: 'ep-bc-9',
+        programId: 'barnaamijka-caruurta',
+        titles: const {'so': 'Sheeko caruur'},
+        number: 9,
+        status: EpisodeStatus.published,
+        duration: const Duration(minutes: 28),
+        source: assets['m-slate-bed'],
+        airedAt: _now.subtract(const Duration(days: 3)),
+      ),
+    ];
+  }
+
+  // ---- Administration ----
+
+  late StaffDirectoryDto _staffDirectory = StaffDirectoryDto(
+    members: [
+      StaffMemberDto(
+        id: 'u-admin',
+        name: 'S. Warsame',
+        email: 's.warsame@pltv.so',
+        role: ConsoleRole.admin,
+        status: StaffStatus.active,
+        createdAt: _now.subtract(const Duration(days: 420)),
+        lastActiveAt: _now.subtract(const Duration(minutes: 4)),
+        twoFactorEnrolled: true,
+      ),
+      StaffMemberDto(
+        id: 'u-editor',
+        name: 'A. Yuusuf',
+        email: 'a.yuusuf@pltv.so',
+        role: ConsoleRole.editor,
+        status: StaffStatus.active,
+        createdAt: _now.subtract(const Duration(days: 300)),
+        lastActiveAt: _now.subtract(const Duration(minutes: 12)),
+        twoFactorEnrolled: true,
+      ),
+      StaffMemberDto(
+        id: 'u-journalist',
+        name: 'F. Xasan',
+        email: 'f.xasan@pltv.so',
+        role: ConsoleRole.journalist,
+        status: StaffStatus.active,
+        createdAt: _now.subtract(const Duration(days: 96)),
+        lastActiveAt: _now.subtract(const Duration(hours: 2)),
+        twoFactorEnrolled: true,
+      ),
+      StaffMemberDto(
+        id: 'u-ops',
+        name: 'M. Cali',
+        email: 'm.cali@pltv.so',
+        role: ConsoleRole.operations,
+        status: StaffStatus.active,
+        createdAt: _now.subtract(const Duration(days: 210)),
+        lastActiveAt: _now.subtract(const Duration(minutes: 38)),
+        twoFactorEnrolled: true,
+      ),
+      // Invited and never signed in: holds a role, occupies a seat, counts for
+      // nothing towards the last-admin rule.
+      StaffMemberDto(
+        id: 'u-invited-admin',
+        name: 'H. Nuur',
+        email: 'h.nuur@pltv.so',
+        role: ConsoleRole.admin,
+        status: StaffStatus.invited,
+        createdAt: _now.subtract(const Duration(days: 2)),
+      ),
+      // No second factor: an account that cannot actually complete a sign-in.
+      StaffMemberDto(
+        id: 'u-stringer',
+        name: 'K. Aadan',
+        email: 'k.aadan@pltv.so',
+        role: ConsoleRole.journalist,
+        status: StaffStatus.active,
+        createdAt: _now.subtract(const Duration(days: 21)),
+        lastActiveAt: _now.subtract(const Duration(days: 6)),
+      ),
+      StaffMemberDto(
+        id: 'u-former',
+        name: 'Z. Faarax',
+        email: 'z.faarax@pltv.so',
+        role: ConsoleRole.editor,
+        status: StaffStatus.suspended,
+        createdAt: _now.subtract(const Duration(days: 610)),
+        lastActiveAt: _now.subtract(const Duration(days: 74)),
+        twoFactorEnrolled: true,
+      ),
+    ],
+  );
+
+  @override
+  Future<StaffDirectoryDto> fetchStaffDirectory() =>
+      _respond(() => _staffDirectory);
+
+  @override
+  Future<StaffMemberDto> setStaffRole({
+    required String id,
+    required ConsoleRole role,
+  }) => _respond(() {
+    final member = _requireMember(id);
+
+    // The last-admin half of the rule needs no session: it is a fact about the
+    // directory, so the boundary can and does enforce it.
+    final losesAdmin =
+        member.role == ConsoleRole.admin && role != ConsoleRole.admin;
+    if (losesAdmin && _staffDirectory.isLastAdmin(id)) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: StaffFailureCode.lastAdmin,
+      );
+    }
+
+    final updated = member.copyWith(role: role);
+    _staffDirectory = _staffDirectory.withMember(updated);
+    return updated;
+  });
+
+  @override
+  Future<StaffMemberDto> setStaffStatus({
+    required String id,
+    required StaffStatus status,
+  }) => _respond(() {
+    final member = _requireMember(id);
+
+    if (status == StaffStatus.suspended && _staffDirectory.isLastAdmin(id)) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: StaffFailureCode.lastAdmin,
+      );
+    }
+
+    final updated = member.copyWith(status: status);
+    _staffDirectory = _staffDirectory.withMember(updated);
+    return updated;
+  });
+
+  StaffMemberDto _requireMember(String id) {
+    final member = _staffDirectory.byId(id);
+    if (member == null) {
+      throw const Failure(kind: FailureKind.notFound, code: 'HTTP_404');
+    }
+    return member;
+  }
+
+  late ConsoleConfigDto _config = ConsoleConfigDto(
+    minimumSupportedBuild: 104,
+    currentReleasedBuild: 118,
+    locales: [
+      // Somali strands the most content, which is the number that makes
+      // disabling it a decision rather than a switch.
+      LocaleOptionDto(
+        code: 'so',
+        enabled: true,
+        articlesOnlyInThisLocale: _articlesOnlyIn('so'),
+      ),
+      LocaleOptionDto(
+        code: 'en',
+        enabled: true,
+        articlesOnlyInThisLocale: _articlesOnlyIn('en'),
+      ),
+    ],
+    flags: const [
+      FeatureFlagDto(
+        key: 'radio_tab',
+        enabled: true,
+        description: 'Shows the radio destination in the app tab bar.',
+      ),
+      FeatureFlagDto(
+        key: 'vod_downloads',
+        enabled: false,
+        description: 'Offline episode downloads. Wi-Fi only when on.',
+      ),
+      FeatureFlagDto(
+        key: 'article_comments',
+        enabled: false,
+        description:
+            'Reader comments. Needs moderation staffing before it '
+            'goes on.',
+      ),
+      FeatureFlagDto(
+        key: 'breaking_banner',
+        enabled: true,
+        description: 'In-app breaking banner above the feed.',
+      ),
+    ],
+    updatedAt: _now.subtract(const Duration(days: 5)),
+    updatedBy: 'S. Warsame',
+  );
+
+  @override
+  Future<ConsoleConfigDto> fetchConsoleConfig() => _respond(() => _config);
+
+  @override
+  Future<ConsoleConfigDto> saveConsoleConfig(ConsoleConfigDto config) =>
+      _respond(() {
+        // Both of these lock every reader out of the product, and neither is
+        // recoverable from inside the console — the first needs a store
+        // release. The UI blocks both; the boundary must not rely on it.
+        if (config.minimumSupportedBuild > _config.currentReleasedBuild) {
+          throw const Failure(
+            kind: FailureKind.unknown,
+            code: ConfigFailureCode.floorAboveRelease,
+          );
+        }
+        if (config.enabledLocales.isEmpty) {
+          throw const Failure(
+            kind: FailureKind.unknown,
+            code: ConfigFailureCode.noLocales,
+          );
+        }
+
+        _config = ConsoleConfigDto(
+          minimumSupportedBuild: config.minimumSupportedBuild,
+          // Not the client's to move: it is a fact about what shipped.
+          currentReleasedBuild: _config.currentReleasedBuild,
+          locales: config.locales,
+          flags: config.flags,
+          dataSaverDefault: config.dataSaverDefault,
+          updatedAt: DateTime.now(),
+          updatedBy: 'S. Warsame',
+        );
+        return _config;
+      });
+
+  /// Published articles that exist in [locale] and in no other language.
+  int _articlesOnlyIn(String locale) => _articles.values
+      .where(
+        (a) =>
+            a.status == ArticleStatus.published &&
+            a.translations.containsKey(locale) &&
+            a.translations.length == 1,
+      )
+      .length;
+
+  // ---- Media library ----
+
+  late final _media = <String, MediaAssetDto>{
+    for (final asset in _seedMedia()) asset.id: asset,
+  };
+
+  @override
+  Future<List<MediaAssetDto>> fetchMedia({
+    MediaKindFilter filter = MediaKindFilter.all,
+    String? query,
+  }) => _respond(() {
+    var rows = _media.values.toList();
+
+    // The rule filter and the kind filters are the same control in the UI, so
+    // they are the same parameter here — but they narrow on different things,
+    // and only one of them can be a `kind ==` test.
+    if (filter == MediaKindFilter.needsAlt) {
+      rows = rows.where((a) => a.blocksPublishing).toList();
+    } else if (filter.kind != null) {
+      rows = rows.where((a) => a.kind == filter.kind).toList();
+    }
+
+    if (query != null && query.trim().isNotEmpty) {
+      final needle = query.trim().toLowerCase();
+      rows = rows
+          .where(
+            (a) =>
+                a.filename.toLowerCase().contains(needle) ||
+                a.alt.values.any((t) => t.toLowerCase().contains(needle)) ||
+                (a.credit ?? '').toLowerCase().contains(needle),
+          )
+          .toList();
+    }
+
+    rows.sort((a, b) => b.uploadedAt.compareTo(a.uploadedAt));
+    return rows;
+  });
+
+  @override
+  Future<MediaAssetDto> fetchMediaAsset(String id) =>
+      _respond(() => _requireAsset(id));
+
+  @override
+  Future<MediaAssetDto> saveMediaAsset(MediaAssetDto asset) => _respond(() {
+    // Only the newsroom-editable fields are taken from the incoming value.
+    // Everything else belongs to the ingest pipeline, and letting a form post
+    // a new byte size or a forged usage list would make the delete rule a
+    // suggestion.
+    final stored = _requireAsset(asset.id);
+    final saved = stored.copyWith(alt: asset.alt, credit: asset.credit);
+    _media[saved.id] = saved;
+    return saved;
+  });
+
+  @override
+  Future<MediaAssetDto> uploadMedia({
+    required String filename,
+    required MediaKind kind,
+    required int byteSize,
+  }) => _respond(() {
+    final id = 'm-${_random.nextInt(1 << 32).toRadixString(16)}';
+    final asset = MediaAssetDto(
+      id: id,
+      kind: kind,
+      filename: filename,
+      url: 'https://cdn.pltv.so/media/$id',
+      byteSize: byteSize,
+      uploadedAt: DateTime.now(),
+      uploadedBy: 'A. Yuusuf',
+      width: kind == MediaKind.image ? 2048 : null,
+      height: kind == MediaKind.image ? 1365 : null,
+      // An image is servable the moment it lands; video is not, and pretending
+      // otherwise is what produces a programme that will not play.
+      processing: kind == MediaKind.image
+          ? MediaProcessingState.ready
+          : MediaProcessingState.processing,
+      transcodeProgress: kind == MediaKind.image ? 1 : 0,
+    );
+    _media[id] = asset;
+    return asset;
+  });
+
+  @override
+  Future<void> deleteMediaAsset(String id) => _respond(() {
+    final asset = _requireAsset(id);
+    if (!asset.canDelete) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: MediaFailureCode.inUse,
+      );
+    }
+    _media.remove(id);
+  });
+
+  @override
+  Future<MediaAssetDto> retryMediaIngest(String id) => _respond(() {
+    final asset = _requireAsset(id);
+    // A retry re-queues; it does not succeed instantly. Showing "ready" here
+    // would be the console lying about the pipeline.
+    final requeued = asset.copyWith(
+      processing: MediaProcessingState.processing,
+      transcodeProgress: 0,
+    );
+    _media[id] = requeued;
+    return requeued;
+  });
+
+  MediaAssetDto _requireAsset(String id) {
+    final asset = _media[id];
+    if (asset == null) {
+      throw const Failure(kind: FailureKind.notFound, code: 'HTTP_404');
+    }
+    return asset;
+  }
+
+  /// Seeded so every state the library has to render is on screen at once:
+  /// a fully described image, one missing English alt, one missing both, a
+  /// video mid-transcode, a failed transcode, and an audio bed in use.
+  List<MediaAssetDto> _seedMedia() {
+    MediaAssetDto image(
+      String id,
+      String filename, {
+      String? so,
+      String? en,
+      String? credit,
+      int minutesAgo = 0,
+      int byteSize = 840 * 1024,
+      int width = 2048,
+      int height = 1365,
+      List<MediaUsageDto> usedIn = const [],
+    }) => MediaAssetDto(
+      id: id,
+      kind: MediaKind.image,
+      filename: filename,
+      url: 'https://cdn.pltv.so/media/$id.jpg',
+      thumbnailUrl: 'https://cdn.pltv.so/media/$id-thumb.jpg',
+      byteSize: byteSize,
+      uploadedAt: _now.subtract(Duration(minutes: minutesAgo)),
+      uploadedBy: _staff[0].name,
+      alt: {'so': ?so, 'en': ?en},
+      credit: credit,
+      width: width,
+      height: height,
+      usedIn: usedIn,
+    );
+
+    return [
+      image(
+        'm-highway',
+        'wadada-weyn-2026-08.jpg',
+        so: 'Wadada weyn ee Boosaaso oo dib loo furay, gawaari ku socda',
+        en: 'Traffic moving on the reopened Bosaso highway',
+        credit: 'PLTV / M. Cali',
+        minutesAgo: 38,
+        usedIn: const [
+          MediaUsageDto(
+            articleId: 'a-road',
+            title: 'Wadada weyn oo dib loo furay',
+            isPublished: false,
+          ),
+        ],
+      ),
+      // Described in Somali only: the state the library exists to surface.
+      // The editor's gate would let this publish, because an alt string does
+      // exist — it is just not the reader's language.
+      image(
+        'm-school',
+        'dugsiga-sare-furitaan.jpg',
+        so: 'Ardayda dugsiga sare oo fasalka gudaha ah maalinta furitaanka',
+        minutesAgo: 96,
+        credit: 'PLTV',
+        usedIn: const [
+          MediaUsageDto(
+            articleId: 'a-schools',
+            title: 'Dugsiyada sare oo bilaabay sannad dugsiyeedka cusub',
+            isPublished: true,
+          ),
+        ],
+      ),
+      // Undescribed entirely — how every upload starts.
+      image(
+        'm-livestock',
+        'suuqa-xoolaha-galkacyo.jpg',
+        minutesAgo: 14,
+        byteSize: 3 * 1024 * 1024,
+        credit: 'F. Xasan',
+      ),
+      image(
+        'm-rain',
+        'roobab-gobolka-bari.jpg',
+        so: 'Roobab ku da\'aya waddo ciid ah oo gobolka bari ah',
+        en: 'Rain falling on a dirt road in the eastern region',
+        credit: 'Reuters',
+        minutesAgo: 210,
+        byteSize: 1240 * 1024,
+      ),
+      MediaAssetDto(
+        id: 'm-dood-18',
+        kind: MediaKind.video,
+        filename: 'dood-furan-ep18.mp4',
+        url: 'https://cdn.pltv.so/media/m-dood-18.m3u8',
+        thumbnailUrl: 'https://cdn.pltv.so/media/m-dood-18-poster.jpg',
+        byteSize: 1840 * 1024 * 1024,
+        uploadedAt: _now.subtract(const Duration(minutes: 22)),
+        uploadedBy: _staff[2].name,
+        width: 1920,
+        height: 1080,
+        duration: const Duration(minutes: 48, seconds: 12),
+        processing: MediaProcessingState.processing,
+        transcodeProgress: 0.62,
+      ),
+      // The failed ingest the overview screen already counts. Same event, two
+      // surfaces — the counter says how many, this says which and why.
+      MediaAssetDto(
+        id: 'm-dood-17',
+        kind: MediaKind.video,
+        filename: 'dood-furan-ep17.mp4',
+        url: 'https://cdn.pltv.so/media/m-dood-17.m3u8',
+        byteSize: 2100 * 1024 * 1024,
+        uploadedAt: _now.subtract(const Duration(hours: 5)),
+        uploadedBy: _staff[2].name,
+        width: 1920,
+        height: 1080,
+        duration: const Duration(minutes: 51, seconds: 4),
+        processing: MediaProcessingState.failed,
+        transcodeProgress: 0.34,
+        failureReason: 'Transcode 240p failed — source audio track missing.',
+      ),
+      MediaAssetDto(
+        id: 'm-warka-42',
+        kind: MediaKind.video,
+        filename: 'warka-fiidka-42.mp4',
+        url: 'https://cdn.pltv.so/media/m-warka-42.m3u8',
+        thumbnailUrl: 'https://cdn.pltv.so/media/m-warka-42-poster.jpg',
+        byteSize: 1620 * 1024 * 1024,
+        uploadedAt: _now.subtract(const Duration(days: 1)),
+        uploadedBy: _staff[2].name,
+        width: 1920,
+        height: 1080,
+        duration: const Duration(minutes: 58),
+      ),
+      MediaAssetDto(
+        id: 'm-gabay-24',
+        kind: MediaKind.video,
+        filename: 'suugaan-gabayada-xeebta.mp4',
+        url: 'https://cdn.pltv.so/media/m-gabay-24.m3u8',
+        thumbnailUrl: 'https://cdn.pltv.so/media/m-gabay-24-poster.jpg',
+        byteSize: 1180 * 1024 * 1024,
+        uploadedAt: _now.subtract(const Duration(hours: 9)),
+        uploadedBy: _staff[2].name,
+        width: 1920,
+        height: 1080,
+        duration: const Duration(minutes: 44),
+      ),
+      MediaAssetDto(
+        id: 'm-slate-bed',
+        kind: MediaKind.audio,
+        filename: 'continuity-bed-loop.m4a',
+        url: 'https://cdn.pltv.so/media/m-slate-bed.m4a',
+        byteSize: 2 * 1024 * 1024,
+        uploadedAt: _now.subtract(const Duration(days: 3)),
+        uploadedBy: _staff[2].name,
+        duration: const Duration(minutes: 2, seconds: 30),
+      ),
+    ];
+  }
 
   DayScheduleDto _seedSchedule() {
     final day = DateTime(_now.year, _now.month, _now.day);

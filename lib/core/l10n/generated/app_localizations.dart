@@ -796,25 +796,25 @@ abstract class AppL10n {
   /// Staff role. Uppercase.
   ///
   /// In en, this message translates to:
-  /// **'JOURNALIST'**
+  /// **'Journalist'**
   String get roleJournalist;
 
   /// Staff role. Uppercase.
   ///
   /// In en, this message translates to:
-  /// **'EDITOR'**
+  /// **'Editor'**
   String get roleEditor;
 
   /// Staff role. Uppercase.
   ///
   /// In en, this message translates to:
-  /// **'OPERATIONS'**
+  /// **'Operations'**
   String get roleOperations;
 
   /// Staff role. Uppercase.
   ///
   /// In en, this message translates to:
-  /// **'ADMIN'**
+  /// **'Admin'**
   String get roleAdmin;
 
   /// Heading of the sign-in card.
@@ -912,6 +912,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Too many attempts. Start again.'**
   String get errorLockedOut;
+
+  /// Sign-in failure for an account that cannot complete the second step. Not a wrong password, so it must not read like one.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has no second factor set up. Ask an administrator.'**
+  String get errorTwoFactorNotEnrolled;
+
+  /// Fallback for any sign-in failure without a message of its own — a lost connection, a server error. Shown so the form never fails silently.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in did not go through. Try again.'**
+  String get errorSignInFailed;
 
   /// Console article list heading for editors.
   ///
@@ -1842,6 +1854,912 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'URL'**
   String get colUrl;
+
+  /// Console media library page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Media library'**
+  String get mediaTitle;
+
+  /// Primary action on the media library: add files.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get uploadMedia;
+
+  /// Notice strip on the media library explaining the per-locale alt text rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Alt text is required in both languages. An image described in only one reaches the other language\'s readers undescribed.'**
+  String get mediaAltNotice;
+
+  /// Media library filter chip: every asset.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAllMedia;
+
+  /// Media library filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Images'**
+  String get filterImages;
+
+  /// Media library filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get filterVideo;
+
+  /// Media library filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get filterAudio;
+
+  /// Media library filter chip for images missing alt text in at least one language. The only filter naming a problem rather than a type.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs alt text'**
+  String get filterNeedsAlt;
+
+  /// Placeholder in the media library search box.
+  ///
+  /// In en, this message translates to:
+  /// **'Search filename, alt text, or credit'**
+  String get searchMedia;
+
+  /// Media library empty state title.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in the library yet'**
+  String get emptyMedia;
+
+  /// Media library empty state body.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload an image, a programme, or an audio bed to get started.'**
+  String get emptyMediaBody;
+
+  /// Media library empty state when a filter or search excludes everything.
+  ///
+  /// In en, this message translates to:
+  /// **'No files match this filter'**
+  String get emptyMediaFiltered;
+
+  /// Title of the media detail side panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Asset'**
+  String get mediaAssetTitle;
+
+  /// Section heading in the media detail panel. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'ALT TEXT'**
+  String get sectionAltText;
+
+  /// Section heading in the media detail panel. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'FILE'**
+  String get sectionFileDetails;
+
+  /// Section heading in the media detail panel listing the articles an asset appears in. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'USED IN'**
+  String get sectionUsage;
+
+  /// Label on one language's alt text field.
+  ///
+  /// In en, this message translates to:
+  /// **'Alt text ({language})'**
+  String altTextFor(String language);
+
+  /// Helper text under the alt text fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what is in the picture, not that it is a picture.'**
+  String get altTextHint;
+
+  /// Warning on an asset tile counting the languages with no alt text.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Missing alt text in {count} language} other{Missing alt text in {count} languages}}'**
+  String altMissingInCount(int count);
+
+  /// Confirmation on an asset whose alt text is complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Described in both languages'**
+  String get altComplete;
+
+  /// Photographer or agency attribution field. Not translated — it is a proper noun.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit'**
+  String get fieldCredit;
+
+  /// Helper text explaining why the credit field has no per-language variant.
+  ///
+  /// In en, this message translates to:
+  /// **'A name, so it stays the same in both languages.'**
+  String get creditNotTranslated;
+
+  /// Media detail row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Filename'**
+  String get fieldFilename;
+
+  /// Media detail row label for an image's pixel size.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimensions'**
+  String get fieldDimensions;
+
+  /// Media detail row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get fieldFileSize;
+
+  /// Media detail row label for video and audio length.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get fieldDuration;
+
+  /// Media detail row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded'**
+  String get fieldUploaded;
+
+  /// File size in megabytes. The number arrives pre-formatted for the locale.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} MB'**
+  String megabytes(String value);
+
+  /// File size in kilobytes. The number arrives pre-formatted for the locale.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} kB'**
+  String kilobytes(String value);
+
+  /// Who uploaded an asset and when.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · {date}'**
+  String uploadedByOn(String name, String date);
+
+  /// Progress label on a video still being ingested.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcoding · {percent}%'**
+  String transcodingProgress(String percent);
+
+  /// Explains why a processing video cannot be used yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not attachable until transcoding finishes.'**
+  String get transcodeNotAttachable;
+
+  /// Heading on a failed transcode in the media detail panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingest failed'**
+  String get transcodeFailedTitle;
+
+  /// Action that re-queues a failed transcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry ingest'**
+  String get retryIngest;
+
+  /// Toast after re-queuing a failed transcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry queued.'**
+  String get retryQueued;
+
+  /// How many articles an asset appears in.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, zero{Not used yet} one{Used in {count} article} other{Used in {count} articles}}'**
+  String usedInCount(int count);
+
+  /// Sub-label warning that some uses of an asset are already live.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} of them is published} other{{count} of them are published}}'**
+  String usedInPublishedCount(int count);
+
+  /// Action that removes an asset from the library.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteAsset;
+
+  /// Why the delete action is disabled on an asset an article points at.
+  ///
+  /// In en, this message translates to:
+  /// **'In use — detach it from every article before deleting.'**
+  String get deleteBlockedInUse;
+
+  /// Confirmation dialog title for deleting an asset.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this file?'**
+  String get deleteAssetTitle;
+
+  /// Confirmation dialog body for deleting an unused asset.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be undone. Nothing points at it, so no article changes.'**
+  String get deleteAssetBody;
+
+  /// Toast after deleting one asset.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {filename}'**
+  String assetDeleted(String filename);
+
+  /// Toast after a bulk delete.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} file deleted} other{{count} files deleted}}'**
+  String assetsDeleted(int count);
+
+  /// Toast reporting the part of a bulk delete the library refused.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} file kept — it is still in use} other{{count} files kept — they are still in use}}'**
+  String deleteRefusedCount(int count);
+
+  /// Toast after saving an asset's metadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Alt text saved.'**
+  String get altTextSaved;
+
+  /// Toast while a file is being registered.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading {filename}…'**
+  String uploadPending(String filename);
+
+  /// Toast after uploading an image, which lands undescribed.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded. Add alt text in both languages before it can publish.'**
+  String get uploadedNeedsAlt;
+
+  /// Toast after uploading a video.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded. Transcoding has started.'**
+  String get uploadedProcessing;
+
+  /// Label inside the media library's upload drop zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop files here, or choose from your computer'**
+  String get dropToUpload;
+
+  /// Button inside the upload drop zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose files'**
+  String get chooseFiles;
+
+  /// Accepted formats under the upload drop zone.
+  ///
+  /// In en, this message translates to:
+  /// **'JPEG, PNG, MP4, or M4A — up to 2 GB'**
+  String get uploadFormats;
+
+  /// Asset kind label.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get mediaKindImage;
+
+  /// Asset kind label.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get mediaKindVideo;
+
+  /// Asset kind label.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get mediaKindAudio;
+
+  /// Screen reader label for an asset tile in the grid.
+  ///
+  /// In en, this message translates to:
+  /// **'{filename}, {kind}'**
+  String mediaGridLabel(String filename, String kind);
+
+  /// Link from an asset's usage list to the article using it.
+  ///
+  /// In en, this message translates to:
+  /// **'Open article'**
+  String get openArticle;
+
+  /// Console programmes page title. Distinct from programsTitle, which is the reader app's VOD screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Programmes'**
+  String get programsConsoleTitle;
+
+  /// Primary action on the programmes page.
+  ///
+  /// In en, this message translates to:
+  /// **'New programme'**
+  String get newProgram;
+
+  /// Notice on the programmes page explaining the per-locale visibility rule.
+  ///
+  /// In en, this message translates to:
+  /// **'A programme with no title in a language is hidden from that language\'s shelf. It is not shown in the other language.'**
+  String get programsNotice;
+
+  /// Programmes table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'PROGRAMME'**
+  String get colProgram;
+
+  /// Programmes table column for how often a show airs. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'CADENCE'**
+  String get colCadence;
+
+  /// Programmes table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'GENRE'**
+  String get colGenre;
+
+  /// Programmes table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'EPISODES'**
+  String get colEpisodes;
+
+  /// Programmes table column showing which locales a programme appears in. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'ON SHELF'**
+  String get colShelf;
+
+  /// Programme cadence.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get cadenceDaily;
+
+  /// Programme cadence.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get cadenceWeekly;
+
+  /// Programme cadence.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get cadenceMonthly;
+
+  /// Programme cadence for specials with no fixed slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasional'**
+  String get cadenceOccasional;
+
+  /// Programme genre.
+  ///
+  /// In en, this message translates to:
+  /// **'News'**
+  String get genreNews;
+
+  /// Programme genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Debate'**
+  String get genreDebate;
+
+  /// Programme genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Culture'**
+  String get genreCulture;
+
+  /// Programme genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Children'**
+  String get genreKids;
+
+  /// Programme genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get genreSport;
+
+  /// Programme genre.
+  ///
+  /// In en, this message translates to:
+  /// **'Religion'**
+  String get genreReligion;
+
+  /// Programmes page empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'No programmes yet'**
+  String get emptyPrograms;
+
+  /// Programmes page empty state body.
+  ///
+  /// In en, this message translates to:
+  /// **'A programme groups episodes into a shelf in the app.'**
+  String get emptyProgramsBody;
+
+  /// Sub-label on a programme with no title in one language.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden from the {language} shelf'**
+  String hiddenFromShelf(String language);
+
+  /// Title of the episode list for one programme.
+  ///
+  /// In en, this message translates to:
+  /// **'Episodes · {program}'**
+  String episodesOf(String program);
+
+  /// Returns from one programme's episodes to the programme list.
+  ///
+  /// In en, this message translates to:
+  /// **'All programmes'**
+  String get backToPrograms;
+
+  /// Episodes table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'EPISODE'**
+  String get colEpisode;
+
+  /// Episodes table column for the attached video file. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'SOURCE'**
+  String get colSource;
+
+  /// Episodes table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'AIRED'**
+  String get colAired;
+
+  /// Short episode label.
+  ///
+  /// In en, this message translates to:
+  /// **'Ep. {number}'**
+  String episodeNumber(int number);
+
+  /// Episode list empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'No episodes in this programme'**
+  String get emptyEpisodes;
+
+  /// Episode list empty state body.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload the video to the media library first, then attach it here.'**
+  String get emptyEpisodesBody;
+
+  /// Why an episode cannot be published: nothing to play.
+  ///
+  /// In en, this message translates to:
+  /// **'No video attached'**
+  String get blockerNoSource;
+
+  /// Why an episode cannot be published: the ingest failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcode failed — retry it in the media library'**
+  String get blockerSourceFailed;
+
+  /// Why an episode cannot be published: the ingest is unfinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Still transcoding'**
+  String get blockerSourceProcessing;
+
+  /// Why an episode cannot be published: a missing locale title.
+  ///
+  /// In en, this message translates to:
+  /// **'No title in {language}'**
+  String blockerUntitled(String language);
+
+  /// Action that puts an episode in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get publishEpisode;
+
+  /// Action that removes an episode from the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpublish'**
+  String get unpublishEpisode;
+
+  /// Tooltip on a disabled episode publish button.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix what is blocking this episode before publishing it.'**
+  String get episodePublishBlocked;
+
+  /// Toast after publishing an episode.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode published.'**
+  String get episodePublished;
+
+  /// Toast after unpublishing an episode.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode removed from the app.'**
+  String get episodeUnpublished;
+
+  /// Summary strip above an episode list.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} episode cannot be published yet} other{{count} episodes cannot be published yet}}'**
+  String blockedEpisodeCount(int count);
+
+  /// Console administration page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Users and roles'**
+  String get usersTitle;
+
+  /// Primary action on the users page.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get inviteUser;
+
+  /// Notice on the users page.
+  ///
+  /// In en, this message translates to:
+  /// **'A role is a set of capabilities, not a label. Changing someone\'s role changes what they can do everywhere in the console at once.'**
+  String get usersNotice;
+
+  /// Users table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'PERSON'**
+  String get colPerson;
+
+  /// Users table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'ROLE'**
+  String get colRole;
+
+  /// Users table column. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'LAST ACTIVE'**
+  String get colLastActive;
+
+  /// Staff account status.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// Staff account status: invited but never signed in.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get statusInvited;
+
+  /// Staff account status: kept, but cannot sign in.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended'**
+  String get statusSuspended;
+
+  /// Last-active value for an account that has never been used.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get neverSignedIn;
+
+  /// Warning on an account that cannot complete a sign-in.
+  ///
+  /// In en, this message translates to:
+  /// **'No second factor'**
+  String get noSecondFactor;
+
+  /// Summary strip on the users page. Counts only active admins.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} admin can sign in} other{{count} admins can sign in}}'**
+  String adminSeatCount(int count);
+
+  /// Summary strip on the users page.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} account has no second factor} other{{count} accounts have no second factor}}'**
+  String twoFactorGapCount(int count);
+
+  /// Title of the staff detail side panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get memberTitle;
+
+  /// Section heading in the staff panel. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'ROLE'**
+  String get sectionRole;
+
+  /// Section heading above the capability list. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'WHAT THIS ROLE CAN DO'**
+  String get sectionCapabilities;
+
+  /// Section heading in the staff panel. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'ACCOUNT'**
+  String get sectionAccount;
+
+  /// Explains why the capability list is read-only.
+  ///
+  /// In en, this message translates to:
+  /// **'Capabilities come from the role, never from the person. There is no per-user grant to audit.'**
+  String get capabilityDerivedNote;
+
+  /// Capability description.
+  ///
+  /// In en, this message translates to:
+  /// **'Write and edit own drafts'**
+  String get capWriteOwnArticles;
+
+  /// Capability description.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit anyone\'s article, and publish'**
+  String get capPublishArticles;
+
+  /// Capability description.
+  ///
+  /// In en, this message translates to:
+  /// **'Send push alerts'**
+  String get capSendPush;
+
+  /// Capability description.
+  ///
+  /// In en, this message translates to:
+  /// **'Streams, schedule, and the on-air toggle'**
+  String get capManageBroadcast;
+
+  /// Capability description.
+  ///
+  /// In en, this message translates to:
+  /// **'Programmes, episodes, and the media library'**
+  String get capManageLibrary;
+
+  /// Capability description.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get capManageTaxonomy;
+
+  /// Capability description.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff accounts and roles'**
+  String get capManageUsers;
+
+  /// Capability description.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature flags, minimum build, locales'**
+  String get capManageConfig;
+
+  /// Capability description.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the audit trail'**
+  String get capViewAuditLog;
+
+  /// Action that stops an account signing in.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend'**
+  String get suspendAccount;
+
+  /// Action that restores a suspended account.
+  ///
+  /// In en, this message translates to:
+  /// **'Reinstate'**
+  String get reinstateAccount;
+
+  /// Explains why suspension exists instead of deletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspending keeps the account and its bylines. Deleting it would rewrite the author on every article they filed.'**
+  String get suspendKeepsBylinesNote;
+
+  /// Why a role or status change on your own account is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot revoke your own access — another admin would have to let you back in.'**
+  String get refusalSelf;
+
+  /// Why demoting or suspending the last admin is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the only admin who can sign in. Promote someone else first.'**
+  String get refusalLastAdmin;
+
+  /// Toast after a role change.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is now {role}.'**
+  String roleChanged(String name, String role);
+
+  /// Toast after suspending an account.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can no longer sign in.'**
+  String accountSuspended(String name);
+
+  /// Toast after reinstating an account.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can sign in again.'**
+  String accountReinstated(String name);
+
+  /// Console app config page title.
+  ///
+  /// In en, this message translates to:
+  /// **'App configuration'**
+  String get configTitle;
+
+  /// Notice on the app config page.
+  ///
+  /// In en, this message translates to:
+  /// **'The app reads this at startup. A change reaches a reader the next time they open it, not immediately.'**
+  String get configNotice;
+
+  /// App config section heading. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'MINIMUM SUPPORTED BUILD'**
+  String get sectionUpdateFloor;
+
+  /// App config section heading. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'LANGUAGES'**
+  String get sectionLocales;
+
+  /// App config section heading. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'FEATURE FLAGS'**
+  String get sectionFlags;
+
+  /// App config section heading. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'READER DEFAULTS'**
+  String get sectionReaderDefaults;
+
+  /// Label on the minimum supported build field.
+  ///
+  /// In en, this message translates to:
+  /// **'Builds below this must update'**
+  String get fieldMinimumBuild;
+
+  /// Reference value beside the minimum build field.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest released build: {build}'**
+  String releasedBuildIs(String build);
+
+  /// Error under the minimum build field when it exceeds the released build.
+  ///
+  /// In en, this message translates to:
+  /// **'No released build satisfies this floor. Every reader would be told to update with nothing to update to, and only a store release could undo it.'**
+  String get floorLocksEveryoneOut;
+
+  /// Confirmation under a valid minimum build field.
+  ///
+  /// In en, this message translates to:
+  /// **'Readers on build {build} or later are unaffected.'**
+  String floorSafe(String build);
+
+  /// How much content disabling a language would remove.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, zero{Nothing exists only in this language} one{{count} published article exists only in this language} other{{count} published articles exist only in this language}}'**
+  String localeStrandsArticles(int count);
+
+  /// Why the final enabled locale's switch is disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'The last language cannot be switched off.'**
+  String get lastLocaleCannotBeDisabled;
+
+  /// Explains the consequence of disabling a locale.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching a language off removes the stories written only in it. They do not fall back to the other language.'**
+  String get disablingRemovesContent;
+
+  /// App config toggle label.
+  ///
+  /// In en, this message translates to:
+  /// **'Data saver on by default'**
+  String get fieldDataSaver;
+
+  /// Helper text under the data saver toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Most of the audience is on metered mobile data.'**
+  String get dataSaverHint;
+
+  /// Notice above the feature flag list.
+  ///
+  /// In en, this message translates to:
+  /// **'A flag key is baked into released builds. Renaming one switches the feature off for everyone already installed.'**
+  String get flagKeyPermanentNote;
+
+  /// Toast after saving app config.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration saved.'**
+  String get configSaved;
+
+  /// Provenance line on the app config page.
+  ///
+  /// In en, this message translates to:
+  /// **'Last changed {date} by {name}'**
+  String configLastChanged(String date, String name);
+
+  /// Tooltip on the disabled app config save button.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix the minimum build before saving.'**
+  String get saveBlockedByFloor;
+
+  /// Abandons unsaved app config edits.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discardChanges;
+
+  /// Marker shown while the app config form differs from what is stored.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsaved changes'**
+  String get unsavedChanges;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

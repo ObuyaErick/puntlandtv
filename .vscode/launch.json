@@ -14,8 +14,10 @@
         "-d",
         "chrome",
         "-v",
+        // "--dart-define",
+        // "USE_FIXTURES=true",
         "--dart-define",
-        "USE_FIXTURES=true"
+        "API_BASE_URL=http://localhost:3000"
       ]
     },
     {
@@ -28,8 +30,10 @@
         "-d",
         "chrome",
         "-v",
+        // "--dart-define",
+        // "USE_FIXTURES=true",
         "--dart-define",
-        "USE_FIXTURES=true",
+        "API_BASE_URL=http://localhost:3000/api",
         "-t",
         "lib/main_console.dart"
       ]

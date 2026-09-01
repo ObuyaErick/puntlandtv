@@ -4,6 +4,12 @@ import '../entities/console_user.dart';
 ///
 /// Two steps by design: the console can publish to every phone in the region
 /// and take the channel off air, so a password alone is not the bar.
+///
+/// The requests themselves belong to `PuntlandAdminApi`, alongside every other
+/// call to the same backend. What is left here is what the flow needs and a
+/// request does not: the [AuthState] machine the router guards on, the count of
+/// attempts a wrong code has burned, and the decision about what survives a
+/// relaunch.
 abstract interface class AuthRepository {
   /// Returns the user only when no second factor is required, which in
   /// practice is never — the flow always continues to [verifySecondFactor].

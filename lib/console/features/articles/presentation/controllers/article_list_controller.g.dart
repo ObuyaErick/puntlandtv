@@ -230,21 +230,39 @@ final class ArticleCountsProvider
 String _$articleCountsHash() => r'35f3c1bfaffe1386d5372c3955739c1a7a42d293';
 
 /// Bulk and single-row actions.
+///
+/// `keepAlive` for the same reason the media library's actions provider needs
+/// it: nothing watches an actions provider, so under auto-dispose the notifier is disposed before the
+/// awaited write returns and the invalidation that follows throws on a dead
+/// `Ref` — leaving the list showing the state the article was in before the
+/// publish it just performed.
 
 @ProviderFor(ArticleActions)
 final articleActionsProvider = ArticleActionsProvider._();
 
 /// Bulk and single-row actions.
+///
+/// `keepAlive` for the same reason the media library's actions provider needs
+/// it: nothing watches an actions provider, so under auto-dispose the notifier is disposed before the
+/// awaited write returns and the invalidation that follows throws on a dead
+/// `Ref` — leaving the list showing the state the article was in before the
+/// publish it just performed.
 final class ArticleActionsProvider
     extends $NotifierProvider<ArticleActions, void> {
   /// Bulk and single-row actions.
+  ///
+  /// `keepAlive` for the same reason the media library's actions provider needs
+  /// it: nothing watches an actions provider, so under auto-dispose the notifier is disposed before the
+  /// awaited write returns and the invalidation that follows throws on a dead
+  /// `Ref` — leaving the list showing the state the article was in before the
+  /// publish it just performed.
   ArticleActionsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'articleActionsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -265,9 +283,15 @@ final class ArticleActionsProvider
   }
 }
 
-String _$articleActionsHash() => r'ff700b3ce65f8ce66d7a35173d4ce9157f431f36';
+String _$articleActionsHash() => r'f162ad3e7eb4444041f493a238f6bd00231cbc6b';
 
 /// Bulk and single-row actions.
+///
+/// `keepAlive` for the same reason the media library's actions provider needs
+/// it: nothing watches an actions provider, so under auto-dispose the notifier is disposed before the
+/// awaited write returns and the invalidation that follows throws on a dead
+/// `Ref` — leaving the list showing the state the article was in before the
+/// publish it just performed.
 
 abstract class _$ArticleActions extends $Notifier<void> {
   void build();

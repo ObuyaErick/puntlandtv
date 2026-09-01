@@ -108,7 +108,13 @@ class ArticleCounts {
 }
 
 /// Bulk and single-row actions.
-@riverpod
+///
+/// `keepAlive` for the same reason the media library's actions provider needs
+/// it: nothing watches an actions provider, so under auto-dispose the notifier is disposed before the
+/// awaited write returns and the invalidation that follows throws on a dead
+/// `Ref` — leaving the list showing the state the article was in before the
+/// publish it just performed.
+@Riverpod(keepAlive: true)
 class ArticleActions extends _$ArticleActions {
   @override
   void build() {}

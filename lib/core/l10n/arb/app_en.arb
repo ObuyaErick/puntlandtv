@@ -524,19 +524,19 @@
   "@navAppConfig": {
     "description": "Console navigation: flags and build settings."
   },
-  "roleJournalist": "JOURNALIST",
+  "roleJournalist": "Journalist",
   "@roleJournalist": {
     "description": "Staff role. Uppercase."
   },
-  "roleEditor": "EDITOR",
+  "roleEditor": "Editor",
   "@roleEditor": {
     "description": "Staff role. Uppercase."
   },
-  "roleOperations": "OPERATIONS",
+  "roleOperations": "Operations",
   "@roleOperations": {
     "description": "Staff role. Uppercase."
   },
-  "roleAdmin": "ADMIN",
+  "roleAdmin": "Admin",
   "@roleAdmin": {
     "description": "Staff role. Uppercase."
   },
@@ -616,6 +616,14 @@
   "errorLockedOut": "Too many attempts. Start again.",
   "@errorLockedOut": {
     "description": "Shown after the final failed verification attempt."
+  },
+  "errorTwoFactorNotEnrolled": "This account has no second factor set up. Ask an administrator.",
+  "@errorTwoFactorNotEnrolled": {
+    "description": "Sign-in failure for an account that cannot complete the second step. Not a wrong password, so it must not read like one."
+  },
+  "errorSignInFailed": "Sign-in did not go through. Try again.",
+  "@errorSignInFailed": {
+    "description": "Fallback for any sign-in failure without a message of its own — a lost connection, a server error. Shown so the form never fails silently."
   },
   "articlesTitle": "Articles",
   "@articlesTitle": {
@@ -1456,5 +1464,756 @@
   "colUrl": "URL",
   "@colUrl": {
     "description": "Renditions table column for the manifest URL. Uppercase."
+  },
+  "mediaTitle": "Media library",
+  "@mediaTitle": {
+    "description": "Console media library page title."
+  },
+  "uploadMedia": "Upload",
+  "@uploadMedia": {
+    "description": "Primary action on the media library: add files."
+  },
+  "mediaAltNotice": "Alt text is required in both languages. An image described in only one reaches the other language's readers undescribed.",
+  "@mediaAltNotice": {
+    "description": "Notice strip on the media library explaining the per-locale alt text rule."
+  },
+  "filterAllMedia": "All",
+  "@filterAllMedia": {
+    "description": "Media library filter chip: every asset."
+  },
+  "filterImages": "Images",
+  "@filterImages": {
+    "description": "Media library filter chip."
+  },
+  "filterVideo": "Video",
+  "@filterVideo": {
+    "description": "Media library filter chip."
+  },
+  "filterAudio": "Audio",
+  "@filterAudio": {
+    "description": "Media library filter chip."
+  },
+  "filterNeedsAlt": "Needs alt text",
+  "@filterNeedsAlt": {
+    "description": "Media library filter chip for images missing alt text in at least one language. The only filter naming a problem rather than a type."
+  },
+  "searchMedia": "Search filename, alt text, or credit",
+  "@searchMedia": {
+    "description": "Placeholder in the media library search box."
+  },
+  "emptyMedia": "Nothing in the library yet",
+  "@emptyMedia": {
+    "description": "Media library empty state title."
+  },
+  "emptyMediaBody": "Upload an image, a programme, or an audio bed to get started.",
+  "@emptyMediaBody": {
+    "description": "Media library empty state body."
+  },
+  "emptyMediaFiltered": "No files match this filter",
+  "@emptyMediaFiltered": {
+    "description": "Media library empty state when a filter or search excludes everything."
+  },
+  "mediaAssetTitle": "Asset",
+  "@mediaAssetTitle": {
+    "description": "Title of the media detail side panel."
+  },
+  "sectionAltText": "ALT TEXT",
+  "@sectionAltText": {
+    "description": "Section heading in the media detail panel. Uppercase."
+  },
+  "sectionFileDetails": "FILE",
+  "@sectionFileDetails": {
+    "description": "Section heading in the media detail panel. Uppercase."
+  },
+  "sectionUsage": "USED IN",
+  "@sectionUsage": {
+    "description": "Section heading in the media detail panel listing the articles an asset appears in. Uppercase."
+  },
+  "altTextFor": "Alt text ({language})",
+  "@altTextFor": {
+    "description": "Label on one language's alt text field.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "altTextHint": "Describe what is in the picture, not that it is a picture.",
+  "@altTextHint": {
+    "description": "Helper text under the alt text fields."
+  },
+  "altMissingInCount": "{count, plural, one{Missing alt text in {count} language} other{Missing alt text in {count} languages}}",
+  "@altMissingInCount": {
+    "description": "Warning on an asset tile counting the languages with no alt text.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "altComplete": "Described in both languages",
+  "@altComplete": {
+    "description": "Confirmation on an asset whose alt text is complete."
+  },
+  "fieldCredit": "Credit",
+  "@fieldCredit": {
+    "description": "Photographer or agency attribution field. Not translated — it is a proper noun."
+  },
+  "creditNotTranslated": "A name, so it stays the same in both languages.",
+  "@creditNotTranslated": {
+    "description": "Helper text explaining why the credit field has no per-language variant."
+  },
+  "fieldFilename": "Filename",
+  "@fieldFilename": {
+    "description": "Media detail row label."
+  },
+  "fieldDimensions": "Dimensions",
+  "@fieldDimensions": {
+    "description": "Media detail row label for an image's pixel size."
+  },
+  "fieldFileSize": "Size",
+  "@fieldFileSize": {
+    "description": "Media detail row label."
+  },
+  "fieldDuration": "Duration",
+  "@fieldDuration": {
+    "description": "Media detail row label for video and audio length."
+  },
+  "fieldUploaded": "Uploaded",
+  "@fieldUploaded": {
+    "description": "Media detail row label."
+  },
+  "megabytes": "{value} MB",
+  "@megabytes": {
+    "description": "File size in megabytes. The number arrives pre-formatted for the locale.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "kilobytes": "{value} kB",
+  "@kilobytes": {
+    "description": "File size in kilobytes. The number arrives pre-formatted for the locale.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadedByOn": "{name} · {date}",
+  "@uploadedByOn": {
+    "description": "Who uploaded an asset and when.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "transcodingProgress": "Transcoding · {percent}%",
+  "@transcodingProgress": {
+    "description": "Progress label on a video still being ingested.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "transcodeNotAttachable": "Not attachable until transcoding finishes.",
+  "@transcodeNotAttachable": {
+    "description": "Explains why a processing video cannot be used yet."
+  },
+  "transcodeFailedTitle": "Ingest failed",
+  "@transcodeFailedTitle": {
+    "description": "Heading on a failed transcode in the media detail panel."
+  },
+  "retryIngest": "Retry ingest",
+  "@retryIngest": {
+    "description": "Action that re-queues a failed transcode."
+  },
+  "retryQueued": "Retry queued.",
+  "@retryQueued": {
+    "description": "Toast after re-queuing a failed transcode."
+  },
+  "usedInCount": "{count, plural, zero{Not used yet} one{Used in {count} article} other{Used in {count} articles}}",
+  "@usedInCount": {
+    "description": "How many articles an asset appears in.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usedInPublishedCount": "{count, plural, one{{count} of them is published} other{{count} of them are published}}",
+  "@usedInPublishedCount": {
+    "description": "Sub-label warning that some uses of an asset are already live.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteAsset": "Delete",
+  "@deleteAsset": {
+    "description": "Action that removes an asset from the library."
+  },
+  "deleteBlockedInUse": "In use — detach it from every article before deleting.",
+  "@deleteBlockedInUse": {
+    "description": "Why the delete action is disabled on an asset an article points at."
+  },
+  "deleteAssetTitle": "Delete this file?",
+  "@deleteAssetTitle": {
+    "description": "Confirmation dialog title for deleting an asset."
+  },
+  "deleteAssetBody": "This cannot be undone. Nothing points at it, so no article changes.",
+  "@deleteAssetBody": {
+    "description": "Confirmation dialog body for deleting an unused asset."
+  },
+  "assetDeleted": "Deleted {filename}",
+  "@assetDeleted": {
+    "description": "Toast after deleting one asset.",
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsDeleted": "{count, plural, one{{count} file deleted} other{{count} files deleted}}",
+  "@assetsDeleted": {
+    "description": "Toast after a bulk delete.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteRefusedCount": "{count, plural, one{{count} file kept — it is still in use} other{{count} files kept — they are still in use}}",
+  "@deleteRefusedCount": {
+    "description": "Toast reporting the part of a bulk delete the library refused.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "altTextSaved": "Alt text saved.",
+  "@altTextSaved": {
+    "description": "Toast after saving an asset's metadata."
+  },
+  "uploadPending": "Uploading {filename}…",
+  "@uploadPending": {
+    "description": "Toast while a file is being registered.",
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadedNeedsAlt": "Uploaded. Add alt text in both languages before it can publish.",
+  "@uploadedNeedsAlt": {
+    "description": "Toast after uploading an image, which lands undescribed."
+  },
+  "uploadedProcessing": "Uploaded. Transcoding has started.",
+  "@uploadedProcessing": {
+    "description": "Toast after uploading a video."
+  },
+  "dropToUpload": "Drop files here, or choose from your computer",
+  "@dropToUpload": {
+    "description": "Label inside the media library's upload drop zone."
+  },
+  "chooseFiles": "Choose files",
+  "@chooseFiles": {
+    "description": "Button inside the upload drop zone."
+  },
+  "uploadFormats": "JPEG, PNG, MP4, or M4A — up to 2 GB",
+  "@uploadFormats": {
+    "description": "Accepted formats under the upload drop zone."
+  },
+  "mediaKindImage": "Image",
+  "@mediaKindImage": {
+    "description": "Asset kind label."
+  },
+  "mediaKindVideo": "Video",
+  "@mediaKindVideo": {
+    "description": "Asset kind label."
+  },
+  "mediaKindAudio": "Audio",
+  "@mediaKindAudio": {
+    "description": "Asset kind label."
+  },
+  "mediaGridLabel": "{filename}, {kind}",
+  "@mediaGridLabel": {
+    "description": "Screen reader label for an asset tile in the grid.",
+    "placeholders": {
+      "filename": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "openArticle": "Open article",
+  "@openArticle": {
+    "description": "Link from an asset's usage list to the article using it."
+  },
+  "programsConsoleTitle": "Programmes",
+  "@programsConsoleTitle": {
+    "description": "Console programmes page title. Distinct from programsTitle, which is the reader app's VOD screen."
+  },
+  "newProgram": "New programme",
+  "@newProgram": {
+    "description": "Primary action on the programmes page."
+  },
+  "programsNotice": "A programme with no title in a language is hidden from that language's shelf. It is not shown in the other language.",
+  "@programsNotice": {
+    "description": "Notice on the programmes page explaining the per-locale visibility rule."
+  },
+  "colProgram": "PROGRAMME",
+  "@colProgram": {
+    "description": "Programmes table column. Uppercase."
+  },
+  "colCadence": "CADENCE",
+  "@colCadence": {
+    "description": "Programmes table column for how often a show airs. Uppercase."
+  },
+  "colGenre": "GENRE",
+  "@colGenre": {
+    "description": "Programmes table column. Uppercase."
+  },
+  "colEpisodes": "EPISODES",
+  "@colEpisodes": {
+    "description": "Programmes table column. Uppercase."
+  },
+  "colShelf": "ON SHELF",
+  "@colShelf": {
+    "description": "Programmes table column showing which locales a programme appears in. Uppercase."
+  },
+  "cadenceDaily": "Daily",
+  "@cadenceDaily": {
+    "description": "Programme cadence."
+  },
+  "cadenceWeekly": "Weekly",
+  "@cadenceWeekly": {
+    "description": "Programme cadence."
+  },
+  "cadenceMonthly": "Monthly",
+  "@cadenceMonthly": {
+    "description": "Programme cadence."
+  },
+  "cadenceOccasional": "Occasional",
+  "@cadenceOccasional": {
+    "description": "Programme cadence for specials with no fixed slot."
+  },
+  "genreNews": "News",
+  "@genreNews": {
+    "description": "Programme genre."
+  },
+  "genreDebate": "Debate",
+  "@genreDebate": {
+    "description": "Programme genre."
+  },
+  "genreCulture": "Culture",
+  "@genreCulture": {
+    "description": "Programme genre."
+  },
+  "genreKids": "Children",
+  "@genreKids": {
+    "description": "Programme genre."
+  },
+  "genreSport": "Sport",
+  "@genreSport": {
+    "description": "Programme genre."
+  },
+  "genreReligion": "Religion",
+  "@genreReligion": {
+    "description": "Programme genre."
+  },
+  "emptyPrograms": "No programmes yet",
+  "@emptyPrograms": {
+    "description": "Programmes page empty state."
+  },
+  "emptyProgramsBody": "A programme groups episodes into a shelf in the app.",
+  "@emptyProgramsBody": {
+    "description": "Programmes page empty state body."
+  },
+  "hiddenFromShelf": "Hidden from the {language} shelf",
+  "@hiddenFromShelf": {
+    "description": "Sub-label on a programme with no title in one language.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "episodesOf": "Episodes · {program}",
+  "@episodesOf": {
+    "description": "Title of the episode list for one programme.",
+    "placeholders": {
+      "program": {
+        "type": "String"
+      }
+    }
+  },
+  "backToPrograms": "All programmes",
+  "@backToPrograms": {
+    "description": "Returns from one programme's episodes to the programme list."
+  },
+  "colEpisode": "EPISODE",
+  "@colEpisode": {
+    "description": "Episodes table column. Uppercase."
+  },
+  "colSource": "SOURCE",
+  "@colSource": {
+    "description": "Episodes table column for the attached video file. Uppercase."
+  },
+  "colAired": "AIRED",
+  "@colAired": {
+    "description": "Episodes table column. Uppercase."
+  },
+  "episodeNumber": "Ep. {number}",
+  "@episodeNumber": {
+    "description": "Short episode label.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "emptyEpisodes": "No episodes in this programme",
+  "@emptyEpisodes": {
+    "description": "Episode list empty state."
+  },
+  "emptyEpisodesBody": "Upload the video to the media library first, then attach it here.",
+  "@emptyEpisodesBody": {
+    "description": "Episode list empty state body."
+  },
+  "blockerNoSource": "No video attached",
+  "@blockerNoSource": {
+    "description": "Why an episode cannot be published: nothing to play."
+  },
+  "blockerSourceFailed": "Transcode failed — retry it in the media library",
+  "@blockerSourceFailed": {
+    "description": "Why an episode cannot be published: the ingest failed."
+  },
+  "blockerSourceProcessing": "Still transcoding",
+  "@blockerSourceProcessing": {
+    "description": "Why an episode cannot be published: the ingest is unfinished."
+  },
+  "blockerUntitled": "No title in {language}",
+  "@blockerUntitled": {
+    "description": "Why an episode cannot be published: a missing locale title.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "publishEpisode": "Publish",
+  "@publishEpisode": {
+    "description": "Action that puts an episode in the app."
+  },
+  "unpublishEpisode": "Unpublish",
+  "@unpublishEpisode": {
+    "description": "Action that removes an episode from the app."
+  },
+  "episodePublishBlocked": "Fix what is blocking this episode before publishing it.",
+  "@episodePublishBlocked": {
+    "description": "Tooltip on a disabled episode publish button."
+  },
+  "episodePublished": "Episode published.",
+  "@episodePublished": {
+    "description": "Toast after publishing an episode."
+  },
+  "episodeUnpublished": "Episode removed from the app.",
+  "@episodeUnpublished": {
+    "description": "Toast after unpublishing an episode."
+  },
+  "blockedEpisodeCount": "{count, plural, one{{count} episode cannot be published yet} other{{count} episodes cannot be published yet}}",
+  "@blockedEpisodeCount": {
+    "description": "Summary strip above an episode list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "usersTitle": "Users and roles",
+  "@usersTitle": {
+    "description": "Console administration page title."
+  },
+  "inviteUser": "Invite",
+  "@inviteUser": {
+    "description": "Primary action on the users page."
+  },
+  "usersNotice": "A role is a set of capabilities, not a label. Changing someone's role changes what they can do everywhere in the console at once.",
+  "@usersNotice": {
+    "description": "Notice on the users page."
+  },
+  "colPerson": "PERSON",
+  "@colPerson": {
+    "description": "Users table column. Uppercase."
+  },
+  "colRole": "ROLE",
+  "@colRole": {
+    "description": "Users table column. Uppercase."
+  },
+  "colLastActive": "LAST ACTIVE",
+  "@colLastActive": {
+    "description": "Users table column. Uppercase."
+  },
+  "statusActive": "Active",
+  "@statusActive": {
+    "description": "Staff account status."
+  },
+  "statusInvited": "Invited",
+  "@statusInvited": {
+    "description": "Staff account status: invited but never signed in."
+  },
+  "statusSuspended": "Suspended",
+  "@statusSuspended": {
+    "description": "Staff account status: kept, but cannot sign in."
+  },
+  "neverSignedIn": "Never",
+  "@neverSignedIn": {
+    "description": "Last-active value for an account that has never been used."
+  },
+  "noSecondFactor": "No second factor",
+  "@noSecondFactor": {
+    "description": "Warning on an account that cannot complete a sign-in."
+  },
+  "adminSeatCount": "{count, plural, one{{count} admin can sign in} other{{count} admins can sign in}}",
+  "@adminSeatCount": {
+    "description": "Summary strip on the users page. Counts only active admins.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "twoFactorGapCount": "{count, plural, one{{count} account has no second factor} other{{count} accounts have no second factor}}",
+  "@twoFactorGapCount": {
+    "description": "Summary strip on the users page.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "memberTitle": "Account",
+  "@memberTitle": {
+    "description": "Title of the staff detail side panel."
+  },
+  "sectionRole": "ROLE",
+  "@sectionRole": {
+    "description": "Section heading in the staff panel. Uppercase."
+  },
+  "sectionCapabilities": "WHAT THIS ROLE CAN DO",
+  "@sectionCapabilities": {
+    "description": "Section heading above the capability list. Uppercase."
+  },
+  "sectionAccount": "ACCOUNT",
+  "@sectionAccount": {
+    "description": "Section heading in the staff panel. Uppercase."
+  },
+  "capabilityDerivedNote": "Capabilities come from the role, never from the person. There is no per-user grant to audit.",
+  "@capabilityDerivedNote": {
+    "description": "Explains why the capability list is read-only."
+  },
+  "capWriteOwnArticles": "Write and edit own drafts",
+  "@capWriteOwnArticles": {
+    "description": "Capability description."
+  },
+  "capPublishArticles": "Edit anyone's article, and publish",
+  "@capPublishArticles": {
+    "description": "Capability description."
+  },
+  "capSendPush": "Send push alerts",
+  "@capSendPush": {
+    "description": "Capability description."
+  },
+  "capManageBroadcast": "Streams, schedule, and the on-air toggle",
+  "@capManageBroadcast": {
+    "description": "Capability description."
+  },
+  "capManageLibrary": "Programmes, episodes, and the media library",
+  "@capManageLibrary": {
+    "description": "Capability description."
+  },
+  "capManageTaxonomy": "Categories",
+  "@capManageTaxonomy": {
+    "description": "Capability description."
+  },
+  "capManageUsers": "Staff accounts and roles",
+  "@capManageUsers": {
+    "description": "Capability description."
+  },
+  "capManageConfig": "Feature flags, minimum build, locales",
+  "@capManageConfig": {
+    "description": "Capability description."
+  },
+  "capViewAuditLog": "Read the audit trail",
+  "@capViewAuditLog": {
+    "description": "Capability description."
+  },
+  "suspendAccount": "Suspend",
+  "@suspendAccount": {
+    "description": "Action that stops an account signing in."
+  },
+  "reinstateAccount": "Reinstate",
+  "@reinstateAccount": {
+    "description": "Action that restores a suspended account."
+  },
+  "suspendKeepsBylinesNote": "Suspending keeps the account and its bylines. Deleting it would rewrite the author on every article they filed.",
+  "@suspendKeepsBylinesNote": {
+    "description": "Explains why suspension exists instead of deletion."
+  },
+  "refusalSelf": "You cannot revoke your own access — another admin would have to let you back in.",
+  "@refusalSelf": {
+    "description": "Why a role or status change on your own account is refused."
+  },
+  "refusalLastAdmin": "This is the only admin who can sign in. Promote someone else first.",
+  "@refusalLastAdmin": {
+    "description": "Why demoting or suspending the last admin is refused."
+  },
+  "roleChanged": "{name} is now {role}.",
+  "@roleChanged": {
+    "description": "Toast after a role change.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSuspended": "{name} can no longer sign in.",
+  "@accountSuspended": {
+    "description": "Toast after suspending an account.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accountReinstated": "{name} can sign in again.",
+  "@accountReinstated": {
+    "description": "Toast after reinstating an account.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "configTitle": "App configuration",
+  "@configTitle": {
+    "description": "Console app config page title."
+  },
+  "configNotice": "The app reads this at startup. A change reaches a reader the next time they open it, not immediately.",
+  "@configNotice": {
+    "description": "Notice on the app config page."
+  },
+  "sectionUpdateFloor": "MINIMUM SUPPORTED BUILD",
+  "@sectionUpdateFloor": {
+    "description": "App config section heading. Uppercase."
+  },
+  "sectionLocales": "LANGUAGES",
+  "@sectionLocales": {
+    "description": "App config section heading. Uppercase."
+  },
+  "sectionFlags": "FEATURE FLAGS",
+  "@sectionFlags": {
+    "description": "App config section heading. Uppercase."
+  },
+  "sectionReaderDefaults": "READER DEFAULTS",
+  "@sectionReaderDefaults": {
+    "description": "App config section heading. Uppercase."
+  },
+  "fieldMinimumBuild": "Builds below this must update",
+  "@fieldMinimumBuild": {
+    "description": "Label on the minimum supported build field."
+  },
+  "releasedBuildIs": "Highest released build: {build}",
+  "@releasedBuildIs": {
+    "description": "Reference value beside the minimum build field.",
+    "placeholders": {
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "floorLocksEveryoneOut": "No released build satisfies this floor. Every reader would be told to update with nothing to update to, and only a store release could undo it.",
+  "@floorLocksEveryoneOut": {
+    "description": "Error under the minimum build field when it exceeds the released build."
+  },
+  "floorSafe": "Readers on build {build} or later are unaffected.",
+  "@floorSafe": {
+    "description": "Confirmation under a valid minimum build field.",
+    "placeholders": {
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "localeStrandsArticles": "{count, plural, zero{Nothing exists only in this language} one{{count} published article exists only in this language} other{{count} published articles exist only in this language}}",
+  "@localeStrandsArticles": {
+    "description": "How much content disabling a language would remove.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastLocaleCannotBeDisabled": "The last language cannot be switched off.",
+  "@lastLocaleCannotBeDisabled": {
+    "description": "Why the final enabled locale's switch is disabled."
+  },
+  "disablingRemovesContent": "Switching a language off removes the stories written only in it. They do not fall back to the other language.",
+  "@disablingRemovesContent": {
+    "description": "Explains the consequence of disabling a locale."
+  },
+  "fieldDataSaver": "Data saver on by default",
+  "@fieldDataSaver": {
+    "description": "App config toggle label."
+  },
+  "dataSaverHint": "Most of the audience is on metered mobile data.",
+  "@dataSaverHint": {
+    "description": "Helper text under the data saver toggle."
+  },
+  "flagKeyPermanentNote": "A flag key is baked into released builds. Renaming one switches the feature off for everyone already installed.",
+  "@flagKeyPermanentNote": {
+    "description": "Notice above the feature flag list."
+  },
+  "configSaved": "Configuration saved.",
+  "@configSaved": {
+    "description": "Toast after saving app config."
+  },
+  "configLastChanged": "Last changed {date} by {name}",
+  "@configLastChanged": {
+    "description": "Provenance line on the app config page.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saveBlockedByFloor": "Fix the minimum build before saving.",
+  "@saveBlockedByFloor": {
+    "description": "Tooltip on the disabled app config save button."
+  },
+  "discardChanges": "Discard",
+  "@discardChanges": {
+    "description": "Abandons unsaved app config edits."
+  },
+  "unsavedChanges": "Unsaved changes",
+  "@unsavedChanges": {
+    "description": "Marker shown while the app config form differs from what is stored."
   }
 }

@@ -432,16 +432,16 @@ class AppL10nEn extends AppL10n {
   String get navAppConfig => 'App config';
 
   @override
-  String get roleJournalist => 'JOURNALIST';
+  String get roleJournalist => 'Journalist';
 
   @override
-  String get roleEditor => 'EDITOR';
+  String get roleEditor => 'Editor';
 
   @override
-  String get roleOperations => 'OPERATIONS';
+  String get roleOperations => 'Operations';
 
   @override
-  String get roleAdmin => 'ADMIN';
+  String get roleAdmin => 'Admin';
 
   @override
   String get signInTitle => 'Sign in';
@@ -496,6 +496,13 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get errorLockedOut => 'Too many attempts. Start again.';
+
+  @override
+  String get errorTwoFactorNotEnrolled =>
+      'This account has no second factor set up. Ask an administrator.';
+
+  @override
+  String get errorSignInFailed => 'Sign-in did not go through. Try again.';
 
   @override
   String get articlesTitle => 'Articles';
@@ -1059,4 +1066,590 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get colUrl => 'URL';
+
+  @override
+  String get mediaTitle => 'Media library';
+
+  @override
+  String get uploadMedia => 'Upload';
+
+  @override
+  String get mediaAltNotice =>
+      'Alt text is required in both languages. An image described in only one reaches the other language\'s readers undescribed.';
+
+  @override
+  String get filterAllMedia => 'All';
+
+  @override
+  String get filterImages => 'Images';
+
+  @override
+  String get filterVideo => 'Video';
+
+  @override
+  String get filterAudio => 'Audio';
+
+  @override
+  String get filterNeedsAlt => 'Needs alt text';
+
+  @override
+  String get searchMedia => 'Search filename, alt text, or credit';
+
+  @override
+  String get emptyMedia => 'Nothing in the library yet';
+
+  @override
+  String get emptyMediaBody =>
+      'Upload an image, a programme, or an audio bed to get started.';
+
+  @override
+  String get emptyMediaFiltered => 'No files match this filter';
+
+  @override
+  String get mediaAssetTitle => 'Asset';
+
+  @override
+  String get sectionAltText => 'ALT TEXT';
+
+  @override
+  String get sectionFileDetails => 'FILE';
+
+  @override
+  String get sectionUsage => 'USED IN';
+
+  @override
+  String altTextFor(String language) {
+    return 'Alt text ($language)';
+  }
+
+  @override
+  String get altTextHint =>
+      'Describe what is in the picture, not that it is a picture.';
+
+  @override
+  String altMissingInCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Missing alt text in $count languages',
+      one: 'Missing alt text in $count language',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get altComplete => 'Described in both languages';
+
+  @override
+  String get fieldCredit => 'Credit';
+
+  @override
+  String get creditNotTranslated =>
+      'A name, so it stays the same in both languages.';
+
+  @override
+  String get fieldFilename => 'Filename';
+
+  @override
+  String get fieldDimensions => 'Dimensions';
+
+  @override
+  String get fieldFileSize => 'Size';
+
+  @override
+  String get fieldDuration => 'Duration';
+
+  @override
+  String get fieldUploaded => 'Uploaded';
+
+  @override
+  String megabytes(String value) {
+    return '$value MB';
+  }
+
+  @override
+  String kilobytes(String value) {
+    return '$value kB';
+  }
+
+  @override
+  String uploadedByOn(String name, String date) {
+    return '$name · $date';
+  }
+
+  @override
+  String transcodingProgress(String percent) {
+    return 'Transcoding · $percent%';
+  }
+
+  @override
+  String get transcodeNotAttachable =>
+      'Not attachable until transcoding finishes.';
+
+  @override
+  String get transcodeFailedTitle => 'Ingest failed';
+
+  @override
+  String get retryIngest => 'Retry ingest';
+
+  @override
+  String get retryQueued => 'Retry queued.';
+
+  @override
+  String usedInCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Used in $count articles',
+      one: 'Used in $count article',
+      zero: 'Not used yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String usedInPublishedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count of them are published',
+      one: '$count of them is published',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteAsset => 'Delete';
+
+  @override
+  String get deleteBlockedInUse =>
+      'In use — detach it from every article before deleting.';
+
+  @override
+  String get deleteAssetTitle => 'Delete this file?';
+
+  @override
+  String get deleteAssetBody =>
+      'This cannot be undone. Nothing points at it, so no article changes.';
+
+  @override
+  String assetDeleted(String filename) {
+    return 'Deleted $filename';
+  }
+
+  @override
+  String assetsDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files deleted',
+      one: '$count file deleted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteRefusedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files kept — they are still in use',
+      one: '$count file kept — it is still in use',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get altTextSaved => 'Alt text saved.';
+
+  @override
+  String uploadPending(String filename) {
+    return 'Uploading $filename…';
+  }
+
+  @override
+  String get uploadedNeedsAlt =>
+      'Uploaded. Add alt text in both languages before it can publish.';
+
+  @override
+  String get uploadedProcessing => 'Uploaded. Transcoding has started.';
+
+  @override
+  String get dropToUpload => 'Drop files here, or choose from your computer';
+
+  @override
+  String get chooseFiles => 'Choose files';
+
+  @override
+  String get uploadFormats => 'JPEG, PNG, MP4, or M4A — up to 2 GB';
+
+  @override
+  String get mediaKindImage => 'Image';
+
+  @override
+  String get mediaKindVideo => 'Video';
+
+  @override
+  String get mediaKindAudio => 'Audio';
+
+  @override
+  String mediaGridLabel(String filename, String kind) {
+    return '$filename, $kind';
+  }
+
+  @override
+  String get openArticle => 'Open article';
+
+  @override
+  String get programsConsoleTitle => 'Programmes';
+
+  @override
+  String get newProgram => 'New programme';
+
+  @override
+  String get programsNotice =>
+      'A programme with no title in a language is hidden from that language\'s shelf. It is not shown in the other language.';
+
+  @override
+  String get colProgram => 'PROGRAMME';
+
+  @override
+  String get colCadence => 'CADENCE';
+
+  @override
+  String get colGenre => 'GENRE';
+
+  @override
+  String get colEpisodes => 'EPISODES';
+
+  @override
+  String get colShelf => 'ON SHELF';
+
+  @override
+  String get cadenceDaily => 'Daily';
+
+  @override
+  String get cadenceWeekly => 'Weekly';
+
+  @override
+  String get cadenceMonthly => 'Monthly';
+
+  @override
+  String get cadenceOccasional => 'Occasional';
+
+  @override
+  String get genreNews => 'News';
+
+  @override
+  String get genreDebate => 'Debate';
+
+  @override
+  String get genreCulture => 'Culture';
+
+  @override
+  String get genreKids => 'Children';
+
+  @override
+  String get genreSport => 'Sport';
+
+  @override
+  String get genreReligion => 'Religion';
+
+  @override
+  String get emptyPrograms => 'No programmes yet';
+
+  @override
+  String get emptyProgramsBody =>
+      'A programme groups episodes into a shelf in the app.';
+
+  @override
+  String hiddenFromShelf(String language) {
+    return 'Hidden from the $language shelf';
+  }
+
+  @override
+  String episodesOf(String program) {
+    return 'Episodes · $program';
+  }
+
+  @override
+  String get backToPrograms => 'All programmes';
+
+  @override
+  String get colEpisode => 'EPISODE';
+
+  @override
+  String get colSource => 'SOURCE';
+
+  @override
+  String get colAired => 'AIRED';
+
+  @override
+  String episodeNumber(int number) {
+    return 'Ep. $number';
+  }
+
+  @override
+  String get emptyEpisodes => 'No episodes in this programme';
+
+  @override
+  String get emptyEpisodesBody =>
+      'Upload the video to the media library first, then attach it here.';
+
+  @override
+  String get blockerNoSource => 'No video attached';
+
+  @override
+  String get blockerSourceFailed =>
+      'Transcode failed — retry it in the media library';
+
+  @override
+  String get blockerSourceProcessing => 'Still transcoding';
+
+  @override
+  String blockerUntitled(String language) {
+    return 'No title in $language';
+  }
+
+  @override
+  String get publishEpisode => 'Publish';
+
+  @override
+  String get unpublishEpisode => 'Unpublish';
+
+  @override
+  String get episodePublishBlocked =>
+      'Fix what is blocking this episode before publishing it.';
+
+  @override
+  String get episodePublished => 'Episode published.';
+
+  @override
+  String get episodeUnpublished => 'Episode removed from the app.';
+
+  @override
+  String blockedEpisodeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count episodes cannot be published yet',
+      one: '$count episode cannot be published yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get usersTitle => 'Users and roles';
+
+  @override
+  String get inviteUser => 'Invite';
+
+  @override
+  String get usersNotice =>
+      'A role is a set of capabilities, not a label. Changing someone\'s role changes what they can do everywhere in the console at once.';
+
+  @override
+  String get colPerson => 'PERSON';
+
+  @override
+  String get colRole => 'ROLE';
+
+  @override
+  String get colLastActive => 'LAST ACTIVE';
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusInvited => 'Invited';
+
+  @override
+  String get statusSuspended => 'Suspended';
+
+  @override
+  String get neverSignedIn => 'Never';
+
+  @override
+  String get noSecondFactor => 'No second factor';
+
+  @override
+  String adminSeatCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count admins can sign in',
+      one: '$count admin can sign in',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String twoFactorGapCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count accounts have no second factor',
+      one: '$count account has no second factor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get memberTitle => 'Account';
+
+  @override
+  String get sectionRole => 'ROLE';
+
+  @override
+  String get sectionCapabilities => 'WHAT THIS ROLE CAN DO';
+
+  @override
+  String get sectionAccount => 'ACCOUNT';
+
+  @override
+  String get capabilityDerivedNote =>
+      'Capabilities come from the role, never from the person. There is no per-user grant to audit.';
+
+  @override
+  String get capWriteOwnArticles => 'Write and edit own drafts';
+
+  @override
+  String get capPublishArticles => 'Edit anyone\'s article, and publish';
+
+  @override
+  String get capSendPush => 'Send push alerts';
+
+  @override
+  String get capManageBroadcast => 'Streams, schedule, and the on-air toggle';
+
+  @override
+  String get capManageLibrary => 'Programmes, episodes, and the media library';
+
+  @override
+  String get capManageTaxonomy => 'Categories';
+
+  @override
+  String get capManageUsers => 'Staff accounts and roles';
+
+  @override
+  String get capManageConfig => 'Feature flags, minimum build, locales';
+
+  @override
+  String get capViewAuditLog => 'Read the audit trail';
+
+  @override
+  String get suspendAccount => 'Suspend';
+
+  @override
+  String get reinstateAccount => 'Reinstate';
+
+  @override
+  String get suspendKeepsBylinesNote =>
+      'Suspending keeps the account and its bylines. Deleting it would rewrite the author on every article they filed.';
+
+  @override
+  String get refusalSelf =>
+      'You cannot revoke your own access — another admin would have to let you back in.';
+
+  @override
+  String get refusalLastAdmin =>
+      'This is the only admin who can sign in. Promote someone else first.';
+
+  @override
+  String roleChanged(String name, String role) {
+    return '$name is now $role.';
+  }
+
+  @override
+  String accountSuspended(String name) {
+    return '$name can no longer sign in.';
+  }
+
+  @override
+  String accountReinstated(String name) {
+    return '$name can sign in again.';
+  }
+
+  @override
+  String get configTitle => 'App configuration';
+
+  @override
+  String get configNotice =>
+      'The app reads this at startup. A change reaches a reader the next time they open it, not immediately.';
+
+  @override
+  String get sectionUpdateFloor => 'MINIMUM SUPPORTED BUILD';
+
+  @override
+  String get sectionLocales => 'LANGUAGES';
+
+  @override
+  String get sectionFlags => 'FEATURE FLAGS';
+
+  @override
+  String get sectionReaderDefaults => 'READER DEFAULTS';
+
+  @override
+  String get fieldMinimumBuild => 'Builds below this must update';
+
+  @override
+  String releasedBuildIs(String build) {
+    return 'Highest released build: $build';
+  }
+
+  @override
+  String get floorLocksEveryoneOut =>
+      'No released build satisfies this floor. Every reader would be told to update with nothing to update to, and only a store release could undo it.';
+
+  @override
+  String floorSafe(String build) {
+    return 'Readers on build $build or later are unaffected.';
+  }
+
+  @override
+  String localeStrandsArticles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count published articles exist only in this language',
+      one: '$count published article exists only in this language',
+      zero: 'Nothing exists only in this language',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get lastLocaleCannotBeDisabled =>
+      'The last language cannot be switched off.';
+
+  @override
+  String get disablingRemovesContent =>
+      'Switching a language off removes the stories written only in it. They do not fall back to the other language.';
+
+  @override
+  String get fieldDataSaver => 'Data saver on by default';
+
+  @override
+  String get dataSaverHint => 'Most of the audience is on metered mobile data.';
+
+  @override
+  String get flagKeyPermanentNote =>
+      'A flag key is baked into released builds. Renaming one switches the feature off for everyone already installed.';
+
+  @override
+  String get configSaved => 'Configuration saved.';
+
+  @override
+  String configLastChanged(String date, String name) {
+    return 'Last changed $date by $name';
+  }
+
+  @override
+  String get saveBlockedByFloor => 'Fix the minimum build before saving.';
+
+  @override
+  String get discardChanges => 'Discard';
+
+  @override
+  String get unsavedChanges => 'Unsaved changes';
 }

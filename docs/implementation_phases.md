@@ -56,26 +56,76 @@ point: every later phase depends on these primitives being right.
 - Overview dashboard.
 - Article list: real data table at expanded, cards at compact, bulk actions, and the Journalist view that shows own drafts only.
 - Bilingual article editor — side panel at ≥840, full screen at compact — including the translation-linking model.
-- ~~Media library~~ — **moved to Phase 5.** The bilingual editor and the
-  translation model took the weight of this phase; shipping a half-built media
-  library alongside them would have been worse than sequencing it properly. The
-  alt-text gate it enforces is already in place in the editor.
+- ~~Media library~~ — **moved to Phase 5**, and shipped there. The bilingual
+  editor and the translation model took the weight of this phase; shipping a
+  half-built media library alongside them would have been worse than sequencing
+  it properly.
 
 ## Phase 5 — Console operations
 
-- ~~Media library~~ — **still outstanding.** It is the largest remaining UI and
-  the least rule-bearing: the constraint it enforces (alt text before
-  publishing) is already implemented as a hard gate in the article editor.
-  Carried into Phase 6.
+- Media library — **done.** The earlier note called it "the least
+  rule-bearing" on the grounds that the article editor already gates
+  publishing on alt text. Building it showed that reading to be wrong. The
+  editor's gate tests for an alt string *existing*; that is presence, not
+  completeness, and an image described only in Somali passes it. It then
+  reaches an English reader's screen reader as Somali or as nothing — the
+  bilingual promise broken at the one point a reader cannot work around. So
+  the library carries three rules of its own:
+  - **Alt text is required per locale, not once.** Authored here, two fields
+    stacked rather than tabbed, because a hidden empty field is exactly how
+    the second language never gets written. `Needs alt text` is the only
+    filter on the screen that names a problem rather than a file type.
+  - **An asset in use cannot be deleted.** Refused at the API, not only in
+    the UI, and the panel lists what points at it — counting published uses
+    separately, since deleting behind one breaks a page a reader can already
+    open.
+  - **An unfinished ingest is not attachable.** Transcode progress and
+    failure states render on the thumbnail itself, and a retry re-queues
+    rather than reporting success.
 - Categories with permanent slug versus translatable name.
-- Programmes and episodes, including transcode progress and failure states.
+- Programmes and episodes — **done.** One destination holding two views: the
+  programme shelf, and one programme's episodes. It carries two rules.
+  - **An untitled locale hides a programme from that locale's shelf.** The same
+    rule the categories table applies to tab bars. A programme published with
+    only a Somali title is live for the majority-language audience and absent
+    for the other, and the table says which — rather than showing a Somali
+    title on an English shelf and counting it as coverage.
+  - **An episode cannot publish on a source that is not playable.** The three
+    blockers — nothing attached, a failed transcode, an unfinished one — are
+    listed separately, because they need different people: an upload, a retry,
+    or nothing but time. `AdminEpisodeDto.source` holds the media library's
+    asset whole rather than by id, and the fixture re-reads it on every fetch,
+    so retrying a failed transcode in the library changes what the episodes
+    screen says. One asset, one truth about whether it is ready.
 - Live control, including the on-air toggle and the localised off-air slate.
 - Schedule / EPG builder with gap and overlap detection.
 - Push composer: both locales mandatory, live lock-screen previews, type-to-confirm send.
 
 ## Phase 6 — Administration and end-to-end
 
-- Users and roles, audit log, app config (flags, minimum build, locales).
+- Users and roles — **done, ahead of this phase.** A role is a capability set
+  in code, so the panel shows the whole matrix — including the capabilities a
+  role does *not* have, which is what answers "will moving them to Editor take
+  the on-air toggle away". Two rules keep the console administrable:
+  - **You cannot revoke your own access.** It works once and then needs someone
+    else to undo it.
+  - **The last admin who can sign in cannot be demoted or suspended.** Invited
+    and suspended admins do not count — an account that cannot complete a
+    sign-in is not a way back in. Refused at the API as well as in the UI,
+    because it is the one state nobody inside the product can recover from.
+- App config — **done, ahead of this phase.** Edited as a draft and saved once,
+  unlike every other console screen, because two of its fields take the product
+  down for every reader the moment they change:
+  - **A minimum build above the highest released one locks everyone out.** Every
+    reader is told to update with nothing to update to, and only a store release
+    undoes it. The released build sits beside the field, because 118 is safe and
+    119 is a catastrophe and nothing about the digits says which.
+  - **Disabling a language removes content, not labels.** An article written only
+    in Somali does not fall back when Somali is off — it disappears. Each switch
+    carries the count of what it would strand, and the last enabled language
+    cannot be switched off at all.
+- Audit log — still outstanding. It is the one Phase 6 item with no rail
+  destination behind it, and the console has no event stream to read yet.
 - Wire the console's writes to the same fixture store the app reads, so a story published in the console appears in the app — the end-to-end demonstration the MVP is for.
 
 ---
@@ -86,5 +136,6 @@ point: every later phase depends on these primitives being right.
 - [x] **Phase 2** — app responsive pass
 - [x] **Phase 3** — console foundation
 - [x] **Phase 4** — console content management (media library moved to Phase 5)
-- [x] **Phase 5** — console operations (media library still outstanding)
-- [ ] Phase 6 — administration and end-to-end
+- [x] **Phase 5** — console operations, including the media library
+- [~] **Phase 6** — administration: users, roles, and app config are in; the
+  audit log and the end-to-end fixture wiring are not

@@ -170,11 +170,17 @@ class _SignInCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
+    // A real backend can refuse for reasons the fixtures never produced — an
+    // account with no second factor, a lost connection, a 500. The fallback is
+    // not decorative: without it those all render as an empty box, and a form
+    // that fails silently reads as a form that is broken.
     final message = switch (errorCode) {
+      null => null,
       'INVALID_CREDENTIALS' => l10n.errorInvalidCredentials,
       'PASSWORD_REQUIRED' => l10n.errorPasswordRequired,
       'LOCKED_OUT' => l10n.errorLockedOut,
-      _ => null,
+      'TWO_FACTOR_NOT_ENROLLED' => l10n.errorTwoFactorNotEnrolled,
+      _ => l10n.errorSignInFailed,
     };
 
     return Container(

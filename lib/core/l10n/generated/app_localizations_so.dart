@@ -436,16 +436,16 @@ class AppL10nSo extends AppL10n {
   String get navAppConfig => 'Goobaha abka';
 
   @override
-  String get roleJournalist => 'WERIYE';
+  String get roleJournalist => 'Weriye';
 
   @override
-  String get roleEditor => 'TIFAFTIRE';
+  String get roleEditor => 'Tifaftire';
 
   @override
-  String get roleOperations => 'HAWLGALLO';
+  String get roleOperations => 'Hawlgallo';
 
   @override
-  String get roleAdmin => 'MAAMULE';
+  String get roleAdmin => 'Maamule';
 
   @override
   String get signInTitle => 'Gal';
@@ -500,6 +500,13 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get errorLockedOut => 'Isku dayo badan. Dib u bilow.';
+
+  @override
+  String get errorTwoFactorNotEnrolled =>
+      'Akoonkan ma laha xaqiijin labaad. La xiriir maamulaha.';
+
+  @override
+  String get errorSignInFailed => 'Gelitaanku ma dhicin. Isku day mar kale.';
 
   @override
   String get articlesTitle => 'Maqaallada';
@@ -1065,4 +1072,596 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get colUrl => 'URL';
+
+  @override
+  String get mediaTitle => 'Maktabadda warbaahinta';
+
+  @override
+  String get uploadMedia => 'Soo geli';
+
+  @override
+  String get mediaAltNotice =>
+      'Qoraalka sawirka waa loo baahan yahay labada luqadood. Sawir hal luqad oo keliya lagu sharraxay wuxuu akhristayaasha luqadda kale u gaadhayaa isagoo aan la sharraxin.';
+
+  @override
+  String get filterAllMedia => 'Dhammaan';
+
+  @override
+  String get filterImages => 'Sawirro';
+
+  @override
+  String get filterVideo => 'Fiidyow';
+
+  @override
+  String get filterAudio => 'Cod';
+
+  @override
+  String get filterNeedsAlt => 'Wuxuu u baahan yahay qoraal sawir';
+
+  @override
+  String get searchMedia =>
+      'Raadi magaca faylka, qoraalka sawirka, ama tixraaca';
+
+  @override
+  String get emptyMedia => 'Maktabadda weli waxba kuma jiraan';
+
+  @override
+  String get emptyMediaBody =>
+      'Soo geli sawir, barnaamij, ama cod si aad u bilowdo.';
+
+  @override
+  String get emptyMediaFiltered => 'Ma jiraan faylal shaandhadan ku habboon';
+
+  @override
+  String get mediaAssetTitle => 'Faylka';
+
+  @override
+  String get sectionAltText => 'QORAALKA SAWIRKA';
+
+  @override
+  String get sectionFileDetails => 'FAYLKA';
+
+  @override
+  String get sectionUsage => 'WAXAA LOO ISTICMAALAY';
+
+  @override
+  String altTextFor(String language) {
+    return 'Qoraalka sawirka ($language)';
+  }
+
+  @override
+  String get altTextHint =>
+      'Sharax waxa sawirka ku jira, ee ha sheegin inuu sawir yahay.';
+
+  @override
+  String altMissingInCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Qoraal sawir kuma jiro $count luqadood',
+      one: 'Qoraal sawir kuma jiro $count luqad',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get altComplete => 'Waa lagu sharraxay labada luqadood';
+
+  @override
+  String get fieldCredit => 'Tixraaca';
+
+  @override
+  String get creditNotTranslated =>
+      'Waa magac, sidaas darteed labada luqadoodba isku si buu u ahaanayaa.';
+
+  @override
+  String get fieldFilename => 'Magaca faylka';
+
+  @override
+  String get fieldDimensions => 'Cabbirka';
+
+  @override
+  String get fieldFileSize => 'Weynaanta';
+
+  @override
+  String get fieldDuration => 'Muddada';
+
+  @override
+  String get fieldUploaded => 'La soo geliyay';
+
+  @override
+  String megabytes(String value) {
+    return '$value MB';
+  }
+
+  @override
+  String kilobytes(String value) {
+    return '$value kB';
+  }
+
+  @override
+  String uploadedByOn(String name, String date) {
+    return '$name · $date';
+  }
+
+  @override
+  String transcodingProgress(String percent) {
+    return 'Beddelaad · $percent%';
+  }
+
+  @override
+  String get transcodeNotAttachable =>
+      'Lama isticmaali karo ilaa beddelaaddu dhammaato.';
+
+  @override
+  String get transcodeFailedTitle => 'Soo gelintii way fashilantay';
+
+  @override
+  String get retryIngest => 'Dib u soo geli';
+
+  @override
+  String get retryQueued => 'Dib u soo gelinta waa la safeeyay.';
+
+  @override
+  String usedInCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Waxaa loo isticmaalay $count maqaal',
+      one: 'Waxaa loo isticmaalay $count maqaal',
+      zero: 'Weli lama isticmaalin',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String usedInPublishedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ka mid ah waa la daabacay',
+      one: '$count ka mid ah waa la daabacay',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteAsset => 'Tirtir';
+
+  @override
+  String get deleteBlockedInUse =>
+      'Waa la isticmaalayaa — ka saar maqaal kasta ka hor inta aanad tirtirin.';
+
+  @override
+  String get deleteAssetTitle => 'Faylkan ma tirtiraysaa?';
+
+  @override
+  String get deleteAssetBody =>
+      'Dib looma celin karo. Waxba ma tilmaamayaan, sidaas darteed maqaal na isma beddelayo.';
+
+  @override
+  String assetDeleted(String filename) {
+    return 'Waa la tirtiray $filename';
+  }
+
+  @override
+  String assetsDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fayl ayaa la tirtiray',
+      one: '$count fayl ayaa la tirtiray',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deleteRefusedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fayl ayaa la hayay — weli waa la isticmaalayaa',
+      one: '$count fayl waa la hayay — weli waa la isticmaalayaa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get altTextSaved => 'Qoraalka sawirka waa la kaydiyay.';
+
+  @override
+  String uploadPending(String filename) {
+    return 'Waa la soo gelinayaa $filename…';
+  }
+
+  @override
+  String get uploadedNeedsAlt =>
+      'Waa la soo geliyay. Ku dar qoraal sawir labada luqadood ka hor inta aan la daabicin.';
+
+  @override
+  String get uploadedProcessing =>
+      'Waa la soo geliyay. Beddelaaddu way bilaabatay.';
+
+  @override
+  String get dropToUpload =>
+      'Halkan ku rid faylasha, ama ka dooro kombuyuutarkaaga';
+
+  @override
+  String get chooseFiles => 'Dooro faylal';
+
+  @override
+  String get uploadFormats => 'JPEG, PNG, MP4, ama M4A — ilaa 2 GB';
+
+  @override
+  String get mediaKindImage => 'Sawir';
+
+  @override
+  String get mediaKindVideo => 'Fiidyow';
+
+  @override
+  String get mediaKindAudio => 'Cod';
+
+  @override
+  String mediaGridLabel(String filename, String kind) {
+    return '$filename, $kind';
+  }
+
+  @override
+  String get openArticle => 'Fur maqaalka';
+
+  @override
+  String get programsConsoleTitle => 'Barnaamijyada';
+
+  @override
+  String get newProgram => 'Barnaamij cusub';
+
+  @override
+  String get programsNotice =>
+      'Barnaamij aan magac ku lahayn luqad waxaa laga qariyaa shelfka luqaddaas. Luqadda kale lagu soo bandhigi maayo.';
+
+  @override
+  String get colProgram => 'BARNAAMIJKA';
+
+  @override
+  String get colCadence => 'INTA JEER';
+
+  @override
+  String get colGenre => 'NOOCA';
+
+  @override
+  String get colEpisodes => 'QAYBAHA';
+
+  @override
+  String get colShelf => 'SHELFKA';
+
+  @override
+  String get cadenceDaily => 'Maalinle';
+
+  @override
+  String get cadenceWeekly => 'Toddobaadle';
+
+  @override
+  String get cadenceMonthly => 'Bishii mar';
+
+  @override
+  String get cadenceOccasional => 'Marmar';
+
+  @override
+  String get genreNews => 'Wararka';
+
+  @override
+  String get genreDebate => 'Doodda';
+
+  @override
+  String get genreCulture => 'Dhaqanka';
+
+  @override
+  String get genreKids => 'Caruurta';
+
+  @override
+  String get genreSport => 'Ciyaaraha';
+
+  @override
+  String get genreReligion => 'Diinta';
+
+  @override
+  String get emptyPrograms => 'Weli barnaamijyo ma jiraan';
+
+  @override
+  String get emptyProgramsBody =>
+      'Barnaamij wuxuu qaybaha isugu keenaa shelf ka gudaha abka.';
+
+  @override
+  String hiddenFromShelf(String language) {
+    return 'Laga qariyay shelfka $language';
+  }
+
+  @override
+  String episodesOf(String program) {
+    return 'Qaybaha · $program';
+  }
+
+  @override
+  String get backToPrograms => 'Dhammaan barnaamijyada';
+
+  @override
+  String get colEpisode => 'QAYBTA';
+
+  @override
+  String get colSource => 'ILAHA';
+
+  @override
+  String get colAired => 'LA BAAHIYAY';
+
+  @override
+  String episodeNumber(int number) {
+    return 'Qayb $number';
+  }
+
+  @override
+  String get emptyEpisodes => 'Barnaamijkan qaybo kuma jiraan';
+
+  @override
+  String get emptyEpisodesBody =>
+      'Marka hore fiidyowga geli maktabadda warbaahinta, kadibna halkan ku xidh.';
+
+  @override
+  String get blockerNoSource => 'Fiidyow lama xidhin';
+
+  @override
+  String get blockerSourceFailed =>
+      'Beddelaaddu way fashilantay — dib u day maktabadda warbaahinta';
+
+  @override
+  String get blockerSourceProcessing => 'Weli waa la beddelayaa';
+
+  @override
+  String blockerUntitled(String language) {
+    return 'Magac $language ah ma jiro';
+  }
+
+  @override
+  String get publishEpisode => 'Daabac';
+
+  @override
+  String get unpublishEpisode => 'Ka saar daabacaadda';
+
+  @override
+  String get episodePublishBlocked =>
+      'Hagaaji waxa qaybtan xannibaya ka hor inta aanad daabicin.';
+
+  @override
+  String get episodePublished => 'Qaybta waa la daabacay.';
+
+  @override
+  String get episodeUnpublished => 'Qaybta waa laga saaray abka.';
+
+  @override
+  String blockedEpisodeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count qayb weli lama daabici karo',
+      one: '$count qayb weli lama daabici karo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get usersTitle => 'Isticmaalayaasha iyo doorarka';
+
+  @override
+  String get inviteUser => 'Casuun';
+
+  @override
+  String get usersNotice =>
+      'Doorku waa koox awoodo, ee maaha calaamad. Beddelidda doorka qof waxay isku mar beddeshaa waxa uu qaban karo meel kasta oo xarunta ah.';
+
+  @override
+  String get colPerson => 'QOFKA';
+
+  @override
+  String get colRole => 'DOORKA';
+
+  @override
+  String get colLastActive => 'MARKII UGU DAMBEEYAY';
+
+  @override
+  String get statusActive => 'Firfircoon';
+
+  @override
+  String get statusInvited => 'La casuumay';
+
+  @override
+  String get statusSuspended => 'La joojiyay';
+
+  @override
+  String get neverSignedIn => 'Waligii';
+
+  @override
+  String get noSecondFactor => 'Xaqiijin labaad ma leh';
+
+  @override
+  String adminSeatCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count maamule ayaa gali kara',
+      one: '$count maamule ayaa gali karo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String twoFactorGapCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count akoon xaqiijin labaad ma leh',
+      one: '$count akoon xaqiijin labaad ma leh',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get memberTitle => 'Akoonka';
+
+  @override
+  String get sectionRole => 'DOORKA';
+
+  @override
+  String get sectionCapabilities => 'WAXA DOORKAN QABAN KARO';
+
+  @override
+  String get sectionAccount => 'AKOONKA';
+
+  @override
+  String get capabilityDerivedNote =>
+      'Awoodaha waxay ka yimaadaan doorka, ee maaha qofka. Ma jirto siin gaar ah oo qof kasta la hubiyo.';
+
+  @override
+  String get capWriteOwnArticles => 'Qor oo tafatir qabyada kaaga';
+
+  @override
+  String get capPublishArticles => 'Tafatir maqaalka qof kasta, oo daabac';
+
+  @override
+  String get capSendPush => 'Dir digniino';
+
+  @override
+  String get capManageBroadcast => 'Baahinta, jadwalka, iyo furaha tooska';
+
+  @override
+  String get capManageLibrary =>
+      'Barnaamijyada, qaybaha, iyo maktabadda warbaahinta';
+
+  @override
+  String get capManageTaxonomy => 'Qaybaha';
+
+  @override
+  String get capManageUsers => 'Akoonnada shaqaalaha iyo doorarka';
+
+  @override
+  String get capManageConfig => 'Astaamaha, dhisidda ugu yar, luqadaha';
+
+  @override
+  String get capViewAuditLog => 'Akhri diiwaanka hawlaha';
+
+  @override
+  String get suspendAccount => 'Jooji';
+
+  @override
+  String get reinstateAccount => 'Dib u soo celi';
+
+  @override
+  String get suspendKeepsBylinesNote =>
+      'Joojintu waxay ilaalinaysaa akoonka iyo magacyada qorayaasha. Tirtiriddu waxay beddeshaa qoraaga maqaal kasta oo ay soo gudbiyeen.';
+
+  @override
+  String get refusalSelf =>
+      'Ma joojin kartid gelitaankaaga — maamule kale ayaa lagama maarmaan si aad dib u gasho.';
+
+  @override
+  String get refusalLastAdmin =>
+      'Kani waa maamulaha kaliya oo gali kara. Marka hore qof kale kor u qaad.';
+
+  @override
+  String roleChanged(String name, String role) {
+    return '$name hadda waa $role.';
+  }
+
+  @override
+  String accountSuspended(String name) {
+    return '$name mar dambe gali karo maayo.';
+  }
+
+  @override
+  String accountReinstated(String name) {
+    return '$name mar kale gali karaa.';
+  }
+
+  @override
+  String get configTitle => 'Habaynta abka';
+
+  @override
+  String get configNotice =>
+      'Abku tan wuxuu akhriyaa marka la furo. Beddelku akhristaha wuxuu gaadhayaa markii xigta ee uu furo, ee maaha isla markiiba.';
+
+  @override
+  String get sectionUpdateFloor => 'DHISIDDA UGU YAR LA TAAGERAN';
+
+  @override
+  String get sectionLocales => 'LUQADAHA';
+
+  @override
+  String get sectionFlags => 'ASTAAMAHA';
+
+  @override
+  String get sectionReaderDefaults => 'AASAASKA AKHRISTAHA';
+
+  @override
+  String get fieldMinimumBuild =>
+      'Dhisidyada ka hooseeya tan waa inay cusboonaysiiyaan';
+
+  @override
+  String releasedBuildIs(String build) {
+    return 'Dhisidda ugu sarreysa la sii daayay: $build';
+  }
+
+  @override
+  String get floorLocksEveryoneOut =>
+      'Dhisid la sii daayay ma buuxiso xadkan. Akhriste kasta waxaa laga codsan lahaa inuu cusboonaysiiyo isagoo aan jirin wax lagu cusboonaysiiyo, oo kaliya sii deyn cusub ayaa beddeli kartaa.';
+
+  @override
+  String floorSafe(String build) {
+    return 'Akhristayaasha dhisidda $build ama ka dambeeya ma saameyn.';
+  }
+
+  @override
+  String localeStrandsArticles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count maqaal la daabacay ayaa kaliya luqaddan ku jira',
+      one: '$count maqaal la daabacay ayaa kaliya luqaddan ku jira',
+      zero: 'Wax kaliya luqaddan ku jira ma jiraan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get lastLocaleCannotBeDisabled =>
+      'Luqadda ugu dambeysa lama demin karo.';
+
+  @override
+  String get disablingRemovesContent =>
+      'Demidda luqad waxay saartaa sheekooyinka kaliya luqaddaas lagu qoray. Luqadda kale kuma noqonayaan.';
+
+  @override
+  String get fieldDataSaver => 'Badbaadinta xogta si toos ah waa shidan';
+
+  @override
+  String get dataSaverHint =>
+      'Dadka badan ee daawada waxay ku jiraan xog moobil lambar leh.';
+
+  @override
+  String get flagKeyPermanentNote =>
+      'Furaha astaanta wuxuu ku dhex jira dhisidyada la sii daayay. Beddelidda magaca waxay astaanta u demisaa qof kasta oo horeba u rakibay.';
+
+  @override
+  String get configSaved => 'Habaynta waa la kaydiyay.';
+
+  @override
+  String configLastChanged(String date, String name) {
+    return 'Markii ugu dambeeyay la beddelay $date ee $name';
+  }
+
+  @override
+  String get saveBlockedByFloor => 'Hagaaji dhisidda ugu yar ka hor kaydinta.';
+
+  @override
+  String get discardChanges => 'Iska daa';
+
+  @override
+  String get unsavedChanges => 'Beddelo aan la kaydin';
 }
