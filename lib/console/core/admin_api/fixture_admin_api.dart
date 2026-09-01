@@ -165,6 +165,64 @@ class FixtureAdminApi implements PuntlandAdminApi {
   @override
   Future<void> signOut({String? refreshToken}) => _respond(() {});
 
+  /// The one reset code the fixture accepts.
+  static const validResetCode = '654321';
+
+  /// Outstanding reset codes, by address.
+  ///
+  /// Kept so the fixture can refuse a code nobody asked for, which is the
+  /// failure the screen has to handle and the one a fixture that always said
+  /// yes would hide.
+  final _resetsRequested = <String>{};
+
+  @override
+  Future<PasswordResetChallengeDto> requestPasswordReset({
+    required String email,
+  }) => _respond(() {
+    final address = email.trim().toLowerCase();
+
+    // Recorded only for a real account — but the answer is the same either
+    // way, which is the property worth reproducing here. A fixture that
+    // refused an unknown address would let a screen be written against a
+    // behaviour the backend deliberately does not have.
+    if (_lookup(address) != null) _resetsRequested.add(address);
+
+    return PasswordResetChallengeDto(
+      email: address,
+      devCode: _resetsRequested.contains(address) ? validResetCode : null,
+    );
+  });
+
+  @override
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String password,
+  }) => _respond(() {
+    final address = email.trim().toLowerCase();
+
+    if (!_resetsRequested.contains(address)) {
+      throw const Failure(kind: FailureKind.unknown, code: 'RESET_EXPIRED');
+    }
+    if (code.trim() != validResetCode) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: 'RESET_CODE_INVALID',
+      );
+    }
+    // The backend enforces a floor on length; the fixture enforces it too, so
+    // the screen cannot be built against a boundary that only one of them has.
+    if (password.length < 10) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: 'VALIDATION_FAILED',
+      );
+    }
+
+    // Single-use, like the real one.
+    _resetsRequested.remove(address);
+  });
+
   // ---- Newsroom ----
 
   @override

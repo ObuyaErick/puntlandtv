@@ -135,3 +135,70 @@ class SignedIn extends AuthState {
 
   final ConsoleUser user;
 }
+
+/// Where a forgotten-password flow has got to.
+///
+/// Separate from [AuthState] because it is a different question: [AuthState]
+/// answers "is this person signed in", and completing a reset does not sign
+/// anybody in. It returns them to the form, where the second factor still
+/// applies.
+sealed class PasswordResetState {
+  const PasswordResetState();
+}
+
+/// Asking for an address. [errorCode] is set after a failed request.
+class ResetIdle extends PasswordResetState {
+  const ResetIdle({this.errorCode, this.submitting = false});
+
+  final String? errorCode;
+  final bool submitting;
+}
+
+/// A code has been asked for.
+///
+/// Reached whether or not the address belongs to an account — the backend
+/// answers the same way for both, and the console must not be the thing that
+/// gives away which it was.
+class ResetCodeSent extends PasswordResetState {
+  const ResetCodeSent({
+    required this.email,
+    this.devCode,
+    this.attemptsUsed = 0,
+    this.errorCode,
+    this.submitting = false,
+  });
+
+  final String email;
+
+  /// Present outside production only, where no gateway is wired up. Shown in
+  /// the dialog so the flow is demonstrable; absent in production, where it
+  /// would defeat the point of sending a code at all.
+  final String? devCode;
+
+  final int attemptsUsed;
+  final String? errorCode;
+  final bool submitting;
+
+  static const maxAttempts = 5;
+
+  int get attemptsRemaining => maxAttempts - attemptsUsed;
+
+  ResetCodeSent copyWith({
+    int? attemptsUsed,
+    String? errorCode,
+    bool? submitting,
+  }) => ResetCodeSent(
+    email: email,
+    devCode: devCode,
+    attemptsUsed: attemptsUsed ?? this.attemptsUsed,
+    errorCode: errorCode,
+    submitting: submitting ?? this.submitting,
+  );
+}
+
+/// The password is set. Nothing is signed in — that is the point.
+class ResetComplete extends PasswordResetState {
+  const ResetComplete(this.email);
+
+  final String email;
+}

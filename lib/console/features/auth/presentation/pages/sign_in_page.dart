@@ -11,6 +11,7 @@ import '../../../../../features/settings/domain/entities/app_preferences.dart';
 import '../../../../core/providers/console_providers.dart';
 import '../../../../core/widgets/console_fields.dart';
 import '../../domain/entities/console_user.dart';
+import '../widgets/forgot_password_dialog.dart';
 import '../widgets/two_factor_dialog.dart';
 
 /// Console sign-in.
@@ -250,7 +251,15 @@ class _SignInCard extends ConsumerWidget {
                 : Text(l10n.actionContinue),
           ),
           const SizedBox(height: Spacing.chip),
-          TextButton(onPressed: () {}, child: Text(l10n.forgotPassword)),
+          TextButton(
+            // The address travels with them: someone who has just failed to
+            // sign in has already typed it once.
+            onPressed: () => showForgotPasswordDialog(
+              context,
+              email: email.text.trim().isEmpty ? null : email.text.trim(),
+            ),
+            child: Text(l10n.forgotPassword),
+          ),
         ],
       ),
     );

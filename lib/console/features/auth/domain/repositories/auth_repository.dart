@@ -23,6 +23,17 @@ abstract interface class AuthRepository {
 
   Future<void> signOut();
 
+  /// Asks for a reset code. Returns the state the flow moves to, which is
+  /// [ResetCodeSent] even for an address with no account behind it.
+  Future<PasswordResetState> requestPasswordReset({required String email});
+
+  /// Sets the new password, or reports why it could not.
+  Future<PasswordResetState> resetPassword({
+    required ResetCodeSent pending,
+    required String code,
+    required String password,
+  });
+
   /// The session restored from storage at startup, if any.
   Future<ConsoleUser?> restoreSession();
 }

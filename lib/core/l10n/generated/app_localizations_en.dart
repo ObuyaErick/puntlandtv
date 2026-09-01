@@ -505,6 +505,77 @@ class AppL10nEn extends AppL10n {
   String get errorSignInFailed => 'Sign-in did not go through. Try again.';
 
   @override
+  String get resetTitle => 'Reset your password';
+
+  @override
+  String get resetBody =>
+      'Enter your work address. We will send a six-digit code.';
+
+  @override
+  String get resetSentTitle => 'Enter the code';
+
+  @override
+  String resetSentBody(String email) {
+    return 'If $email belongs to a console account, a six-digit code is on its way. It expires in 15 minutes.';
+  }
+
+  @override
+  String get resetCodeLabel => 'Reset code';
+
+  @override
+  String get resetNewPassword => 'New password';
+
+  @override
+  String get resetConfirmPassword => 'Confirm new password';
+
+  @override
+  String resetPasswordRule(int count) {
+    return 'At least $count characters.';
+  }
+
+  @override
+  String get resetAction => 'Set password';
+
+  @override
+  String get resetSendAction => 'Send code';
+
+  @override
+  String get resetDoneTitle => 'Password changed';
+
+  @override
+  String get resetDoneBody =>
+      'Sign in with your new password. Any other session you had open has been signed out.';
+
+  @override
+  String resetDevCode(String code) {
+    return 'Development build: your code is $code';
+  }
+
+  @override
+  String get errorEmailRequired => 'Enter your work email address.';
+
+  @override
+  String get errorResetCodeRequired => 'Enter the six-digit code.';
+
+  @override
+  String get errorResetCodeInvalid => 'That code is not correct.';
+
+  @override
+  String get errorResetExpired =>
+      'That code can no longer be used. Request a new one.';
+
+  @override
+  String errorPasswordTooShort(int count) {
+    return 'Passwords must be at least $count characters.';
+  }
+
+  @override
+  String get errorPasswordMismatch => 'Those passwords do not match.';
+
+  @override
+  String get errorResetFailed => 'That did not go through. Try again.';
+
+  @override
   String get articlesTitle => 'Articles';
 
   @override

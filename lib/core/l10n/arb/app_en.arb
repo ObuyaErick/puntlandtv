@@ -625,6 +625,90 @@
   "@errorSignInFailed": {
     "description": "Fallback for any sign-in failure without a message of its own — a lost connection, a server error. Shown so the form never fails silently."
   },
+  "resetTitle": "Reset your password",
+  "@resetTitle": {
+    "description": "Heading of the forgotten-password dialog, first step."
+  },
+  "resetBody": "Enter your work address. We will send a six-digit code.",
+  "@resetBody": {
+    "description": "First step of the reset flow."
+  },
+  "resetSentTitle": "Enter the code",
+  "@resetSentTitle": {
+    "description": "Heading of the forgotten-password dialog, second step."
+  },
+  "resetSentBody": "If {email} belongs to a console account, a six-digit code is on its way. It expires in 15 minutes.",
+  "@resetSentBody": {
+    "description": "Confirmation after requesting a code. Conditional on purpose: the backend answers the same way for an unknown address, and this sentence must not claim more than it knows.",
+    "placeholders": { "email": { "type": "String" } }
+  },
+  "resetCodeLabel": "Reset code",
+  "@resetCodeLabel": {
+    "description": "Label for the six-digit code field."
+  },
+  "resetNewPassword": "New password",
+  "@resetNewPassword": {
+    "description": "Label for the new password field."
+  },
+  "resetConfirmPassword": "Confirm new password",
+  "@resetConfirmPassword": {
+    "description": "Label for the repeated password field."
+  },
+  "resetPasswordRule": "At least {count} characters.",
+  "@resetPasswordRule": {
+    "description": "Password length requirement, shown before it is broken rather than after.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "resetAction": "Set password",
+  "@resetAction": {
+    "description": "Submits the new password."
+  },
+  "resetSendAction": "Send code",
+  "@resetSendAction": {
+    "description": "Requests a reset code."
+  },
+  "resetDoneTitle": "Password changed",
+  "@resetDoneTitle": {
+    "description": "Heading after a completed reset."
+  },
+  "resetDoneBody": "Sign in with your new password. Any other session you had open has been signed out.",
+  "@resetDoneBody": {
+    "description": "Shown after a completed reset. Says the sessions ended because someone resetting a password they think was stolen needs to know that happened."
+  },
+  "resetDevCode": "Development build: your code is {code}",
+  "@resetDevCode": {
+    "description": "Shown only when the backend echoes the code, which it does outside production because no email or SMS gateway is wired up yet.",
+    "placeholders": { "code": { "type": "String" } }
+  },
+  "errorEmailRequired": "Enter your work email address.",
+  "@errorEmailRequired": {
+    "description": "Validation message for an empty address on the reset form."
+  },
+  "errorResetCodeRequired": "Enter the six-digit code.",
+  "@errorResetCodeRequired": {
+    "description": "Validation message for an incomplete reset code."
+  },
+  "errorResetCodeInvalid": "That code is not correct.",
+  "@errorResetCodeInvalid": {
+    "description": "A wrong reset code, with attempts still remaining."
+  },
+  "errorResetExpired": "That code can no longer be used. Request a new one.",
+  "@errorResetExpired": {
+    "description": "Covers an expired code, a spent one, and one that was never issued — the backend does not distinguish them, so neither does this."
+  },
+  "errorPasswordTooShort": "Passwords must be at least {count} characters.",
+  "@errorPasswordTooShort": {
+    "description": "Shown when the new password is below the length floor.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "errorPasswordMismatch": "Those passwords do not match.",
+  "@errorPasswordMismatch": {
+    "description": "Shown when the confirmation does not match."
+  },
+  "errorResetFailed": "That did not go through. Try again.",
+  "@errorResetFailed": {
+    "description": "Fallback for any reset failure without a message of its own, so the dialog never fails silently."
+  },
   "articlesTitle": "Articles",
   "@articlesTitle": {
     "description": "Console article list heading for editors."

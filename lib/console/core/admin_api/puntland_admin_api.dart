@@ -63,6 +63,34 @@ abstract interface class PuntlandAdminApi {
   /// else — a revoked token, a suspended account — throws.
   Future<ConsoleSessionDto?> restoreSession({String? refreshToken});
 
+  /// Step one of a forgotten password: asks for a reset code.
+  ///
+  /// Succeeds for an address the backend has never seen, and returns the same
+  /// thing it returns for a real one. That is not politeness — a reset form
+  /// that answers differently is an account-enumeration oracle, and the console
+  /// must not be the thing that gives one away. See
+  /// [PasswordResetChallengeDto].
+  Future<PasswordResetChallengeDto> requestPasswordReset({
+    required String email,
+  });
+
+  /// Step two: sets the new password.
+  ///
+  /// Refuses with `RESET_CODE_INVALID` while attempts remain and
+  /// `RESET_EXPIRED` once the code is spent, expired, or was never issued —
+  /// one refusal for all three, so the failure cannot be read as "that address
+  /// does exist".
+  ///
+  /// Does **not** sign anyone in. The operator returns to the form and passes
+  /// the second factor like anyone else: a reset that minted a session would be
+  /// a way around it, and "I forgot my password" is exactly the story an
+  /// attacker tells.
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String password,
+  });
+
   /// Ends the session at the backend, not just locally.
   ///
   /// Revoking the refresh token is the part that matters: the access token

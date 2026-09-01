@@ -509,6 +509,77 @@ class AppL10nSo extends AppL10n {
   String get errorSignInFailed => 'Gelitaanku ma dhicin. Isku day mar kale.';
 
   @override
+  String get resetTitle => 'Dib u deji furahaaga';
+
+  @override
+  String get resetBody =>
+      'Geli cinwaankaaga shaqada. Waxaan kuu soo dirayaa lambar lix god ah.';
+
+  @override
+  String get resetSentTitle => 'Geli lambarka';
+
+  @override
+  String resetSentBody(String email) {
+    return 'Haddii $email yahay akoon console, lambar lix god ah waa soo socdaa. Wuxuu dhacayaa 15 daqiiqo gudahood.';
+  }
+
+  @override
+  String get resetCodeLabel => 'Lambarka dib u dejinta';
+
+  @override
+  String get resetNewPassword => 'Fure cusub';
+
+  @override
+  String get resetConfirmPassword => 'Xaqiiji furaha cusub';
+
+  @override
+  String resetPasswordRule(int count) {
+    return 'Ugu yaraan $count xaraf.';
+  }
+
+  @override
+  String get resetAction => 'Deji furaha';
+
+  @override
+  String get resetSendAction => 'Dir lambarka';
+
+  @override
+  String get resetDoneTitle => 'Furaha waa la beddelay';
+
+  @override
+  String get resetDoneBody =>
+      'Gal adigoo isticmaalaya furahaaga cusub. Fadhi kasta kale oo furan ahaa waa laga saaray.';
+
+  @override
+  String resetDevCode(String code) {
+    return 'Nuqul horumarineed: lambarkaagu waa $code';
+  }
+
+  @override
+  String get errorEmailRequired => 'Geli cinwaanka emaylkaaga shaqada.';
+
+  @override
+  String get errorResetCodeRequired => 'Geli lambarka lixda god.';
+
+  @override
+  String get errorResetCodeInvalid => 'Lambarkaas sax maaha.';
+
+  @override
+  String get errorResetExpired =>
+      'Lambarkaas mar dambe lama isticmaali karo. Codso mid cusub.';
+
+  @override
+  String errorPasswordTooShort(int count) {
+    return 'Furayaasha waa inay ugu yaraan $count xaraf yihiin.';
+  }
+
+  @override
+  String get errorPasswordMismatch => 'Furayaashaas isku mid maaha.';
+
+  @override
+  String get errorResetFailed => 'Taasi ma dhicin. Isku day mar kale.';
+
+  @override
   String get articlesTitle => 'Maqaallada';
 
   @override

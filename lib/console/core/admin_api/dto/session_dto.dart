@@ -82,3 +82,37 @@ ConsoleUser consoleUserFromJson(Map<String, dynamic> json) => ConsoleUser(
     orElse: () => ConsoleRole.journalist,
   ),
 );
+
+/// What asking for a password reset returns.
+///
+/// Carries no account facts, deliberately: not a name, not whether the address
+/// is one the backend knows. A reset form is the cheapest way to find out who
+/// has an account somewhere, and "a code is on its way" costs nothing to say
+/// when there is nobody to send it to. The console shows the same confirmation
+/// either way.
+///
+/// [devCode] is present outside production only, for the same reason the second
+/// factor's is: the flow has to be usable before an email or SMS gateway
+/// exists. It is also the one field that *would* distinguish the two responses,
+/// which is why the backend gates it on the environment rather than on a flag.
+class PasswordResetChallengeDto {
+  const PasswordResetChallengeDto({
+    required this.email,
+    this.maxAttempts = 5,
+    this.expiresIn = const Duration(minutes: 15),
+    this.devCode,
+  });
+
+  factory PasswordResetChallengeDto.fromJson(Map<String, dynamic> json) =>
+      PasswordResetChallengeDto(
+        email: json['email'] as String,
+        maxAttempts: json['max_attempts'] as int? ?? 5,
+        expiresIn: Duration(seconds: json['expires_in_seconds'] as int? ?? 900),
+        devCode: json['dev_code'] as String?,
+      );
+
+  final String email;
+  final int maxAttempts;
+  final Duration expiresIn;
+  final String? devCode;
+}

@@ -129,6 +129,36 @@ class HttpAdminApi implements PuntlandAdminApi {
     }
   }
 
+  @override
+  Future<PasswordResetChallengeDto> requestPasswordReset({
+    required String email,
+  }) => _send(
+    'POST',
+    '/v1/auth/password/forgot',
+    PasswordResetChallengeDto.fromJson,
+    body: {'email': email},
+    authenticated: false,
+  );
+
+  @override
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String password,
+  }) async {
+    await _send(
+      'POST',
+      '/v1/auth/password/reset',
+      (json) => json,
+      body: {'email': email, 'code': code, 'password': password},
+      authenticated: false,
+    );
+    // Every session the account had is now revoked, this one included. Holding
+    // a token the backend has already thrown away would leave the console
+    // looking signed in until the next request said otherwise.
+    _credentials.clear();
+  }
+
   void _hold(ConsoleSessionDto session) => _credentials.hold(
     accessToken: session.accessToken,
     refreshToken: session.refreshToken,

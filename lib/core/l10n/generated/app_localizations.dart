@@ -925,6 +925,126 @@ abstract class AppL10n {
   /// **'Sign-in did not go through. Try again.'**
   String get errorSignInFailed;
 
+  /// Heading of the forgotten-password dialog, first step.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get resetTitle;
+
+  /// First step of the reset flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your work address. We will send a six-digit code.'**
+  String get resetBody;
+
+  /// Heading of the forgotten-password dialog, second step.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code'**
+  String get resetSentTitle;
+
+  /// Confirmation after requesting a code. Conditional on purpose: the backend answers the same way for an unknown address, and this sentence must not claim more than it knows.
+  ///
+  /// In en, this message translates to:
+  /// **'If {email} belongs to a console account, a six-digit code is on its way. It expires in 15 minutes.'**
+  String resetSentBody(String email);
+
+  /// Label for the six-digit code field.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset code'**
+  String get resetCodeLabel;
+
+  /// Label for the new password field.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get resetNewPassword;
+
+  /// Label for the repeated password field.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get resetConfirmPassword;
+
+  /// Password length requirement, shown before it is broken rather than after.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {count} characters.'**
+  String resetPasswordRule(int count);
+
+  /// Submits the new password.
+  ///
+  /// In en, this message translates to:
+  /// **'Set password'**
+  String get resetAction;
+
+  /// Requests a reset code.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get resetSendAction;
+
+  /// Heading after a completed reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed'**
+  String get resetDoneTitle;
+
+  /// Shown after a completed reset. Says the sessions ended because someone resetting a password they think was stolen needs to know that happened.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your new password. Any other session you had open has been signed out.'**
+  String get resetDoneBody;
+
+  /// Shown only when the backend echoes the code, which it does outside production because no email or SMS gateway is wired up yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Development build: your code is {code}'**
+  String resetDevCode(String code);
+
+  /// Validation message for an empty address on the reset form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your work email address.'**
+  String get errorEmailRequired;
+
+  /// Validation message for an incomplete reset code.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the six-digit code.'**
+  String get errorResetCodeRequired;
+
+  /// A wrong reset code, with attempts still remaining.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not correct.'**
+  String get errorResetCodeInvalid;
+
+  /// Covers an expired code, a spent one, and one that was never issued — the backend does not distinguish them, so neither does this.
+  ///
+  /// In en, this message translates to:
+  /// **'That code can no longer be used. Request a new one.'**
+  String get errorResetExpired;
+
+  /// Shown when the new password is below the length floor.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords must be at least {count} characters.'**
+  String errorPasswordTooShort(int count);
+
+  /// Shown when the confirmation does not match.
+  ///
+  /// In en, this message translates to:
+  /// **'Those passwords do not match.'**
+  String get errorPasswordMismatch;
+
+  /// Fallback for any reset failure without a message of its own, so the dialog never fails silently.
+  ///
+  /// In en, this message translates to:
+  /// **'That did not go through. Try again.'**
+  String get errorResetFailed;
+
   /// Console article list heading for editors.
   ///
   /// In en, this message translates to:

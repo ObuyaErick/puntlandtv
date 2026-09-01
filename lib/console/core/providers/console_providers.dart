@@ -157,6 +157,49 @@ final authControllerProvider = NotifierProvider<AuthController, AuthState>(
   AuthController.new,
 );
 
+/// Drives the forgotten-password flow.
+///
+/// Its own controller rather than more cases on [AuthController]: a reset does
+/// not sign anyone in, so folding it into the state the router guards on would
+/// mean adding states that must never satisfy the guard. Two machines, one
+/// question each.
+class PasswordResetController extends Notifier<PasswordResetState> {
+  @override
+  PasswordResetState build() => const ResetIdle();
+
+  Future<void> request(String email) async {
+    final current = state;
+    state = ResetIdle(
+      errorCode: current is ResetIdle ? current.errorCode : null,
+      submitting: true,
+    );
+    state = await ref
+        .read(authRepositoryProvider)
+        .requestPasswordReset(email: email);
+  }
+
+  Future<void> submit({required String code, required String password}) async {
+    final pending = state;
+    if (pending is! ResetCodeSent) return;
+
+    state = pending.copyWith(submitting: true);
+    state = await ref.read(authRepositoryProvider).resetPassword(
+      pending: pending,
+      code: code,
+      password: password,
+    );
+  }
+
+  /// Back to the start — on cancel, and after a completed reset, so reopening
+  /// the dialog does not show the previous attempt's outcome.
+  void reset() => state = const ResetIdle();
+}
+
+final passwordResetControllerProvider =
+    NotifierProvider<PasswordResetController, PasswordResetState>(
+      PasswordResetController.new,
+    );
+
 /// The signed-in user, or null. Screens read this rather than unpacking
 /// [AuthState] themselves.
 final currentUserProvider = Provider<ConsoleUser?>((ref) {

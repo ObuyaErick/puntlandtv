@@ -131,6 +131,75 @@ class ConsoleAuthRepository implements AuthRepository {
     refreshToken: session.refreshToken,
   );
 
+  @override
+  Future<PasswordResetState> requestPasswordReset({
+    required String email,
+  }) async {
+    if (email.trim().isEmpty) {
+      return const ResetIdle(errorCode: 'EMAIL_REQUIRED');
+    }
+
+    try {
+      final challenge = await _api.requestPasswordReset(email: email);
+      return ResetCodeSent(
+        email: challenge.email,
+        devCode: challenge.devCode,
+      );
+    } on Failure catch (failure) {
+      // Reaching here means the request itself failed — no network, a 500. An
+      // address with no account behind it is a *success*, by design.
+      return ResetIdle(errorCode: failure.code);
+    }
+  }
+
+  @override
+  Future<PasswordResetState> resetPassword({
+    required ResetCodeSent pending,
+    required String code,
+    required String password,
+  }) async {
+    // Both answered without a request. The backend checks length too — it has
+    // to, since it cannot trust a client — but making the operator wait for a
+    // round trip to be told the password is too short is worse than telling
+    // them as they type.
+    if (code.trim().length != 6) {
+      return pending.copyWith(errorCode: 'RESET_CODE_REQUIRED');
+    }
+    if (password.length < minimumPasswordLength) {
+      return pending.copyWith(errorCode: 'PASSWORD_TOO_SHORT');
+    }
+
+    try {
+      await _api.resetPassword(
+        email: pending.email,
+        code: code,
+        password: password,
+      );
+
+      // A reset ends every session the account had, this one included, so
+      // whatever is in storage is already worthless.
+      _credentials.clear();
+      await _prefs.remove(_refreshTokenKey);
+      return ResetComplete(pending.email);
+    } on Failure catch (failure) {
+      if (failure.code == 'RESET_CODE_INVALID') {
+        final used = pending.attemptsUsed + 1;
+        if (used >= ResetCodeSent.maxAttempts) {
+          return const ResetIdle(errorCode: 'RESET_EXPIRED');
+        }
+        return pending.copyWith(attemptsUsed: used, errorCode: failure.code);
+      }
+      // `RESET_EXPIRED` and anything else send the operator back to the first
+      // step, because there is no code left to retry with.
+      return ResetIdle(errorCode: failure.code);
+    }
+  }
+
+  /// Matches the backend's floor, and the one an administrator has to clear
+  /// when provisioning an account. A reset that could set a weaker password
+  /// than an invitation would make the reset the way in.
+  static const minimumPasswordLength = 10;
+
   String? get _storedRefreshToken => _prefs.getString(_refreshTokenKey);
 
   /// Writes the refresh token where the next launch can find it — except on the
