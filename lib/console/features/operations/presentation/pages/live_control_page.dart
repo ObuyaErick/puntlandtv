@@ -190,9 +190,9 @@ class _ControlBody extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(child: tv),
+                  Expanded(flex: 3, child: tv),
                   const SizedBox(width: Spacing.listRhythm),
-                  SizedBox(width: 300, child: radio),
+                  Expanded(flex: 2, child: radio),
                 ],
               ),
             );
@@ -807,7 +807,7 @@ class _SlateField extends StatelessWidget {
           focusNode: focusNode,
           onChanged: onChanged,
           maxLines: null,
-          minLines: 2,
+          minLines: 3,
           style: context.text.body.copyWith(
             fontSize: 13.5,
             height: 20 / 13.5,

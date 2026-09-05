@@ -157,6 +157,16 @@ final authControllerProvider = NotifierProvider<AuthController, AuthState>(
   AuthController.new,
 );
 
+/// The one-shot session restore the console waits on before it routes anything.
+///
+/// A provider rather than a post-frame callback because the answer is a value
+/// somebody has to await: the router's guard cannot tell "signed out" from "not
+/// asked yet", and building it against the wrong one throws a signed-in editor
+/// back to the login form on every reload.
+final consoleSessionProvider = FutureProvider<void>(
+  (ref) => ref.read(authControllerProvider.notifier).restore(),
+);
+
 /// Drives the forgotten-password flow.
 ///
 /// Its own controller rather than more cases on [AuthController]: a reset does

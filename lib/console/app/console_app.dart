@@ -5,23 +5,10 @@ import '../../core/l10n/l10n.dart';
 import '../../core/l10n/so_material_localizations.dart';
 import '../../core/providers/preferences_providers.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/theme/theme_context.dart';
-import '../../core/theme/tokens.dart';
+import '../../core/widgets/pltv_logo.dart';
 import '../../features/settings/domain/entities/app_preferences.dart';
 import '../core/providers/console_providers.dart';
-import '../features/auth/domain/entities/console_user.dart';
-import '../features/articles/presentation/pages/article_list_page.dart';
-import '../features/auth/presentation/pages/sign_in_page.dart';
-import '../features/administration/presentation/pages/app_config_page.dart';
-import '../features/administration/presentation/pages/users_page.dart';
-import '../features/media/presentation/pages/media_library_page.dart';
-import '../features/programs/presentation/pages/programs_page.dart';
-import '../features/operations/presentation/pages/categories_page.dart';
-import '../features/operations/presentation/pages/live_control_page.dart';
-import '../features/operations/presentation/pages/push_composer_page.dart';
-import '../features/operations/presentation/pages/schedule_page.dart';
-import '../features/overview/presentation/pages/overview_page.dart';
-import 'console_shell.dart';
+import 'console_router.dart';
 
 /// The content console.
 ///
@@ -35,117 +22,76 @@ class PuntlandConsoleApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
     final themePref = ref.watch(preferencesProvider).theme;
+    final themeMode = switch (themePref) {
+      ThemePreference.system => ThemeMode.system,
+      ThemePreference.light => ThemeMode.light,
+      ThemePreference.dark => ThemeMode.dark,
+    };
 
-    return MaterialApp(
-      title: 'Puntland TV Console',
+    // The stored session is read before the router exists, not after. The
+    // router's guard sends anyone unauthenticated to the sign-in page, and
+    // building it while the restore is still in flight would bounce a signed-in
+    // editor off their own URL — losing the deep link they reloaded on, which
+    // on a browser tool is most of the point of having URLs.
+    final restored = ref.watch(consoleSessionProvider);
+    if (restored.isLoading) {
+      return MaterialApp(
+        title: _title,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: themeMode,
+        home: const _ConsoleSplash(),
+      );
+    }
+
+    return MaterialApp.router(
+      title: _title,
       debugShowCheckedModeBanner: false,
+      routerConfig: ref.watch(consoleRouterProvider),
+
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: switch (themePref) {
-        ThemePreference.system => ThemeMode.system,
-        ThemePreference.light => ThemeMode.light,
-        ThemePreference.dark => ThemeMode.dark,
-      },
+      themeMode: themeMode,
+
       locale: locale,
       supportedLocales: const [Locale('en', 'US'), Locale('so')],
+
+      // Order matters, for the reason spelled out in `app/app.dart`: Somali is
+      // not among the locales Flutter bundles, so our delegates go first.
       localizationsDelegates: <LocalizationsDelegate<dynamic>>[
         AppL10n.delegate,
         SoMaterialLocalizations.delegate,
         SoCupertinoLocalizations.delegate,
         ...GlobalMaterialLocalizations.delegates,
       ],
-      home: const ConsoleRoot(),
     );
   }
 }
 
-/// The auth guard.
+const _title = 'Puntland TV Console';
+
+/// One frame or two on a cold start, longer on a slow connection.
 ///
-/// A single switch on [AuthState] rather than route-level redirects: there are
-/// exactly two states the console can be in, and making that visible in one
-/// place is worth more than a router that can be configured wrongly.
-class ConsoleRoot extends ConsumerStatefulWidget {
-  const ConsoleRoot({super.key});
-
-  @override
-  ConsumerState<ConsoleRoot> createState() => _ConsoleRootState();
-}
-
-class _ConsoleRootState extends ConsumerState<ConsoleRoot> {
-  var _route = '/overview';
-
-  @override
-  void initState() {
-    super.initState();
-    // Restore before the first frame so a page reload does not bounce a
-    // signed-in editor back to the login form.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(authControllerProvider.notifier).restore();
-    });
-  }
+/// Deliberately wordless: it is up before the localisations are, and a splash
+/// that flashes English at a Somali operator would be the one place in the
+/// console that does.
+class _ConsoleSplash extends StatelessWidget {
+  const _ConsoleSplash();
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(authControllerProvider);
-
-    if (state is! SignedIn) return const SignInPage();
-
-    return ConsoleShell(
-      currentRoute: _route,
-      onNavigate: (route) => setState(() => _route = route),
-      child: _routeBody(_route),
-    );
-  }
-}
-
-/// Every rail destination now resolves to a screen. The placeholder below is
-/// kept for an unknown route only — a `switch` that cannot fall through is one
-/// nobody notices is unreachable when a destination is added.
-Widget _routeBody(String route) => switch (route) {
-  '/overview' => const OverviewPage(),
-  '/articles' => const ArticleListPage(),
-  '/live' => const LiveControlPage(),
-  '/schedule' => const SchedulePage(),
-  '/push' => const PushComposerPage(),
-  '/categories' => const CategoriesPage(),
-  '/media' => const MediaLibraryPage(),
-  '/programs' => const ProgramsPage(),
-  '/users' => const UsersPage(),
-  '/config' => const AppConfigPage(),
-  _ => _ConsolePlaceholder(route: route),
-};
-
-/// Reached only by a route with no screen behind it.
-///
-/// Deliberately explicit about what is missing rather than rendering an empty
-/// pane that looks like a bug.
-class _ConsolePlaceholder extends StatelessWidget {
-  const _ConsolePlaceholder({required this.route});
-
-  final String route;
-
-  @override
-  Widget build(BuildContext context) {
-    final destination = consoleDestinations().firstWhere(
-      (d) => d.route == route,
-      orElse: () => consoleDestinations().first,
-    );
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Spacing.emptyState),
+    return const Scaffold(
+      body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              destination.icon,
-              size: 34,
-              color: context.scheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: Spacing.listRhythm),
-            Text(
-              destination.label(context.l10n),
-              style: context.text.title.copyWith(color: context.scheme.primary),
+            PltvMark(height: 40),
+            SizedBox(height: 24),
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ],
         ),

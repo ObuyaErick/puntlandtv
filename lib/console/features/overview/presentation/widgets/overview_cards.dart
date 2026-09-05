@@ -211,7 +211,13 @@ class _DarkButton extends StatelessWidget {
             ),
             const SizedBox(width: 7),
           ],
-          Text(label),
+          // Flexible, because these buttons sit in a row that has to fit beside
+          // the rail: at 1440 with the rail expanded there are 11px fewer than
+          // the labels want, and an unconstrained Text overflows rather than
+          // giving way.
+          Flexible(
+            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
         ],
       ),
     );

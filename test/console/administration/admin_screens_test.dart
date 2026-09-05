@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:puntland/console/app/console_routes.dart';
 import 'package:puntland/console/core/admin_api/fixture_admin_api.dart';
 import 'package:puntland/console/core/providers/console_providers.dart';
 import 'package:puntland/console/features/administration/presentation/controllers/administration_controller.dart';
@@ -8,7 +10,7 @@ import 'package:puntland/console/features/administration/presentation/pages/app_
 import 'package:puntland/console/features/administration/presentation/pages/member_panel.dart';
 import 'package:puntland/console/features/administration/presentation/pages/users_page.dart';
 import 'package:puntland/console/features/auth/domain/entities/console_user.dart';
-import 'package:puntland/console/features/programs/presentation/controllers/program_controller.dart';
+import 'package:puntland/console/features/programs/presentation/pages/episode_list_page.dart';
 import 'package:puntland/console/features/programs/presentation/pages/programs_page.dart';
 import 'package:puntland/core/l10n/l10n.dart';
 import 'package:puntland/core/l10n/so_material_localizations.dart';
@@ -32,7 +34,15 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late ProviderContainer container;
+  late GoRouter router;
 
+  /// The screen under test at `/`, with the programmes branch beside it.
+  ///
+  /// A router rather than a `home:` because opening a programme is a navigation
+  /// now — `/programs/:id` is a real route — and a screen that navigates cannot
+  /// be tested without one. The branch is registered exactly as
+  /// `console_router.dart` registers it, minus the shell the rail lives in,
+  /// which would put a second "Programmes" on screen.
   Future<void> pump(
     WidgetTester tester,
     Widget screen, {
@@ -44,6 +54,26 @@ void main() {
     tester.view.physicalSize = Size(size.width * 3, size.height * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
+
+    router = GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(path: '/', builder: (_, _) => Scaffold(body: screen)),
+        GoRoute(
+          path: ConsoleRoutes.programs,
+          builder: (_, _) => const Scaffold(body: ProgramsPage()),
+          routes: [
+            GoRoute(
+              path: ConsoleRoutes.programPattern,
+              builder: (_, state) => Scaffold(
+                body: EpisodeListPage(programId: state.pathParameters['id']!),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
 
     await tester.pumpWidget(
       ProviderScope(
@@ -57,7 +87,7 @@ void main() {
             ),
           ),
         ],
-        child: MaterialApp(
+        child: MaterialApp.router(
           locale: locale,
           theme: AppTheme.light(),
           supportedLocales: const [Locale('en', 'US'), Locale('so')],
@@ -67,7 +97,7 @@ void main() {
             SoCupertinoLocalizations.delegate,
             ...GlobalMaterialLocalizations.delegates,
           ],
-          home: Scaffold(body: screen),
+          routerConfig: router,
         ),
       ),
     );
@@ -79,6 +109,8 @@ void main() {
       tester.element(find.byType(MaterialApp)),
     );
   }
+
+  String location() => router.routerDelegate.currentConfiguration.uri.path;
 
   group('programmes', () {
     testWidgets('lists every seeded programme', (tester) async {
@@ -127,9 +159,23 @@ void main() {
       await tester.pump(Duration.zero);
       await tester.pump();
 
-      expect(container.read(openProgramProvider), 'dood-furan');
+      // The URL is the point: a programme's episodes are a place somebody can
+      // be sent, not a flag on a provider.
+      expect(location(), '/programs/dood-furan');
       expect(find.textContaining('Episodes · Open Debate'), findsOneWidget);
       expect(find.text('All programmes'), findsOneWidget);
+    });
+
+    testWidgets('going back returns to the programme list', (tester) async {
+      await pump(tester, const ProgramsPage());
+
+      await tester.tap(find.text('Open Debate'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('All programmes'));
+      await tester.pumpAndSettle();
+
+      expect(location(), '/programs');
+      expect(find.text('Evening News'), findsOneWidget);
     });
   });
 

@@ -77,7 +77,12 @@ class FixtureAdminApi implements PuntlandAdminApi {
   /// Any password is taken; the code is not. That keeps the demo usable while
   /// still exercising the failure path that matters — a wrong second factor,
   /// three times, locking the operator out.
-  static const validSecondFactorCode = '418';
+  ///
+  /// Six digits, like the one the backend issues. The PIN field is six boxes
+  /// wide and submits itself when the last is filled, so a shorter code would
+  /// leave the demo unable to complete a step the real flow completes on its
+  /// own.
+  static const validSecondFactorCode = '418902';
 
   /// Prefix for the fixture's stand-in refresh token.
   ///

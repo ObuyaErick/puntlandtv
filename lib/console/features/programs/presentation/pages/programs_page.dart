@@ -7,6 +7,7 @@ import '../../../../../core/responsive/window_size.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../../core/widgets/feedback_views.dart';
+import '../../../../app/console_navigation.dart';
 import '../../../../core/admin_api/dto/admin_program_dto.dart';
 import '../../../../core/localised.dart';
 import '../../../../core/widgets/console_page.dart';
@@ -15,14 +16,14 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../media/presentation/media_format.dart';
 import '../controllers/program_controller.dart';
 import '../widgets/shelf_pills.dart';
-import 'episode_list_page.dart';
 
-/// The VOD library: programmes, and one programme's episodes.
+/// The VOD library: the programmes.
 ///
-/// One destination holding two views rather than two rail entries. The rail has
-/// a Programmes entry; an "Episodes" entry beside it would mean nothing until
-/// you had already picked a show, and would sit there empty the rest of the
-/// time.
+/// One programme's episodes live at `/programs/:id`, a child route rather than
+/// a rail entry: an "Episodes" destination beside Programmes would mean nothing
+/// until you had already picked a show, and would sit there empty the rest of
+/// the time. It is still a real route, so an editor can hand a colleague the
+/// URL of the show they mean.
 ///
 /// The rule this screen carries is the same one the categories table carries,
 /// applied to shelves instead of tab bars: **an untitled locale hides the
@@ -35,9 +36,6 @@ class ProgramsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final openId = ref.watch(openProgramProvider);
-    if (openId != null) return EpisodeListPage(programId: openId);
-
     final l10n = context.l10n;
     final programs = ref.watch(programListProvider);
 
@@ -119,9 +117,7 @@ class _ProgramTable extends ConsumerWidget {
                       itemCount: rows.length,
                       itemBuilder: (context, index) {
                         final program = rows[index];
-                        void open() => ref
-                            .read(openProgramProvider.notifier)
-                            .open(program.id);
+                        void open() => context.openProgram(program.id);
 
                         if (!asTable) {
                           return _ProgramCard(

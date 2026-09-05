@@ -8,6 +8,7 @@ import '../../../../../core/responsive/window_size.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../../core/widgets/feedback_views.dart';
+import '../../../../app/console_navigation.dart';
 import '../../../../core/admin_api/dto/admin_program_dto.dart';
 import '../../../../core/widgets/console_page.dart';
 import '../../../../core/widgets/console_table.dart';
@@ -53,7 +54,7 @@ class EpisodeListPage extends ConsumerWidget {
           : l10n.itemCount(episodes.value!.length),
       actions: [
         OutlinedButton.icon(
-          onPressed: ref.read(openProgramProvider.notifier).close,
+          onPressed: context.openPrograms,
           icon: const Icon(Icons.arrow_back_rounded, size: 18),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(0, 40),

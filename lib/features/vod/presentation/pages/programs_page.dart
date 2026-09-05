@@ -64,28 +64,91 @@ class ProgramsPage extends ConsumerWidget {
   }
 }
 
-class _ProgramTile extends StatelessWidget {
+/// How long the highlight takes to fade in.
+///
+/// Short enough to feel attached to the pointer. There is no motion token for
+/// this yet; when there is one, this should use it.
+const _highlightFade = Duration(milliseconds: 120);
+
+class _ProgramTile extends StatefulWidget {
   const _ProgramTile({required this.program});
 
   final Program program;
 
   @override
+  State<_ProgramTile> createState() => _ProgramTileState();
+}
+
+class _ProgramTileState extends State<_ProgramTile> {
+  var _hovered = false;
+  var _focused = false;
+  var _pressed = false;
+
+  /// Hover, keyboard focus and touch all get the same treatment.
+  ///
+  /// All three have to be here. Clearing the ink colours below removes the focus
+  /// ring `InkWell` would have drawn *and* the splash it would have shown on
+  /// tap — and most of this audience is on a phone, where there is no hover at
+  /// all. A card that gives nothing back when touched reads as a card that did
+  /// not register the touch.
+  bool get _highlighted => _hovered || _focused || _pressed;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final program = widget.program;
 
     return InkWell(
       onTap: () => context.push(Routes.program(program.id)),
+      onHover: (hovered) => setState(() => _hovered = hovered),
+      onFocusChange: (focused) => setState(() => _focused = focused),
+      // Fires on press down and again on release or cancel, which is exactly
+      // the window a touch needs feedback for.
+      onHighlightChanged: (pressed) => setState(() => _pressed = pressed),
       borderRadius: Radii.cardBorder,
+      // The default ink wash is painted by the enclosing `Material`, *behind*
+      // this tile — so it lands wherever the tile is transparent, which is
+      // everywhere except the artwork. That put a hard-edged grey slab across
+      // the title and the cadence line, wider and squarer than the picture it
+      // was meant to belong to. The treatment below is drawn on the artwork
+      // instead, where the thing being pressed actually is.
+      hoverColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Stack(
+              fit: StackFit.expand,
               children: [
-                Positioned.fill(
-                  child: RemoteImage(
-                    url: program.artworkUrl,
-                    borderRadius: Radii.cardBorder,
+                RemoteImage(
+                  url: program.artworkUrl,
+                  borderRadius: Radii.cardBorder,
+                ),
+                // Over the artwork but under the episode chip, which has to
+                // stay readable while the card is highlighted.
+                IgnorePointer(
+                  child: AnimatedOpacity(
+                    opacity: _highlighted ? 1 : 0,
+                    duration: _highlightFade,
+                    curve: Curves.easeOut,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: Radii.cardBorder,
+                        // Darkened rather than tinted: the artwork is a
+                        // photograph, and any colour laid over it clashes with
+                        // some picture in the grid.
+                        color: Colors.black.withValues(alpha: 0.16),
+                        // Drawn as an overlay rather than as a border on the
+                        // image's own box, so nothing is inset and the grid
+                        // does not shift by two pixels under the pointer.
+                        border: Border.all(
+                          color: context.colors.accent,
+                          width: 2,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -120,7 +183,9 @@ class _ProgramTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: context.text.cardTitle.copyWith(
                 fontSize: 15,
-                color: context.scheme.primary,
+                color: _highlighted
+                    ? context.colors.accent
+                    : context.scheme.primary,
               ),
             ),
           ),

@@ -11,6 +11,7 @@ import '../../core/widgets/pltv_logo.dart';
 import '../core/localised.dart';
 import '../core/providers/console_providers.dart';
 import '../features/auth/domain/entities/console_user.dart';
+import 'console_routes.dart';
 
 /// A console destination, gated on a capability.
 class ConsoleDestination {
@@ -38,64 +39,66 @@ class ConsoleDestination {
   final int? badgeCount;
 }
 
+/// The rail, in branch order. See [ConsoleRoutes.branches] — the router matches
+/// this list by index, so the order here is not cosmetic.
 List<ConsoleDestination> consoleDestinations({int articleBadge = 0}) => [
   ConsoleDestination(
-    route: '/overview',
+    route: ConsoleRoutes.overview,
     icon: Icons.dashboard_outlined,
     label: (l) => l.navOverview,
     requires: null,
   ),
   ConsoleDestination(
-    route: '/articles',
+    route: ConsoleRoutes.articles,
     icon: Icons.article_outlined,
     label: (l) => l.navArticles,
     requires: Capability.writeOwnArticles,
     badgeCount: articleBadge,
   ),
   ConsoleDestination(
-    route: '/programs',
+    route: ConsoleRoutes.programs,
     icon: Icons.video_library_outlined,
     label: (l) => l.navProgramsConsole,
     requires: Capability.manageLibrary,
   ),
   ConsoleDestination(
-    route: '/live',
+    route: ConsoleRoutes.live,
     icon: Icons.podcasts_outlined,
     label: (l) => l.navLiveControl,
     requires: Capability.manageBroadcast,
   ),
   ConsoleDestination(
-    route: '/schedule',
+    route: ConsoleRoutes.schedule,
     icon: Icons.calendar_month_outlined,
     label: (l) => l.navSchedule,
     requires: Capability.manageBroadcast,
   ),
   ConsoleDestination(
-    route: '/push',
+    route: ConsoleRoutes.push,
     icon: Icons.campaign_outlined,
     label: (l) => l.navPush,
     requires: Capability.sendPush,
   ),
   ConsoleDestination(
-    route: '/media',
+    route: ConsoleRoutes.media,
     icon: Icons.perm_media_outlined,
     label: (l) => l.navMedia,
     requires: Capability.manageLibrary,
   ),
   ConsoleDestination(
-    route: '/categories',
+    route: ConsoleRoutes.categories,
     icon: Icons.sell_outlined,
     label: (l) => l.navCategories,
     requires: Capability.manageTaxonomy,
   ),
   ConsoleDestination(
-    route: '/users',
+    route: ConsoleRoutes.users,
     icon: Icons.group_outlined,
     label: (l) => l.navUsers,
     requires: Capability.manageUsers,
   ),
   ConsoleDestination(
-    route: '/config',
+    route: ConsoleRoutes.config,
     icon: Icons.tune_outlined,
     label: (l) => l.navAppConfig,
     requires: Capability.manageConfig,
@@ -134,10 +137,10 @@ class ConsoleShell extends ConsumerWidget {
     return WindowSizeScope(
       builder: (context, size) {
         final collapsed = ref.watch(railCollapsedProvider);
-        final rail = _ConsoleRail(
+        Widget railWith(ValueChanged<String> navigate) => _ConsoleRail(
           destinations: destinations,
           currentRoute: currentRoute,
-          onNavigate: onNavigate,
+          onNavigate: navigate,
           user: user,
           // The drawer always shows labels: there is no width pressure there,
           // and an icon-only drawer is just a worse rail.
@@ -148,7 +151,7 @@ class ConsoleShell extends ConsumerWidget {
           return Scaffold(
             body: Row(
               children: [
-                rail,
+                railWith(onNavigate),
                 VerticalDivider(width: 1, color: context.colors.outline),
                 Expanded(child: child),
               ],
@@ -161,7 +164,18 @@ class ConsoleShell extends ConsumerWidget {
             title: const PltvLockup(),
             backgroundColor: context.scheme.surface,
           ),
-          drawer: Drawer(width: Layout.railExpandedWidth, child: rail),
+          drawer: Drawer(
+            width: Layout.railExpandedWidth,
+            // The drawer has to be dismissed by whoever navigates from it —
+            // nothing else pops it, and picking a destination and then still
+            // looking at the rail reads as a tap that did not register.
+            child: Builder(
+              builder: (context) => railWith((route) {
+                Scaffold.of(context).closeDrawer();
+                onNavigate(route);
+              }),
+            ),
+          ),
           body: child,
         );
       },

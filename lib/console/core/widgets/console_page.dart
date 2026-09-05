@@ -63,7 +63,7 @@ class ConsolePage extends StatelessWidget {
                     Spacing.sectionBreak,
                     Spacing.gutter,
                     Spacing.sectionBreak,
-                    0,
+                    8,
                   ),
                   child: notice,
                 ),

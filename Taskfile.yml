@@ -1,0 +1,204 @@
+version: '3'
+
+# Puntland TV — one package, two apps.
+#
+#   lib/main.dart          the reader app
+#   lib/main_console.dart  the internal content console
+#
+# Both launch the same way and differ only by `-t`. The web ports match
+# `.vscode/launch.json`, so a task run and an F5 run are the same session.
+#
+# Every task takes extra flags after `--`:
+#   task web -- --dart-define=USE_FIXTURES=true
+#
+# and every var can be overridden inline:
+#   task web API=https://api.puntlandtv.nt
+#   task device DEVICE=R58RC092QRA
+
+vars:
+  FLUTTER: fvm flutter
+  DART: fvm dart
+
+  # The console's entrypoint. The app's is the default `lib/main.dart`.
+  CONSOLE: lib/main_console.dart
+
+  APP_PORT: '9001'
+  CONSOLE_PORT: '9000'
+
+  # An empty API_BASE_URL makes both apps serve fixtures, so `task web API=` is
+  # the no-backend run. See `core/api/api_providers.dart`.
+  API: http://localhost:3000/api
+
+  # A phone is not the machine running the backend, so `localhost` there is the
+  # phone itself. Device tasks substitute this instead. The other way round is
+  # `task adb:reverse`, which tunnels the port and keeps localhost working.
+  DEVICE_API:
+    sh: echo "http://$(hostname -I 2>/dev/null | awk '{print $1}'):3000/api"
+
+tasks:
+  default:
+    desc: "List the tasks"
+    cmds:
+      - task --list
+    silent: true
+
+  # ---- Web ----------------------------------------------------------------
+
+  web:
+    desc: "Run the reader app in Chrome (:9001)"
+    cmds:
+      - >-
+        {{.FLUTTER}} run -d chrome --web-port {{.APP_PORT}}
+        --dart-define=API_BASE_URL={{.API}}
+        {{.CLI_ARGS}}
+
+  web:console:
+    desc: "Run the console in Chrome (:9000)"
+    cmds:
+      - >-
+        {{.FLUTTER}} run -d chrome --web-port {{.CONSOLE_PORT}}
+        -t {{.CONSOLE}}
+        --dart-define=API_BASE_URL={{.API}}
+        {{.CLI_ARGS}}
+
+  # `web-server` rather than `chrome`: it serves on the LAN, so a phone or a
+  # second machine can open it, and it needs no browser on this machine.
+  serve:
+    desc: "Serve the reader app on the LAN (:9001)"
+    cmds:
+      - >-
+        {{.FLUTTER}} run -d web-server --web-hostname 0.0.0.0
+        --web-port {{.APP_PORT}}
+        --dart-define=API_BASE_URL={{.API}}
+        {{.CLI_ARGS}}
+
+  serve:console:
+    desc: "Serve the console on the LAN (:9000)"
+    cmds:
+      - >-
+        {{.FLUTTER}} run -d web-server --web-hostname 0.0.0.0
+        --web-port {{.CONSOLE_PORT}}
+        -t {{.CONSOLE}}
+        --dart-define=API_BASE_URL={{.API}}
+        {{.CLI_ARGS}}
+
+  # ---- Physical devices ---------------------------------------------------
+
+  devices:
+    desc: "List every attached device"
+    cmds:
+      - "{{.FLUTTER}} devices"
+
+  device:id:
+    desc: "Print the id of the attached phone"
+    silent: true
+    vars:
+      # The first attached phone. Emulators and simulators are skipped on
+      # purpose — these tasks exist for the real thing; run an emulator by id
+      # with `task device DEVICE=emulator-5554`.
+      ID: &phone
+        sh: |
+          if [ -n "{{.DEVICE}}" ]; then echo "{{.DEVICE}}"; exit 0; fi
+          id=$({{.FLUTTER}} devices --machine 2>/dev/null | jq -r \
+            'first(.[] | select((.emulator | not)
+               and (.targetPlatform | test("^(android|ios)"))) | .id) // empty')
+          if [ -z "$id" ]; then
+            echo "no phone attached — plug one in with USB debugging on, then 'task devices'" >&2
+            exit 1
+          fi
+          echo "$id"
+    cmds:
+      - "echo {{.ID}}"
+
+  device:
+    desc: "Run the reader app on the attached phone"
+    vars:
+      ID: *phone
+    cmds:
+      - >-
+        {{.FLUTTER}} run -d {{.ID}}
+        --dart-define=API_BASE_URL={{.DEVICE_API}}
+        {{.CLI_ARGS}}
+
+  device:console:
+    desc: "Run the console on the attached phone"
+    vars:
+      ID: *phone
+    cmds:
+      - >-
+        {{.FLUTTER}} run -d {{.ID}} -t {{.CONSOLE}}
+        --dart-define=API_BASE_URL={{.DEVICE_API}}
+        {{.CLI_ARGS}}
+
+  adb:reverse:
+    desc: "Point the phone's localhost:3000 back at this machine"
+    cmds:
+      - adb reverse tcp:3000 tcp:3000
+
+  # ---- Builds -------------------------------------------------------------
+
+  build:web:
+    desc: "Release web build of the reader app (build/web)"
+    cmds:
+      - "{{.FLUTTER}} build web --dart-define=API_BASE_URL={{.API}} {{.CLI_ARGS}}"
+
+  build:web:console:
+    desc: "Release web build of the console (build/web)"
+    cmds:
+      - >-
+        {{.FLUTTER}} build web -t {{.CONSOLE}}
+        --dart-define=API_BASE_URL={{.API}} {{.CLI_ARGS}}
+
+  build:apk:
+    desc: "Release APK of the reader app"
+    cmds:
+      - "{{.FLUTTER}} build apk --dart-define=API_BASE_URL={{.API}} {{.CLI_ARGS}}"
+
+  # ---- Development --------------------------------------------------------
+
+  deps:
+    desc: "Fetch packages"
+    cmds:
+      - "{{.FLUTTER}} pub get"
+
+  gen:
+    desc: "Run codegen (riverpod, json_serializable)"
+    cmds:
+      - "{{.DART}} run build_runner build"
+
+  gen:watch:
+    desc: "Run codegen and keep watching"
+    cmds:
+      - "{{.DART}} run build_runner watch"
+
+  l10n:
+    desc: "Regenerate the localisations"
+    cmds:
+      - "{{.FLUTTER}} gen-l10n"
+
+  analyze:
+    desc: "Analyze, then check the layer boundaries"
+    cmds:
+      - "{{.FLUTTER}} analyze"
+      - "{{.DART}} run tool/check_layers.dart"
+
+  test:
+    desc: "Run the test suite"
+    cmds:
+      - "{{.FLUTTER}} test {{.CLI_ARGS}}"
+
+  test:goldens:
+    desc: "Re-record the goldens"
+    cmds:
+      - "{{.FLUTTER}} test --update-goldens test/golden"
+
+  ci:
+    desc: "Everything CI runs — format, codegen, l10n, analyze, tests"
+    cmds:
+      - ./tool/ci.sh
+
+  clean:
+    desc: "Clean the build output and refetch packages"
+    cmds:
+      - "{{.FLUTTER}} clean"
+      - "{{.FLUTTER}} pub get"

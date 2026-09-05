@@ -17,7 +17,7 @@
         // "--dart-define",
         // "USE_FIXTURES=true",
         "--dart-define",
-        "API_BASE_URL=http://localhost:3000"
+        "API_BASE_URL=http://localhost:3000/api"
       ]
     },
     {
@@ -26,7 +26,7 @@
       "type": "dart",
       "args": [
         "--web-port",
-        "9001",
+        "9000",
         "-d",
         "chrome",
         "-v",
