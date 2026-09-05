@@ -35,6 +35,18 @@ class StatusBadge extends StatelessWidget {
 
   final BadgeKind kind;
 
+  /// The badge's word on its own, for the places that need to *say* a status
+  /// rather than show one — a toast confirming a transition, a screen reader
+  /// announcing it. Shares the switch below so the two can never disagree.
+  static String articleLabel(AppL10n l10n, ArticleStatus status) =>
+      switch (status) {
+        ArticleStatus.draft => l10n.statusDraft,
+        ArticleStatus.inReview => l10n.statusInReview,
+        ArticleStatus.scheduled => l10n.statusScheduled,
+        ArticleStatus.published => l10n.statusPublished,
+        ArticleStatus.failed => l10n.statusFailed,
+      };
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;

@@ -316,10 +316,106 @@ class FixtureAdminApi implements PuntlandAdminApi {
   });
 
   @override
-  Future<AdminArticleDto> saveArticle(AdminArticleDto article) => _respond(() {
-    final saved = article.copyWith();
-    _articles[saved.id] = saved;
-    return saved;
+  Future<AdminArticleDto> createArticle({
+    required String categorySlug,
+    required String sourceLocale,
+    String title = '',
+  }) => _respond(() {
+    final id = newId();
+    // The author is the actor, and the fixture has one signed-in actor it can
+    // name: the editor. A real backend takes this from the token.
+    final author = _staff.first;
+    final created = AdminArticleDto(
+      id: id,
+      status: ArticleStatus.draft,
+      translations: {
+        sourceLocale: ArticleTranslationDto(
+          title: title,
+          updatedAt: _now,
+          updatedBy: author.name,
+        ),
+      },
+      categorySlug: categorySlug,
+      slug: _slug(title, id),
+      authorId: author.id,
+      authorName: author.name,
+      updatedAt: _now,
+      sourceLocale: sourceLocale,
+    );
+    _articles[id] = created;
+    return created;
+  });
+
+  @override
+  Future<AdminArticleDto> saveArticleTranslation({
+    required String id,
+    required String locale,
+    required String title,
+    String? excerpt,
+    String? bodyHtml,
+    String? caption,
+  }) => _respond(() {
+    final article = _require(id);
+    // One row, one clock. The rest of the article — including every other
+    // language — is left exactly as it was, which is the whole basis of the
+    // staleness comparison.
+    final updated = article.withTranslation(
+      locale,
+      ArticleTranslationDto(
+        title: title,
+        excerpt: excerpt,
+        bodyHtml: bodyHtml,
+        caption: caption,
+        updatedAt: _now,
+        updatedBy: _staff.first.name,
+      ),
+    );
+    _articles[id] = updated;
+    return updated;
+  });
+
+  @override
+  Future<AdminArticleDto> reconfirmArticleTranslation({
+    required String id,
+    required String locale,
+  }) => _respond(() {
+    final article = _require(id);
+    final existing = article.translations[locale];
+    if (existing == null) {
+      throw const Failure(kind: FailureKind.notFound, code: 'HTTP_404');
+    }
+    // `copyWith` on the translation, so the text is carried across untouched
+    // and only the timestamp moves. That is the entire operation.
+    final updated = article.withTranslation(
+      locale,
+      existing.copyWith(updatedAt: _now, updatedBy: _staff.first.name),
+    );
+    _articles[id] = updated;
+    return updated;
+  });
+
+  @override
+  Future<AdminArticleDto> updateArticle({
+    required String id,
+    String? categorySlug,
+    String? imageId,
+    bool clearImage = false,
+    bool? isBreaking,
+  }) => _respond(() {
+    final article = _require(id);
+
+    // Metadata does not age the story. Leaving `updatedAt` alone is what stops
+    // a category change from marking every translation stale.
+    final updated = article.copyWith(
+      categorySlug: categorySlug,
+      isBreaking: isBreaking,
+      clearImage: clearImage,
+      imageId: imageId,
+      imageUrl: imageId == null ? null : _mediaById(imageId)?.url,
+      imageAlt: imageId == null ? null : _mediaById(imageId)?.alt['so'],
+    );
+    _articles[id] = updated;
+    return updated;
   });
 
   @override
@@ -328,18 +424,42 @@ class FixtureAdminApi implements PuntlandAdminApi {
     required ArticleStatus status,
     DateTime? scheduledFor,
   }) => _respond(() {
-    final article = _articles[id];
-    if (article == null) {
-      throw const Failure(kind: FailureKind.notFound, code: 'HTTP_404');
-    }
+    final article = _require(id);
     final updated = article.copyWith(
       status: status,
       scheduledFor: scheduledFor,
-      publishedAt: status == ArticleStatus.published ? DateTime.now() : null,
+      clearScheduledFor:
+          scheduledFor == null && status != ArticleStatus.scheduled,
+      publishedAt: status == ArticleStatus.published ? _now : null,
+      clearPublishedAt: status != ArticleStatus.published,
     );
     _articles[id] = updated;
     return updated;
   });
+
+  AdminArticleDto _require(String id) {
+    final article = _articles[id];
+    if (article == null) {
+      throw const Failure(kind: FailureKind.notFound, code: 'HTTP_404');
+    }
+    return article;
+  }
+
+  MediaAssetDto? _mediaById(String id) => _media[id];
+
+  /// A URL segment from the headline, falling back to the id.
+  ///
+  /// Somali is written in the Latin alphabet, so this is the whole of it — no
+  /// transliteration table, and the fallback covers a draft created before
+  /// anyone has typed a headline.
+  static String _slug(String title, String id) {
+    final slug = title
+        .toLowerCase()
+        .replaceAll(RegExp(r"['\u2019]"), '')
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+    return slug.isEmpty ? id : slug;
+  }
 
   @override
   Future<void> deleteArticle(String id) => _respond(() {
@@ -1333,6 +1453,7 @@ class FixtureAdminApi implements PuntlandAdminApi {
             ),
         },
         categorySlug: category,
+        slug: _slug(so, id),
         authorId: author.id,
         authorName: author.name,
         updatedAt: now.subtract(Duration(minutes: minutesAgo)),

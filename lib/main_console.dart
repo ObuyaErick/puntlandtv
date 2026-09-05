@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'console/app/console_app.dart';
 import 'core/providers/preferences_providers.dart';
@@ -16,7 +18,8 @@ import 'core/providers/preferences_providers.dart';
 /// fvm flutter run -d chrome -t lib/main_console.dart
 /// ```
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
+  GoRouter.optionURLReflectsImperativeAPIs = true;
 
   final prefs = await SharedPreferences.getInstance();
 

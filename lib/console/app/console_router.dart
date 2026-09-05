@@ -8,6 +8,7 @@ import '../../core/theme/tokens.dart';
 import '../core/providers/console_providers.dart';
 import '../features/administration/presentation/pages/app_config_page.dart';
 import '../features/administration/presentation/pages/users_page.dart';
+import '../features/articles/presentation/pages/article_editor_page.dart';
 import '../features/articles/presentation/pages/article_list_page.dart';
 import '../features/auth/domain/entities/console_user.dart';
 import '../features/auth/presentation/pages/sign_in_page.dart';
@@ -74,7 +75,20 @@ final consoleRouterProvider = Provider<GoRouter>((ref) {
         ),
         branches: [
           _branch(ConsoleRoutes.overview, const OverviewPage()),
-          _branch(ConsoleRoutes.articles, const ArticleListPage()),
+          _branch(
+            ConsoleRoutes.articles,
+            const ArticleListPage(),
+            routes: [
+              // Inside the branch, so the rail keeps Articles selected while a
+              // story is open and back returns to the list rather than to
+              // whichever section was visited before it.
+              GoRoute(
+                path: ConsoleRoutes.articlePattern,
+                builder: (_, state) =>
+                    ArticleEditorPage(articleId: state.pathParameters['id']!),
+              ),
+            ],
+          ),
           _branch(
             ConsoleRoutes.programs,
             const ProgramsPage(),

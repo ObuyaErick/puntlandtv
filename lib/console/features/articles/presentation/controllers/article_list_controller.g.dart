@@ -283,7 +283,7 @@ final class ArticleActionsProvider
   }
 }
 
-String _$articleActionsHash() => r'f162ad3e7eb4444041f493a238f6bd00231cbc6b';
+String _$articleActionsHash() => r'cd087d115fb6c2a0a3122d6ce61768bb5d927468';
 
 /// Bulk and single-row actions.
 ///

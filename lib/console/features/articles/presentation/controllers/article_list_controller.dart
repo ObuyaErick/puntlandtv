@@ -130,10 +130,34 @@ class ArticleActions extends _$ArticleActions {
     ref.read(articleSelectionProvider.notifier).clear();
   }
 
-  Future<void> save(AdminArticleDto article) async {
-    await ref.read(adminApiProvider).saveArticle(article);
+  Future<void> delete(String id) async {
+    await ref.read(adminApiProvider).deleteArticle(id);
     ref
       ..invalidate(articleListProvider)
       ..invalidate(articleCountsProvider);
+    ref.read(articleSelectionProvider.notifier).clear();
   }
+
+  /// Starts a draft and answers with it, so the caller can route to its id.
+  Future<AdminArticleDto> create({
+    required String categorySlug,
+    required String sourceLocale,
+  }) async {
+    final created = await ref
+        .read(adminApiProvider)
+        .createArticle(categorySlug: categorySlug, sourceLocale: sourceLocale);
+    ref
+      ..invalidate(articleListProvider)
+      ..invalidate(articleCountsProvider);
+    return created;
+  }
+
+  /// Re-reads the list after the editor has written to one article.
+  ///
+  /// The editor owns its own article and does not go through this notifier to
+  /// save; it does need the list behind it to stop showing yesterday's status
+  /// once it has.
+  void refreshList() => ref
+    ..invalidate(articleListProvider)
+    ..invalidate(articleCountsProvider);
 }

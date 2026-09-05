@@ -10,17 +10,18 @@ import '../../../../../core/theme/tokens.dart';
 import '../../../../../core/widgets/feedback_views.dart';
 import '../../../../core/admin_api/dto/admin_article_dto.dart';
 import '../../../../core/admin_api/puntland_admin_api.dart';
+import '../../../../app/console_navigation.dart';
 import '../../../../core/localised.dart';
 import '../../../../core/providers/console_providers.dart';
 import '../../../operations/presentation/pages/categories_page.dart';
 import '../../../../core/widgets/console_page.dart';
 import '../../../../core/widgets/console_table.dart';
+import '../../../../core/widgets/console_toast.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../../auth/domain/entities/console_user.dart';
 import '../controllers/article_list_controller.dart';
 import '../widgets/article_row_card.dart';
 import '../widgets/bulk_action_bar.dart';
-import 'article_editor_panel.dart';
 
 /// The newsroom's article list.
 ///
@@ -46,7 +47,7 @@ class ArticleListPage extends ConsumerWidget {
           : l10n.itemCount(articles.value!.length),
       actions: [
         FilledButton.icon(
-          onPressed: () {},
+          onPressed: () => _startDraft(context, ref),
           icon: const Icon(Icons.add_rounded, size: 18),
           label: Text(canPublish ? l10n.newArticle : l10n.newDraft),
         ),
@@ -72,6 +73,35 @@ class ArticleListPage extends ConsumerWidget {
           return _ArticleBody(rows: rows, canPublish: canPublish);
         },
       ),
+    );
+  }
+}
+
+/// Starts a draft and opens it.
+///
+/// The category is the first one configured rather than a choice made up
+/// front: the story does not have a section yet, the publishing panel is where
+/// that decision belongs, and a modal asking for one before a headline exists
+/// is a question asked at the wrong moment.
+Future<void> _startDraft(BuildContext context, WidgetRef ref) async {
+  final categories = ref.read(categoryConfigProvider).value ?? const [];
+  final messenger = context;
+
+  try {
+    final created = await ref
+        .read(articleActionsProvider.notifier)
+        .create(
+          categorySlug: categories.isEmpty ? 'national' : categories.first.slug,
+          sourceLocale: 'so',
+        );
+    if (!messenger.mounted) return;
+    messenger.openArticle(created.id);
+  } on Failure {
+    if (!messenger.mounted) return;
+    showConsoleToast(
+      messenger,
+      message: messenger.l10n.saveFailed,
+      kind: ToastKind.error,
     );
   }
 }
@@ -266,8 +296,7 @@ class _ArticleBody extends ConsumerWidget {
                             categoryNames[article.categorySlug] ??
                             article.categorySlug,
                         showAuthor: canPublish,
-                        onTap: () =>
-                            showArticleEditor(context, article: article),
+                        onTap: () => context.openArticle(article.id),
                       ),
                     );
                   }
@@ -275,7 +304,7 @@ class _ArticleBody extends ConsumerWidget {
                   return ConsoleTableRow(
                     columns: columns,
                     selected: checked,
-                    onTap: () => showArticleEditor(context, article: article),
+                    onTap: () => context.openArticle(article.id),
                     leading: canPublish
                         ? Checkbox(
                             value: checked,
@@ -317,7 +346,7 @@ class _ArticleBody extends ConsumerWidget {
                         alignment: Alignment.centerLeft,
                         child: StatusBadge.forArticle(article.status),
                       ),
-                      _RowMenu(article: article),
+                      _RowMenu(article: article, canPublish: canPublish),
                     ],
                   );
                 },
@@ -411,23 +440,92 @@ class _PageStep extends StatelessWidget {
 
 /// Per-row overflow. The actions a single row needs are the bulk ones minus
 /// the selection, so they live behind a menu rather than six icons per line.
-class _RowMenu extends StatelessWidget {
-  const _RowMenu({required this.article});
+class _RowMenu extends ConsumerWidget {
+  const _RowMenu({required this.article, required this.canPublish});
 
   final AdminArticleDto article;
+  final bool canPublish;
 
   @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () {},
-      tooltip: context.l10n.rowActions,
-      constraints: const BoxConstraints.tightFor(width: 40, height: 40),
-      icon: Icon(
-        Icons.more_vert_rounded,
-        size: 18,
-        color: context.scheme.onSurfaceVariant,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final actions = ref.read(articleActionsProvider.notifier);
+
+    return MenuAnchor(
+      menuChildren: [
+        MenuItemButton(
+          onPressed: () => context.openArticle(article.id),
+          child: Text(l10n.openInEditor),
+        ),
+        if (canPublish)
+          if (article.status == ArticleStatus.published)
+            MenuItemButton(
+              onPressed: () =>
+                  actions.setStatus([article.id], ArticleStatus.draft),
+              child: Text(l10n.unpublish),
+            )
+          else
+            MenuItemButton(
+              onPressed: () =>
+                  actions.setStatus([article.id], ArticleStatus.published),
+              child: Text(l10n.publishNow),
+            ),
+        MenuItemButton(
+          onPressed: () => _confirmDelete(context, ref),
+          child: Text(
+            l10n.delete,
+            style: TextStyle(color: context.scheme.error),
+          ),
+        ),
+      ],
+      builder: (context, controller, _) => IconButton(
+        onPressed: () =>
+            controller.isOpen ? controller.close() : controller.open(),
+        tooltip: l10n.rowActions,
+        constraints: const BoxConstraints.tightFor(width: 40, height: 40),
+        icon: Icon(
+          Icons.more_vert_rounded,
+          size: 18,
+          color: context.scheme.onSurfaceVariant,
+        ),
       ),
     );
+  }
+
+  /// Deleting is asked about, unlike every other action here.
+  ///
+  /// The rest are reversible from the same menu; this one is not, and a
+  /// published story removed by a mis-click is a URL that starts 404ing for
+  /// readers who already have the link.
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final title =
+        article.translationFor(context.languageCode)?.title ?? article.id;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteArticleTitle, style: context.text.title),
+        content: Text(l10n.deleteArticleBody(title), style: context.text.body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: context.scheme.error,
+            ),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      await ref.read(articleActionsProvider.notifier).delete(article.id);
+    }
   }
 }
 

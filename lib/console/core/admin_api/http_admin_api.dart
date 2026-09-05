@@ -203,30 +203,80 @@ class HttpAdminApi implements PuntlandAdminApi {
       _get('/v1/admin/articles/$id', AdminArticleDto.fromJson);
 
   @override
-  Future<AdminArticleDto> saveArticle(AdminArticleDto article) => _send(
-    'PUT',
-    '/v1/admin/articles/${article.id}',
+  Future<AdminArticleDto> createArticle({
+    required String categorySlug,
+    required String sourceLocale,
+    String title = '',
+  }) => _send(
+    'POST',
+    '/v1/admin/articles',
     AdminArticleDto.fromJson,
-    // `status` is absent deliberately: a state change is audited and goes
-    // through [setArticleStatus]. So is the hero image — `AdminArticleDto`
-    // carries `image_url`, and the backend attaches by asset id after checking
-    // the asset is ready, which a URL cannot express. Sending nothing leaves
-    // the current image alone; clearing one needs an id-carrying field on the
-    // DTO first.
+    // The slug and the author come back rather than going up: the slug is the
+    // backend's to mint and keep unique, and the author is the actor on the
+    // token. A console that named its own author would be a console that could
+    // file a story under somebody else's byline.
     body: {
-      'id': article.id,
-      'categorySlug': article.categorySlug,
-      'sourceLocale': article.sourceLocale,
-      'isBreaking': article.isBreaking,
-      'translations': {
-        for (final entry in article.translations.entries)
-          entry.key: {
-            'title': entry.value.title,
-            'excerpt': ?entry.value.excerpt,
-            'bodyHtml': ?entry.value.bodyHtml,
-            'caption': ?entry.value.caption,
-          },
-      },
+      'categorySlug': categorySlug,
+      'sourceLocale': sourceLocale,
+      'title': title,
+    },
+  );
+
+  @override
+  Future<AdminArticleDto> saveArticleTranslation({
+    required String id,
+    required String locale,
+    required String title,
+    String? excerpt,
+    String? bodyHtml,
+    String? caption,
+  }) => _send(
+    'PUT',
+    '/v1/admin/articles/$id/translations/$locale',
+    AdminArticleDto.fromJson,
+    // Every field of the translation, every time — this is a PUT of one
+    // locale's row, not a patch of it. Omitting a field an editor has just
+    // emptied is how a cleared excerpt comes back on the next load.
+    body: {
+      'title': title,
+      'excerpt': excerpt,
+      'bodyHtml': bodyHtml,
+      'caption': caption,
+    },
+  );
+
+  @override
+  Future<AdminArticleDto> reconfirmArticleTranslation({
+    required String id,
+    required String locale,
+  }) => _send(
+    'POST',
+    '/v1/admin/articles/$id/translations/$locale/reconfirm',
+    AdminArticleDto.fromJson,
+    // No body. The whole operation is "stamp this row's `updatedAt`", and
+    // sending the text back would let a stale editor tab overwrite an edit
+    // made since it loaded — under a button that promises to change nothing.
+    body: const {},
+  );
+
+  @override
+  Future<AdminArticleDto> updateArticle({
+    required String id,
+    String? categorySlug,
+    String? imageId,
+    bool clearImage = false,
+    bool? isBreaking,
+  }) => _send(
+    'PATCH',
+    '/v1/admin/articles/$id',
+    AdminArticleDto.fromJson,
+    // A true PATCH: only the keys the caller named are sent, so a metadata
+    // panel cannot restate — and so clobber — a field it never showed. An
+    // explicit null detaches the hero image; `?` omits the key entirely.
+    body: {
+      'categorySlug': ?categorySlug,
+      if (clearImage) 'imageId': null else 'imageId': ?imageId,
+      'isBreaking': ?isBreaking,
     },
   );
 
@@ -237,10 +287,14 @@ class HttpAdminApi implements PuntlandAdminApi {
     DateTime? scheduledFor,
   }) => _send(
     'POST',
-    '/v1/admin/articles/$id/status',
+    // `transitions`, not `status`: the request appends to an audit log and the
+    // article's state is the consequence. A `PUT .../status` would read as a
+    // field assignment, and the first person to optimise away a "redundant"
+    // write would erase the record of who published what.
+    '/v1/admin/articles/$id/transitions',
     AdminArticleDto.fromJson,
     body: {
-      'status': status.name,
+      'toStatus': status.name,
       'scheduledFor': ?scheduledFor?.toIso8601String(),
     },
   );

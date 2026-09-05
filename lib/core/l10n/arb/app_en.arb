@@ -640,7 +640,11 @@
   "resetSentBody": "If {email} belongs to a console account, a six-digit code is on its way. It expires in 15 minutes.",
   "@resetSentBody": {
     "description": "Confirmation after requesting a code. Conditional on purpose: the backend answers the same way for an unknown address, and this sentence must not claim more than it knows.",
-    "placeholders": { "email": { "type": "String" } }
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   },
   "resetCodeLabel": "Reset code",
   "@resetCodeLabel": {
@@ -657,7 +661,11 @@
   "resetPasswordRule": "At least {count} characters.",
   "@resetPasswordRule": {
     "description": "Password length requirement, shown before it is broken rather than after.",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "resetAction": "Set password",
   "@resetAction": {
@@ -678,7 +686,11 @@
   "resetDevCode": "Development build: your code is {code}",
   "@resetDevCode": {
     "description": "Shown only when the backend echoes the code, which it does outside production because no email or SMS gateway is wired up yet.",
-    "placeholders": { "code": { "type": "String" } }
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
   },
   "errorEmailRequired": "Enter your work email address.",
   "@errorEmailRequired": {
@@ -699,7 +711,11 @@
   "errorPasswordTooShort": "Passwords must be at least {count} characters.",
   "@errorPasswordTooShort": {
     "description": "Shown when the new password is below the length floor.",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "errorPasswordMismatch": "Those passwords do not match.",
   "@errorPasswordMismatch": {
@@ -2299,5 +2315,267 @@
   "unsavedChanges": "Unsaved changes",
   "@unsavedChanges": {
     "description": "Marker shown while the app config form differs from what is stored."
+  },
+  "addTranslation": "Add {language}",
+  "@addTranslation": {
+    "description": "Adds a language the article does not have yet.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "apply": "Apply",
+  "@apply": {
+    "description": "Confirms a formatting dialog."
+  },
+  "articleRef": "article #{id}",
+  "@articleRef": {
+    "description": "The article's identifier, in the editor's header line.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "backToArticles": "Back to articles",
+  "@backToArticles": {
+    "description": "Tooltip on the editor's back button."
+  },
+  "badgeBehind": "BEHIND",
+  "@badgeBehind": {
+    "description": "Locale tab badge: this translation is older than the source. Uppercase."
+  },
+  "badgeSource": "SOURCE",
+  "@badgeSource": {
+    "description": "Locale tab badge: the language the story was written in. Uppercase."
+  },
+  "bodyPlaceholder": "Start writing the story…",
+  "@bodyPlaceholder": {
+    "description": "Placeholder in the empty body editor."
+  },
+  "bodyRequired": "A body is required before publishing.",
+  "@bodyRequired": {
+    "description": "Why the publish button is refused."
+  },
+  "captionHint": "Shown under the picture in the app",
+  "@captionHint": {
+    "description": "Hint under the hero image caption field."
+  },
+  "changedSince": "Changed since {time}",
+  "@changedSince": {
+    "description": "How far behind a stale translation is.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseHeroImage": "Choose image",
+  "@chooseHeroImage": {
+    "description": "Opens the media picker for the hero image."
+  },
+  "editorCaption": "Caption · {locale}",
+  "@editorCaption": {
+    "description": "Hero caption field label with the language code. Uppercase locale.",
+    "placeholders": {
+      "locale": {
+        "type": "String"
+      }
+    }
+  },
+  "exitSideBySide": "Exit side-by-side",
+  "@exitSideBySide": {
+    "description": "Leaves the two-column translation view."
+  },
+  "formatBold": "Bold",
+  "@formatBold": {
+    "description": "Body editor toolbar control."
+  },
+  "formatItalic": "Italic",
+  "@formatItalic": {
+    "description": "Body editor toolbar control."
+  },
+  "formatHeading2": "Heading 2",
+  "@formatHeading2": {
+    "description": "Body editor toolbar control."
+  },
+  "formatHeading3": "Heading 3",
+  "@formatHeading3": {
+    "description": "Body editor toolbar control."
+  },
+  "formatBulletList": "Bulleted list",
+  "@formatBulletList": {
+    "description": "Body editor toolbar control."
+  },
+  "formatQuote": "Quote",
+  "@formatQuote": {
+    "description": "Body editor toolbar control."
+  },
+  "formatLink": "Link",
+  "@formatLink": {
+    "description": "Body editor toolbar control."
+  },
+  "formatImage": "Image",
+  "@formatImage": {
+    "description": "Body editor toolbar control."
+  },
+  "headlineRequired": "A headline is required before publishing.",
+  "@headlineRequired": {
+    "description": "Why the publish button is refused."
+  },
+  "heroReplace": "16:9 · Replace",
+  "@heroReplace": {
+    "description": "Overlay on the hero image frame. The ratio is fixed, not translated."
+  },
+  "notScheduled": "Not scheduled",
+  "@notScheduled": {
+    "description": "Shown in the schedule field when no time is set."
+  },
+  "notYetWritten": "Not yet written",
+  "@notYetWritten": {
+    "description": "Shown for a language the article has no text in."
+  },
+  "openLocaleSideBySide": "Open {language} side-by-side",
+  "@openLocaleSideBySide": {
+    "description": "Opens the stale translation next to the source.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "publishOptions": "More publishing options",
+  "@publishOptions": {
+    "description": "Screen-reader label for the caret beside Publish."
+  },
+  "removeImage": "Remove",
+  "@removeImage": {
+    "description": "Detaches the hero image."
+  },
+  "removeLink": "Remove",
+  "@removeLink": {
+    "description": "Clears a link in the body editor."
+  },
+  "replaceHeroImage": "Replace image",
+  "@replaceHeroImage": {
+    "description": "Screen-reader label on the hero image frame when one is set."
+  },
+  "reviewTranslation": "Review",
+  "@reviewTranslation": {
+    "description": "Opens a stale translation to be read against the source."
+  },
+  "saveFailed": "Not saved",
+  "@saveFailed": {
+    "description": "Autosave could not reach the backend. The text is kept."
+  },
+  "saving": "Saving…",
+  "@saving": {
+    "description": "Autosave is in flight."
+  },
+  "scheduleFor": "Schedule…",
+  "@scheduleFor": {
+    "description": "Menu item: pick a publication time."
+  },
+  "sideBySide": "Side-by-side",
+  "@sideBySide": {
+    "description": "Shows the source and its translation in two columns."
+  },
+  "statusChangedTo": "Moved to {status}",
+  "@statusChangedTo": {
+    "description": "Toast after an article changes state.",
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "submitForReview": "Submit for review",
+  "@submitForReview": {
+    "description": "Hands a draft to an editor."
+  },
+  "translationLocaleBehind": "{locale} BEHIND",
+  "@translationLocaleBehind": {
+    "description": "Badge on the translation card. Uppercase locale name.",
+    "placeholders": {
+      "locale": {
+        "type": "String"
+      }
+    }
+  },
+  "unpublish": "Unpublish",
+  "@unpublish": {
+    "description": "Takes a published article back to draft."
+  },
+  "updatedAtTime": "Updated {time}",
+  "@updatedAtTime": {
+    "description": "When a translation was last edited.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "updatedAtTimeBy": "Updated {time} by {name}",
+  "@updatedAtTimeBy": {
+    "description": "When a translation was last edited, and by whom.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "urlHint": "https://example.so",
+  "@urlHint": {
+    "description": "Placeholder in the link dialog."
+  },
+  "preview": "Preview",
+  "@preview": {
+    "description": "Shows the story as the app would render it."
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Dismisses a dialog."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Destructive action in a row menu."
+  },
+  "openInEditor": "Open in editor",
+  "@openInEditor": {
+    "description": "Row menu: opens the article editor."
+  },
+  "deleteArticleTitle": "Delete this article?",
+  "@deleteArticleTitle": {
+    "description": "Confirmation dialog title."
+  },
+  "deleteArticleBody": "“{title}” and every translation of it will be removed. This cannot be undone.",
+  "@deleteArticleBody": {
+    "description": "Confirmation dialog body, naming the story.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "unpublishNeedsEditor": "Only an editor can move a published story.",
+  "@unpublishNeedsEditor": {
+    "description": "Why a journalist cannot act on their own published article."
+  },
+  "imageFailedToLoad": "That image did not load",
+  "@imageFailedToLoad": {
+    "description": "Shown in place of a body image whose URL is wrong or unreachable."
+  },
+  "unsupportedEmbed": "Unsupported content ({kind})",
+  "@unsupportedEmbed": {
+    "description": "Placeholder for an embed this editor cannot render.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
   }
 }

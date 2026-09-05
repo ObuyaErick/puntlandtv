@@ -1723,4 +1723,180 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get unsavedChanges => 'Unsaved changes';
+
+  @override
+  String addTranslation(String language) {
+    return 'Add $language';
+  }
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String articleRef(String id) {
+    return 'article #$id';
+  }
+
+  @override
+  String get backToArticles => 'Back to articles';
+
+  @override
+  String get badgeBehind => 'BEHIND';
+
+  @override
+  String get badgeSource => 'SOURCE';
+
+  @override
+  String get bodyPlaceholder => 'Start writing the story…';
+
+  @override
+  String get bodyRequired => 'A body is required before publishing.';
+
+  @override
+  String get captionHint => 'Shown under the picture in the app';
+
+  @override
+  String changedSince(String time) {
+    return 'Changed since $time';
+  }
+
+  @override
+  String get chooseHeroImage => 'Choose image';
+
+  @override
+  String editorCaption(String locale) {
+    return 'Caption · $locale';
+  }
+
+  @override
+  String get exitSideBySide => 'Exit side-by-side';
+
+  @override
+  String get formatBold => 'Bold';
+
+  @override
+  String get formatItalic => 'Italic';
+
+  @override
+  String get formatHeading2 => 'Heading 2';
+
+  @override
+  String get formatHeading3 => 'Heading 3';
+
+  @override
+  String get formatBulletList => 'Bulleted list';
+
+  @override
+  String get formatQuote => 'Quote';
+
+  @override
+  String get formatLink => 'Link';
+
+  @override
+  String get formatImage => 'Image';
+
+  @override
+  String get headlineRequired => 'A headline is required before publishing.';
+
+  @override
+  String get heroReplace => '16:9 · Replace';
+
+  @override
+  String get notScheduled => 'Not scheduled';
+
+  @override
+  String get notYetWritten => 'Not yet written';
+
+  @override
+  String openLocaleSideBySide(String language) {
+    return 'Open $language side-by-side';
+  }
+
+  @override
+  String get publishOptions => 'More publishing options';
+
+  @override
+  String get removeImage => 'Remove';
+
+  @override
+  String get removeLink => 'Remove';
+
+  @override
+  String get replaceHeroImage => 'Replace image';
+
+  @override
+  String get reviewTranslation => 'Review';
+
+  @override
+  String get saveFailed => 'Not saved';
+
+  @override
+  String get saving => 'Saving…';
+
+  @override
+  String get scheduleFor => 'Schedule…';
+
+  @override
+  String get sideBySide => 'Side-by-side';
+
+  @override
+  String statusChangedTo(String status) {
+    return 'Moved to $status';
+  }
+
+  @override
+  String get submitForReview => 'Submit for review';
+
+  @override
+  String translationLocaleBehind(String locale) {
+    return '$locale BEHIND';
+  }
+
+  @override
+  String get unpublish => 'Unpublish';
+
+  @override
+  String updatedAtTime(String time) {
+    return 'Updated $time';
+  }
+
+  @override
+  String updatedAtTimeBy(String time, String name) {
+    return 'Updated $time by $name';
+  }
+
+  @override
+  String get urlHint => 'https://example.so';
+
+  @override
+  String get preview => 'Preview';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get openInEditor => 'Open in editor';
+
+  @override
+  String get deleteArticleTitle => 'Delete this article?';
+
+  @override
+  String deleteArticleBody(String title) {
+    return '“$title” and every translation of it will be removed. This cannot be undone.';
+  }
+
+  @override
+  String get unpublishNeedsEditor =>
+      'Only an editor can move a published story.';
+
+  @override
+  String get imageFailedToLoad => 'That image did not load';
+
+  @override
+  String unsupportedEmbed(String kind) {
+    return 'Unsupported content ($kind)';
+  }
 }
