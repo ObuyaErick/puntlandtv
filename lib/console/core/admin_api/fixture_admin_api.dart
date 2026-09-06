@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:typed_data';
 
 import '../../../core/error/failure.dart';
 import '../../features/auth/domain/entities/console_user.dart';
@@ -150,8 +151,7 @@ class FixtureAdminApi implements PuntlandAdminApi {
   @override
   Future<ConsoleSessionDto?> restoreSession({String? refreshToken}) =>
       _respond(() {
-        if (refreshToken == null ||
-            !refreshToken.startsWith(_tokenPrefix)) {
+        if (refreshToken == null || !refreshToken.startsWith(_tokenPrefix)) {
           return null;
         }
         final id = refreshToken.substring(_tokenPrefix.length);
@@ -218,10 +218,7 @@ class FixtureAdminApi implements PuntlandAdminApi {
     // The backend enforces a floor on length; the fixture enforces it too, so
     // the screen cannot be built against a boundary that only one of them has.
     if (password.length < 10) {
-      throw const Failure(
-        kind: FailureKind.unknown,
-        code: 'VALIDATION_FAILED',
-      );
+      throw const Failure(kind: FailureKind.unknown, code: 'VALIDATION_FAILED');
     }
 
     // Single-use, like the real one.
@@ -1162,13 +1159,14 @@ class FixtureAdminApi implements PuntlandAdminApi {
     required String filename,
     required MediaKind kind,
     required int byteSize,
+    Uint8List? bytes,
   }) => _respond(() {
     final id = 'm-${_random.nextInt(1 << 32).toRadixString(16)}';
     final asset = MediaAssetDto(
       id: id,
       kind: kind,
       filename: filename,
-      url: 'https://cdn.pltv.so/media/$id',
+      url: _fixtureUrl(id, bytes),
       byteSize: byteSize,
       uploadedAt: DateTime.now(),
       uploadedBy: 'A. Yuusuf',
@@ -1184,6 +1182,32 @@ class FixtureAdminApi implements PuntlandAdminApi {
     _media[id] = asset;
     return asset;
   });
+
+  /// Where a fixture upload's bytes live.
+  ///
+  /// There is no server behind this class, so an asset registered with a real
+  /// file has nowhere to be fetched from — `https://cdn.pltv.so/media/…` is a
+  /// hostname nobody serves, and a pasted screenshot would render as a broken
+  /// box the moment it landed. A `data:` URL is the only form that is true
+  /// here: the fixture *is* the storage, so the bytes go in the field that
+  /// says where the bytes are.
+  ///
+  /// **Capped, and the cap is not tidiness.** `ArticleDraft.bodyHtml` re-runs
+  /// the delta-to-HTML converter every time it is read; `isDirtyAgainst` reads
+  /// it, `isDirty` reads that once per locale, and the editor page asks
+  /// `isDirty` on every keystroke. An uncapped megabyte of base64 sitting in
+  /// the document puts that megabyte in the typing path — in the only mode
+  /// anything is ever demonstrated in. Above the cap the asset falls back to
+  /// the unservable URL, which renders as the broken box it honestly is.
+  String _fixtureUrl(String id, Uint8List? bytes) {
+    const cap = 512 * 1024;
+    if (bytes == null || bytes.isEmpty || bytes.length > cap) {
+      return 'https://cdn.pltv.so/media/$id';
+    }
+    final format = ImageFormat.of(bytes);
+    if (format == null) return 'https://cdn.pltv.so/media/$id';
+    return UriData.fromBytes(bytes, mimeType: format.mimeType).toString();
+  }
 
   @override
   Future<void> deleteMediaAsset(String id) => _respond(() {

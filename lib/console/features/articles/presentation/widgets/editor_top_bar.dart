@@ -15,12 +15,21 @@ class EditorTopBar extends StatelessWidget {
     super.key,
     required this.editor,
     required this.canPublish,
+    required this.autosaveEnabled,
+    required this.onAutosaveChanged,
     required this.onClose,
     required this.onTransition,
   });
 
   final ArticleEditor editor;
   final bool canPublish;
+
+  /// Whether the editor is writing on its own. Owned by the editor screen —
+  /// see `_EditorState`.
+  final bool autosaveEnabled;
+
+  final ValueChanged<bool> onAutosaveChanged;
+
   final VoidCallback onClose;
   final void Function(ArticleStatus status, {DateTime? scheduledFor})
   onTransition;
@@ -72,7 +81,7 @@ class EditorTopBar extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 3),
-                    _SaveLine(editor: editor),
+                    _SaveLine(editor: editor, autosaveEnabled: autosaveEnabled),
                   ],
                 ),
               ),
@@ -91,12 +100,17 @@ class EditorTopBar extends StatelessWidget {
                   style: _outlined(context),
                   child: Text(l10n.saveDraft),
                 ),
-                const SizedBox(width: Spacing.chip + 2),
-              ] else
-                _Overflow(
-                  onPreview: () => _preview(context),
-                  onSaveDraft: () => editor.saveDraft(),
-                ),
+              ],
+              // Always present, unlike the two buttons above it: the autosave
+              // switch has no inline home on a wide header, and a toggle you
+              // can only reach by narrowing the window is not a toggle.
+              _Overflow(
+                compact: !roomy,
+                autosaveEnabled: autosaveEnabled,
+                onAutosaveChanged: onAutosaveChanged,
+                onPreview: () => _preview(context),
+                onSaveDraft: () => editor.saveDraft(),
+              ),
               if (canPublish)
                 _PublishButton(
                   blocker: blocker,
@@ -198,21 +212,28 @@ class EditorTopBar extends StatelessWidget {
 
 /// "Saved 21:12 · autosave on · article #4182", and what replaces it mid-write.
 class _SaveLine extends StatelessWidget {
-  const _SaveLine({required this.editor});
+  const _SaveLine({required this.editor, required this.autosaveEnabled});
 
   final ArticleEditor editor;
+  final bool autosaveEnabled;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final failed = editor.saveState == ArticleSaveState.failed;
 
+    // Autosave being off is said in the one place that otherwise reads
+    // "Saved 21:12" — the line someone glances at to decide whether their work
+    // is safe. A switch that changes what that line means without changing
+    // what it says is worse than no switch.
+    final autosave = autosaveEnabled ? '' : ' · ${l10n.autosaveOff}';
+
     final text = switch (editor.saveState) {
       ArticleSaveState.saving => l10n.saving,
       ArticleSaveState.failed => l10n.saveFailed,
       _ =>
         '${l10n.savedAt(AppDateFormat.time(editor.article.updatedAt, context.languageCode))}'
-            ' · ${l10n.articleRef(editor.article.id)}',
+            ' · ${l10n.articleRef(editor.article.id)}$autosave',
     };
 
     return Text(
@@ -377,11 +398,23 @@ class _PreviewDialog extends StatelessWidget {
   }
 }
 
-
-/// Preview and Save draft, folded away when the header runs out of room.
+/// The autosave switch, plus Preview and Save draft when the header has run
+/// out of room for them.
 class _Overflow extends StatelessWidget {
-  const _Overflow({required this.onPreview, required this.onSaveDraft});
+  const _Overflow({
+    required this.compact,
+    required this.autosaveEnabled,
+    required this.onAutosaveChanged,
+    required this.onPreview,
+    required this.onSaveDraft,
+  });
 
+  /// True when the header is too narrow for Preview and Save draft to sit
+  /// inline, so this menu has to carry them too.
+  final bool compact;
+
+  final bool autosaveEnabled;
+  final ValueChanged<bool> onAutosaveChanged;
   final VoidCallback onPreview;
   final VoidCallback onSaveDraft;
 
@@ -391,8 +424,16 @@ class _Overflow extends StatelessWidget {
 
     return MenuAnchor(
       menuChildren: [
-        MenuItemButton(onPressed: onPreview, child: Text(l10n.preview)),
-        MenuItemButton(onPressed: onSaveDraft, child: Text(l10n.saveDraft)),
+        if (compact) ...[
+          MenuItemButton(onPressed: onPreview, child: Text(l10n.preview)),
+          MenuItemButton(onPressed: onSaveDraft, child: Text(l10n.saveDraft)),
+          const Divider(height: 1),
+        ],
+        CheckboxMenuButton(
+          value: autosaveEnabled,
+          onChanged: (value) => onAutosaveChanged(value ?? true),
+          child: Text(l10n.autosave),
+        ),
       ],
       builder: (context, controller, _) => IconButton(
         onPressed: () =>

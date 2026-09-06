@@ -52,9 +52,8 @@ class PublishingPanel extends ConsumerWidget {
               child: _Labelled(
                 label: l10n.fieldCategory,
                 child: DropdownButtonFormField<String>(
-                  initialValue: categories.any(
-                    (c) => c.slug == article.categorySlug,
-                  )
+                  initialValue:
+                      categories.any((c) => c.slug == article.categorySlug)
                       ? article.categorySlug
                       : null,
                   isExpanded: true,
@@ -200,9 +199,7 @@ class PublishingPanel extends ConsumerWidget {
     );
     if (time == null) return;
 
-    onSchedule(
-      DateTime(day.year, day.month, day.day, time.hour, time.minute),
-    );
+    onSchedule(DateTime(day.year, day.month, day.day, time.hour, time.minute));
   }
 
   static InputDecoration _boxed(BuildContext context) => InputDecoration(
@@ -255,9 +252,7 @@ class _Readonly extends StatelessWidget {
     ),
     child: Text(
       text,
-      style: context.text.body.copyWith(
-        color: context.scheme.onSurfaceVariant,
-      ),
+      style: context.text.body.copyWith(color: context.scheme.onSurfaceVariant),
     ),
   );
 }

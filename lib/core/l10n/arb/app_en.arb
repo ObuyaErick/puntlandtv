@@ -2577,5 +2577,62 @@
         "type": "String"
       }
     }
+  },
+  "imageFromComputer": "From this computer",
+  "@imageFromComputer": {
+      "description": "Body editor image dialog: opens the operating system's file picker."
+  },
+  "imageFromLibrary": "From the media library",
+  "@imageFromLibrary": {
+      "description": "Body editor image dialog: opens the media library grid."
+  },
+  "imageOrPasteUrl": "Or paste a URL",
+  "@imageOrPasteUrl": {
+      "description": "Body editor image dialog: the divider above the URL field."
+  },
+  "uploadingImage": "Uploading image…",
+  "@uploadingImage": {
+      "description": "Shown while a pasted or picked image is on its way to the media library."
+  },
+  "imageUploadFailed": "That image could not be uploaded",
+  "@imageUploadFailed": {
+      "description": "The upload of a pasted or picked image failed. Nothing was added to the story."
+  },
+  "imageTooLarge": "That image is too large. The limit is {limit}.",
+  "@imageTooLarge": {
+      "description": "A pasted or picked image was refused before it was uploaded.",
+      "placeholders": {
+          "limit": {
+              "type": "String"
+          }
+      }
+  },
+  "imageNotSupported": "That file is not an image this console accepts",
+  "@imageNotSupported": {
+      "description": "Pasted bytes were not PNG, JPEG, GIF or WebP."
+  },
+  "pastedAsFormatted": "Pasted as formatted text",
+  "@pastedAsFormatted": {
+      "description": "Plain text was recognised as markdown and converted. Offered with an undo."
+  },
+  "pastedImageAdded": "Image added. It still needs alt text.",
+  "@pastedImageAdded": {
+      "description": "A pasted image reached the media library undescribed."
+  },
+  "undo": "Undo",
+  "@undo": {
+      "description": "Reverses the change a toast is reporting."
+  },
+  "describeImage": "Describe it",
+  "@describeImage": {
+      "description": "Opens the media panel where an image's alt text is written."
+  },
+  "autosave": "Autosave",
+  "@autosave": {
+      "description": "Editor menu switch: whether the editor writes on its own while you type."
+  },
+  "autosaveOff": "Autosave off",
+  "@autosaveOff": {
+      "description": "Shown beside the save state when the editor is not writing on its own."
   }
 }

@@ -52,9 +52,7 @@ void main() {
                   controller: controller,
                   config: const QuillSimpleToolbarConfig(),
                 ),
-                Expanded(
-                  child: QuillEditor.basic(controller: controller),
-                ),
+                Expanded(child: QuillEditor.basic(controller: controller)),
               ],
             ),
           ),
@@ -125,7 +123,8 @@ void main() {
     expect(
       outsideMaterial,
       isNotNull,
-      reason: 'if this stops throwing, flutter_quill has moved to material_ui '
+      reason:
+          'if this stops throwing, flutter_quill has moved to material_ui '
           'and the bridge can go',
     );
   });

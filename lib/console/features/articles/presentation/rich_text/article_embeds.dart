@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -8,7 +10,21 @@ import '../../../../../core/theme/tokens.dart';
 /// How the body editor renders the things in an article that are not prose.
 ///
 /// **Every embed the document can hold needs a builder here.**
-List<EmbedBuilder> articleEmbedBuilders() => const [_ImageEmbedBuilder()];
+List<EmbedBuilder> articleEmbedBuilders() => const [
+  _ImageEmbedBuilder(),
+  _PendingImageEmbedBuilder(),
+];
+
+/// The spot a pasted image will occupy until its upload finishes.
+///
+/// A real embed rather than a grey box drawn over the document, because it has
+/// to be *findable* when the upload returns: by then the caret has moved, more
+/// text may have been typed, and the offset the paste started at means nothing.
+///
+/// It is deliberately outside [kArticleTags], so a body saved while an upload
+/// is still running writes it out as nothing at all rather than as markup a
+/// reader would have to render. The editor suppresses that save anyway — this
+/// is the second lock on the same door.
 
 /// The catch-all, passed as `unknownEmbedBuilder`.
 ///
@@ -33,23 +49,97 @@ class _ImageEmbedBuilder extends EmbedBuilder {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Spacing.cardInternal),
-      child: ClipRRect(
-        borderRadius: Radii.thumbBorder,
-        child: Image.network(
-          url,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          loadingBuilder: (context, child, progress) => progress == null
-              ? child
-              : const _EmbedNotice(icon: Icons.image_outlined, busy: true),
-          errorBuilder: (context, _, _) => _EmbedNotice(
-            icon: Icons.broken_image_outlined,
-            message: context.l10n.imageFailedToLoad,
-          ),
-        ),
-      ),
+      child: ClipRRect(borderRadius: Radii.thumbBorder, child: _picture(url)),
     );
   }
+
+  /// The picture itself, fetched or carried.
+  ///
+  /// **A body image can be a `data:` URL, and `Image.network` cannot open
+  /// one.** On the VM — which is where `flutter test` runs — `NetworkImage`
+  /// goes through `HttpClient`, and `data:` is not a scheme it resolves; the
+  /// test harness's stub answers `400` to everything anyway. So an image the
+  /// operator can plainly see in a browser would be a broken box in every test
+  /// that looks at one, and on any desktop build.
+  Widget _picture(String url) {
+    Widget broken(BuildContext context) => _EmbedNotice(
+      icon: Icons.broken_image_outlined,
+      message: context.l10n.imageFailedToLoad,
+    );
+
+    if (url.startsWith('data:')) {
+      final bytes = _inlineBytes(url);
+      if (bytes == null) {
+        return Builder(builder: broken);
+      }
+      return Image.memory(
+        bytes,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        errorBuilder: (context, _, _) => broken(context),
+      );
+    }
+
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      loadingBuilder: (context, child, progress) => progress == null
+          ? child
+          : const _EmbedNotice(icon: Icons.image_outlined, busy: true),
+      errorBuilder: (context, _, _) => broken(context),
+    );
+  }
+}
+
+/// Bytes behind `data:` embeds, keyed by the URL they were parsed from.
+///
+/// `MemoryImage` keys its entry in Flutter's image cache by **list identity**,
+/// so decoding the URI afresh on each build hands the framework a new key
+/// every frame and re-decodes the picture — for every pasted image, on every
+/// keystroke, while someone is typing. Bounded, because a cache that only
+/// grows is a leak with a tidy name and a body can hold a lot of screenshots.
+final _inlineImages = <String, Uint8List>{};
+
+const _inlineImageLimit = 12;
+
+Uint8List? _inlineBytes(String url) {
+  final cached = _inlineImages[url];
+  if (cached != null) return cached;
+
+  try {
+    final bytes = UriData.parse(url).contentAsBytes();
+    if (_inlineImages.length >= _inlineImageLimit) {
+      _inlineImages.remove(_inlineImages.keys.first);
+    }
+    return _inlineImages[url] = bytes;
+  } catch (_) {
+    // A malformed data URL is a broken image, not a crash mid-render.
+    return null;
+  }
+}
+
+/// Drops everything [_inlineBytes] is holding.
+///
+/// For tests, which must not let one case's bytes decide another's outcome.
+@visibleForTesting
+void clearInlineImageCache() => _inlineImages.clear();
+
+class PendingImageEmbed extends BlockEmbed {
+  const PendingImageEmbed(String token) : super(embedType, token);
+
+  static const embedType = 'pendingImage';
+}
+
+class _PendingImageEmbedBuilder extends EmbedBuilder {
+  const _PendingImageEmbedBuilder();
+
+  @override
+  String get key => PendingImageEmbed.embedType;
+
+  @override
+  Widget build(BuildContext context, EmbedContext embedContext) =>
+      const _EmbedNotice(icon: Icons.image_outlined, busy: true);
 }
 
 class _UnsupportedEmbedBuilder extends EmbedBuilder {

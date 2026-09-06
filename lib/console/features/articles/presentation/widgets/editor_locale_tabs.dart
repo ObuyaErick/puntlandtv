@@ -59,9 +59,7 @@ class EditorLocaleTabs extends StatelessWidget {
                           onPressed: () => editor.addLocale(locale),
                           icon: const Icon(Icons.add_rounded, size: 16),
                           label: Text(
-                            l10n.addTranslation(
-                              context.languageNameOf(locale),
-                            ),
+                            l10n.addTranslation(context.languageNameOf(locale)),
                           ),
                         ),
                       ),

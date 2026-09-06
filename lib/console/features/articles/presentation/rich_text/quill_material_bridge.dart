@@ -90,15 +90,11 @@ class QuillMaterialBridge extends StatelessWidget {
         // Transparent, and `type: transparency` so it paints nothing of its
         // own: the field's own border and fill are drawn by the console, and a
         // second surface underneath them washes the ground out by a shade.
-        child: sdk.Material(
-          type: sdk.MaterialType.transparency,
-          child: child,
-        ),
+        child: sdk.Material(type: sdk.MaterialType.transparency, child: child),
       ),
     );
   }
 }
-
 
 /// `flutter_quill`'s own strings, with English standing in where it has none.
 ///

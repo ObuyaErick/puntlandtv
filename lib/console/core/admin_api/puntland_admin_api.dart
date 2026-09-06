@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../features/auth/domain/entities/console_user.dart';
 import 'dto/admin_article_dto.dart';
 import 'dto/admin_program_dto.dart';
@@ -243,15 +245,26 @@ abstract interface class PuntlandAdminApi {
   /// the newsroom's to change.
   Future<MediaAssetDto> saveMediaAsset(MediaAssetDto asset);
 
-  /// Registers an upload.
+  /// Registers an upload, carrying [bytes] when the caller has the file.
   ///
   /// Returns the asset as it lands, which for an image means **with no alt
   /// text** — the library's job is to make that visible immediately rather
   /// than let an undescribed image sit in the grid looking finished.
+  ///
+  /// **One upload, with an optional payload — not two doctrines.** Everything
+  /// that puts a file in this library has, until now, been a registration: the
+  /// media screen's drop zone stands in for a file picker it does not have,
+  /// and posts a filename and a size. Pasting a screenshot into an article is
+  /// the first caller that actually holds the file, and the drop zone is the
+  /// next one. Giving that caller its own method would leave the library with
+  /// two ways in and two sets of rules to keep in step; [bytes] being optional
+  /// keeps the alt-text rule, the ingest state and the usage bookkeeping in
+  /// one place regardless of how the file arrived.
   Future<MediaAssetDto> uploadMedia({
     required String filename,
     required MediaKind kind,
     required int byteSize,
+    Uint8List? bytes,
   });
 
   /// Deletes an asset.

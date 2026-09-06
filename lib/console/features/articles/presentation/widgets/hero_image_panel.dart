@@ -4,9 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
-import '../../../../core/admin_api/dto/media_dto.dart';
-import '../../../../core/providers/console_providers.dart';
-import '../../../media/presentation/widgets/media_thumbnail.dart';
+import '../../../media/presentation/widgets/media_picker_dialog.dart';
 import '../controllers/article_editor_controller.dart';
 
 /// The hero image card: the picture, its caption, and the rule that gates
@@ -116,15 +114,7 @@ class _HeroImagePanelState extends ConsumerState<HeroImagePanel> {
   }
 
   Future<void> _pick() async {
-    final assets = await ref.read(adminApiProvider).fetchMedia(
-      filter: MediaKindFilter.image,
-    );
-    if (!mounted) return;
-
-    final chosen = await showDialog<MediaAssetDto>(
-      context: context,
-      builder: (context) => _PickerDialog(assets: assets),
-    );
+    final chosen = await pickMediaImage(context, ref);
     if (chosen != null) widget.onChanged(chosen.id);
   }
 }
@@ -178,13 +168,13 @@ class _Frame extends StatelessWidget {
                 child: Row(
                   children: [
                     if (onRemove != null) ...[
-                      _Chip(
+                      MediaOverlayChip(
                         label: l10n.removeImage,
                         onTap: onRemove!,
                       ),
                       const SizedBox(width: 6),
                     ],
-                    _Chip(label: l10n.heroReplace, onTap: onTap),
+                    MediaOverlayChip(label: l10n.heroReplace, onTap: onTap),
                   ],
                 ),
               ),
@@ -194,35 +184,6 @@ class _Frame extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(4),
-    child: Container(
-      height: 26,
-      padding: const EdgeInsets.symmetric(horizontal: Spacing.chip),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: context.scheme.primary.withValues(alpha: 0.86),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: context.text.overline.copyWith(
-          fontSize: 10.5,
-          color: context.scheme.onPrimary,
-        ),
-      ),
-    ),
-  );
 }
 
 class _AltWarning extends StatelessWidget {
@@ -236,7 +197,11 @@ class _AltWarning extends StatelessWidget {
     ),
     child: Row(
       children: [
-        Icon(Icons.error_outline_rounded, size: 16, color: context.scheme.error),
+        Icon(
+          Icons.error_outline_rounded,
+          size: 16,
+          color: context.scheme.error,
+        ),
         const SizedBox(width: 9),
         Expanded(
           child: Text(
@@ -247,80 +212,4 @@ class _AltWarning extends StatelessWidget {
       ],
     ),
   );
-}
-
-/// Picks an image from the library.
-///
-/// Only images, and each one shows whether it has alt text — choosing an
-/// undescribed picture is choosing to be blocked at publish, and the grid is
-/// where that is cheapest to know.
-class _PickerDialog extends StatelessWidget {
-  const _PickerDialog({required this.assets});
-
-  final List<MediaAssetDto> assets;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return AlertDialog(
-      title: Text(l10n.chooseHeroImage, style: context.text.title),
-      content: SizedBox(
-        width: 620,
-        height: 420,
-        child: assets.isEmpty
-            ? Center(
-                child: Text(
-                  l10n.emptyMedia,
-                  style: context.text.body.copyWith(
-                    color: context.scheme.onSurfaceVariant,
-                  ),
-                ),
-              )
-            : GridView.builder(
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: Spacing.cardInternal,
-                      crossAxisSpacing: Spacing.cardInternal,
-                      childAspectRatio: 4 / 3,
-                    ),
-                itemCount: assets.length,
-                itemBuilder: (context, index) {
-                  final asset = assets[index];
-                  return Semantics(
-                    button: true,
-                    label: asset.filename,
-                    child: InkWell(
-                      onTap: () => Navigator.of(context).pop(asset),
-                      borderRadius: Radii.thumbBorder,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          MediaThumbnail(asset: asset),
-                          if (asset.alt.isEmpty)
-                            Positioned(
-                              left: 6,
-                              bottom: 6,
-                              child: _Chip(
-                                label: l10n.filterNeedsAlt,
-                                onTap: () =>
-                                    Navigator.of(context).pop(asset),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.cancel),
-        ),
-      ],
-    );
-  }
 }

@@ -23,7 +23,12 @@ class _SignedInAs extends AuthController {
 
   @override
   AuthState build() => SignedIn(
-    ConsoleUser(id: 'u-editor', name: 'A. Yuusuf', email: 'a@pltv.so', role: role),
+    ConsoleUser(
+      id: 'u-editor',
+      name: 'A. Yuusuf',
+      email: 'a@pltv.so',
+      role: role,
+    ),
   );
 }
 
@@ -192,7 +197,9 @@ void main() {
 
       // Through the controller, not the document: typing goes via
       // `replaceText`, and that is the path that notifies the screen.
-      final editor = t.widget<ArticleBodyEditor>(find.byType(ArticleBodyEditor));
+      final editor = t.widget<ArticleBodyEditor>(
+        find.byType(ArticleBodyEditor),
+      );
       editor.controller.replaceText(
         0,
         editor.controller.document.length - 1,
@@ -216,7 +223,9 @@ void main() {
     testWidgets('typing in the body updates the running word count', (t) async {
       await pump(t, id: 'a-football');
 
-      final editor = t.widget<ArticleBodyEditor>(find.byType(ArticleBodyEditor));
+      final editor = t.widget<ArticleBodyEditor>(
+        find.byType(ArticleBodyEditor),
+      );
       final before = editor.controller.document.toPlainText().trim().isEmpty
           ? 0
           : editor.controller.document
@@ -234,6 +243,69 @@ void main() {
       await t.pumpAndSettle();
 
       expect(find.textContaining('${before + 5} words'), findsOneWidget);
+    });
+  });
+
+  group('the autosave switch', () {
+    /// Opens the header's overflow menu, which is where the switch lives.
+    Future<void> openMenu(WidgetTester t) async {
+      await t.tap(find.byIcon(Icons.more_vert_rounded).first);
+      await t.pumpAndSettle();
+    }
+
+    testWidgets('is on when the editor opens, and reachable at any width', (
+      t,
+    ) async {
+      // The menu used to appear only on a narrow header, where it carried
+      // Preview and Save draft. A switch you can reach only by shrinking the
+      // window is not a switch, so it is always there now.
+      await pump(t, id: 'a-football');
+      await openMenu(t);
+
+      final checkbox = t.widget<CheckboxMenuButton>(
+        find.byType(CheckboxMenuButton),
+      );
+      expect(checkbox.value, isTrue);
+    });
+
+    testWidgets('turning it off says so where the save state is read', (
+      t,
+    ) async {
+      await pump(t, id: 'a-football');
+      expect(find.textContaining('Autosave off'), findsNothing);
+
+      await openMenu(t);
+      await t.tap(find.byType(CheckboxMenuButton));
+      await t.pumpAndSettle();
+
+      // The line that otherwise reads "Saved 21:12" — the one someone glances
+      // at to decide whether their work is safe.
+      expect(find.textContaining('Autosave off'), findsOneWidget);
+    });
+
+    testWidgets('turning it off stops the debounce from writing', (t) async {
+      await pump(t, id: 'a-football');
+      await openMenu(t);
+      await t.tap(find.byType(CheckboxMenuButton));
+      await t.pumpAndSettle();
+
+      final body = t.widget<ArticleBodyEditor>(find.byType(ArticleBodyEditor));
+      body.controller.replaceText(
+        0,
+        0,
+        'Waa qoraal cusub ',
+        const TextSelection.collapsed(offset: 17),
+      );
+      // Comfortably past the two-second debounce.
+      await t.pump(const Duration(seconds: 5));
+      await t.pumpAndSettle();
+
+      expect(find.textContaining('Autosave off'), findsOneWidget);
+      expect(
+        find.text('Saving…'),
+        findsNothing,
+        reason: 'nothing should have gone out on its own',
+      );
     });
   });
 }

@@ -25,6 +25,17 @@
 /// parser below is the cheaper thing to be sure of. The Delta→HTML direction
 /// is still `vsc_quill_delta_to_html`, which is exact once told not to merge
 /// paragraphs.
+///
+/// **Body images are referenced by URL, not by asset id.** The hero image is
+/// attached by id, and [MediaUsageDto] exists so the library can refuse to
+/// delete an asset an article still points at. A body image cannot participate
+/// in that: the stored form here is HTML, the reader renders it with
+/// `flutter_widget_from_html_core`, and an `<img>` carrying `data-asset-id`
+/// would need a resolver on the reader side that does not exist — plus a
+/// custom Quill embed, a `renderCustomWith` callback, and an attribute model
+/// [kArticleTags] deliberately does not have. The gap is closed on the server
+/// instead: a real backend computes `used_in` by scanning `body_html` for its
+/// own media URLs. See `MediaUsageDto`.
 library;
 
 import 'package:flutter_quill/flutter_quill.dart';
@@ -153,6 +164,76 @@ Delta articleHtmlToDelta(String html) {
   return delta;
 }
 
+/// Parses [html] into a delta shaped for insertion **at a caret**.
+///
+/// The only difference from [articleHtmlToDelta] is the final newline, and it
+/// is not cosmetic. The document already owns the newline that ends the line
+/// the caret sits on; composing a second one splits that line and leaves a
+/// blank paragraph behind, which the next save writes out and the next open
+/// parses back — a story that grows an empty line every time anyone pastes
+/// into it. That is the failure this library's opening comment exists to
+/// describe, arriving through a different door.
+///
+/// The newline is dropped only when it is plain. A heading, a list item and a
+/// quote each carry their block style *on* that newline, so a paste ending in
+/// one keeps it and lets the host line take the style — which is what every
+/// other editor does with a pasted heading.
+///
+/// The shaping lives here rather than in [articleHtmlToDelta] because
+/// `Document.replace` composes a `Delta` directly and never calls
+/// `_rules.apply`: the insert rules that normally repair a malformed insertion
+/// do not run on this path, so what is composed is exactly what is stored.
+Delta articlePasteDelta(String html) {
+  final source = articleHtmlToDelta(html);
+  final ops = source.toList();
+  if (ops.isEmpty) return source;
+
+  final last = ops.last;
+  final text = last.data;
+  if (!last.isInsert ||
+      !last.isPlain ||
+      text is! String ||
+      !text.endsWith('\n')) {
+    return source;
+  }
+
+  final shaped = Delta();
+  for (final op in ops.take(ops.length - 1)) {
+    shaped.push(op);
+  }
+  final trimmed = text.substring(0, text.length - 1);
+  if (trimmed.isNotEmpty) shaped.insert(trimmed);
+  return shaped;
+}
+
+/// Markup that is never content.
+///
+/// Every one of these reaches the parser only from pasted HTML, and every one
+/// of them used to arrive as prose: an element with no block-level children is
+/// treated as a single line by the default branch of [_walkBlocks], and a
+/// `<style>` element's children are text. Word and Google Docs both put
+/// kilobytes of CSS on the clipboard, so without this the first thing a
+/// journalist sees after pasting a document is their story preceded by a
+/// stylesheet.
+const _kDroppedTags = <String>{
+  'style',
+  'script',
+  'head',
+  'meta',
+  'title',
+  'link',
+  'noscript',
+  'svg',
+  'iframe',
+  'object',
+  'form',
+  'button',
+  'input',
+  'select',
+  'textarea',
+  'template',
+};
+
 /// One line of the document: its inline runs, plus the block style that ends it.
 class _Line {
   _Line(this.block);
@@ -160,7 +241,8 @@ class _Line {
   final Map<String, dynamic> block;
   final List<_Run> runs = [];
 
-  String get text => runs.map((r) => r.data is String ? r.data as String : '').join();
+  String get text =>
+      runs.map((r) => r.data is String ? r.data as String : '').join();
 
   bool get isBlank => runs.isEmpty;
 }
@@ -191,18 +273,24 @@ void _walkBlocks(
       // not content — `</p>\n  <p>` must not become a blank paragraph.
       final text = _collapse(node.text);
       if (text.trim().isEmpty) continue;
-      out.add(_Line({...inherited})..runs.addAll(_inline([node], const {})));
+      out.addAll(_inlineLines([node], inherited));
       continue;
     }
     if (node is! dom.Element) continue;
+    if (_kDroppedTags.contains(node.localName)) continue;
 
     switch (node.localName) {
       case 'p':
-        out.add(_line(node, inherited));
-      case 'h2':
-        out.add(_line(node, {...inherited, 'header': 2}));
-      case 'h3':
-        out.add(_line(node, {...inherited, 'header': 3}));
+        out.addAll(_linesOf(node, inherited));
+      // `<h1>` belongs to the headline, never to the body — see [kArticleTags].
+      // Pasted markup has one constantly, and filing it under the default
+      // branch loses the fact that it was a heading at all. h4–h6 collapse to
+      // h3 for the same reason: this vocabulary has two heading levels, and a
+      // deeper one is better flattened than dropped.
+      case 'h1' || 'h2':
+        out.addAll(_linesOf(node, {...inherited, 'header': 2}));
+      case 'h3' || 'h4' || 'h5' || 'h6':
+        out.addAll(_linesOf(node, {...inherited, 'header': 3}));
       case 'blockquote':
         // A blockquote may hold paragraphs or bare text. Recursing carries the
         // quote onto whatever lines are inside it, so both shapes land as
@@ -214,11 +302,13 @@ void _walkBlocks(
         _items(node, inherited, 'ordered', out);
       case 'li':
         // Only reachable from malformed markup; treat as its own line.
-        out.add(_line(node, inherited));
+        out.addAll(_linesOf(node, inherited));
       case 'img':
         final src = node.attributes['src'];
         if (src != null && src.isNotEmpty) {
-          out.add(_Line({...inherited})..runs.add(_Run({'image': src}, const {})));
+          out.add(
+            _Line({...inherited})..runs.add(_Run({'image': src}, const {})),
+          );
         }
       case 'br':
         out.add(_Line({...inherited}));
@@ -229,7 +319,7 @@ void _walkBlocks(
         if (node.nodes.any(_isBlock)) {
           _walkBlocks(node.nodes, inherited, out);
         } else {
-          out.add(_line(node, inherited));
+          out.addAll(_linesOf(node, inherited));
         }
     }
   }
@@ -244,7 +334,7 @@ void _descend(
   if (element.nodes.any(_isBlock)) {
     _walkBlocks(element.nodes, block, out);
   } else {
-    out.add(_line(element, block));
+    out.addAll(_linesOf(element, block));
   }
 }
 
@@ -259,53 +349,131 @@ void _items(
   }
 }
 
-_Line _line(dom.Element element, Map<String, dynamic> block) =>
-    _Line(block)..runs.addAll(_inline(element.nodes, const {}));
-
 bool _isBlock(dom.Node node) =>
-    node is dom.Element &&
-    const {'p', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote', 'div'}
-        .contains(node.localName);
+    node is dom.Element && _kBlockTags.contains(node.localName);
 
-/// Flattens inline [nodes] into styled runs.
-List<_Run> _inline(List<dom.Node> nodes, Map<String, dynamic> attributes) {
-  final runs = <_Run>[];
+/// Tags that mean "there are more lines inside me".
+///
+/// Membership is not about what [kArticleTags] stores — a table survives no
+/// save — it is about how [_walkBlocks] recurses. An element absent from this
+/// set and holding no member of it is treated as **one line**, so a table left
+/// out arrives with every cell in the document welded into a single
+/// unreadable paragraph. Being listed here is what lets it degrade into one
+/// line per cell instead.
+const _kBlockTags = <String>{
+  'p',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'ul',
+  'ol',
+  'li',
+  'blockquote',
+  'div',
+  'section',
+  'article',
+  'header',
+  'footer',
+  'main',
+  'aside',
+  'table',
+  'thead',
+  'tbody',
+  'tfoot',
+  'tr',
+  'td',
+  'th',
+};
 
+/// Flattens [element]'s inline content into lines, each carrying [block].
+List<_Line> _linesOf(dom.Element element, Map<String, dynamic> block) =>
+    _inlineLines(element.nodes, block);
+
+/// Flattens inline [nodes] into lines, each carrying [block].
+///
+/// Usually one line. Two things split it, and neither is reachable from a body
+/// this editor wrote — both arrive with pasted markup:
+///
+/// **`<br>`.** It used to be emitted as a bare `\n` *inside* a line's runs,
+/// and a newline inside the runs ends a line carrying no block style at all.
+/// So `<blockquote>A<br>B</blockquote>` produced an unquoted "A" above a
+/// quoted "B". Splitting into two lines keeps the quote on both.
+///
+/// **An image.** A Quill embed has to be the only thing on its line. Stored
+/// bodies never break that because this editor writes `<img>` at block level
+/// only, but `<p><img></p>` is what every other source produces, and the paste
+/// path composes its delta without the insert rules that would repair it.
+List<_Line> _inlineLines(List<dom.Node> nodes, Map<String, dynamic> block) {
+  final lines = <_Line>[
+    _Line({...block}),
+  ];
+
+  /// True when the current line holds an embed and can take nothing else.
+  var closed = false;
+
+  void newline() {
+    lines.add(_Line({...block}));
+    closed = false;
+  }
+
+  void emit(_Run run) {
+    if (run.data is! String) {
+      if (!lines.last.isBlank) newline();
+      lines.last.runs.add(run);
+      closed = true;
+      return;
+    }
+    if (closed) newline();
+    lines.last.runs.add(run);
+  }
+
+  _walkInline(nodes, const {}, emit, newline);
+  return lines;
+}
+
+void _walkInline(
+  List<dom.Node> nodes,
+  Map<String, dynamic> attributes,
+  void Function(_Run run) emit,
+  void Function() newline,
+) {
   for (final node in nodes) {
     if (node is dom.Text) {
       final text = _collapse(node.text);
       if (text.isEmpty) continue;
-      runs.add(_Run(text, attributes));
+      emit(_Run(text, attributes));
       continue;
     }
     if (node is! dom.Element) continue;
+    if (_kDroppedTags.contains(node.localName)) continue;
 
     switch (node.localName) {
       case 'strong' || 'b':
-        runs.addAll(_inline(node.nodes, {...attributes, 'bold': true}));
+        _walkInline(node.nodes, {...attributes, 'bold': true}, emit, newline);
       case 'em' || 'i':
-        runs.addAll(_inline(node.nodes, {...attributes, 'italic': true}));
+        _walkInline(node.nodes, {...attributes, 'italic': true}, emit, newline);
       case 'a':
         final href = node.attributes['href'];
-        runs.addAll(
-          _inline(node.nodes, {
-            ...attributes,
-            if (href != null && href.isNotEmpty) 'link': href,
-          }),
+        _walkInline(
+          node.nodes,
+          {...attributes, if (href != null && href.isNotEmpty) 'link': href},
+          emit,
+          newline,
         );
       case 'img':
         final src = node.attributes['src'];
         if (src != null && src.isNotEmpty) {
-          runs.add(_Run({'image': src}, const {}));
+          emit(_Run({'image': src}, const {}));
         }
       case 'br':
-        runs.add(_Run('\n', const {}));
+        newline();
       default:
-        runs.addAll(_inline(node.nodes, attributes));
+        _walkInline(node.nodes, attributes, emit, newline);
     }
   }
-
-  return runs;
 }
 
 /// HTML collapses runs of whitespace to one space; a body stored with newlines

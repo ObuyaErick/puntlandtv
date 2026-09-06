@@ -32,9 +32,15 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   cupertino_ui: ^1.0.1
-  flutter_quill: ^11.5.1
+  # Pinned to the 11.5 line: the body editor's paste path imports
+  # `package:flutter_quill/internal.dart`, which the package documents as
+  # allowed to break in a minor version.
+  flutter_quill: ">=11.5.1 <11.6.0"
   vsc_quill_delta_to_html: ^1.0.5
   html: ^0.15.7
+  markdown: ^7.3.1
+  file_selector: ^1.0.3
+  web: ^1.1.0
 
 dev_dependencies:
   flutter_test:

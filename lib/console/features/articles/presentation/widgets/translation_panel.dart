@@ -172,7 +172,9 @@ class _TranslationRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 9),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: isStale ? context.scheme.surface : context.scheme.surfaceContainerLow,
+        color: isStale
+            ? context.scheme.surface
+            : context.scheme.surfaceContainerLow,
         borderRadius: Radii.cardBorder,
         border: Border.all(
           color: isStale

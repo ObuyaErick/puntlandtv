@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -15,7 +17,10 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../auth/domain/entities/console_user.dart';
 import '../controllers/article_editor_controller.dart';
 import '../controllers/article_list_controller.dart';
+import '../../../media/presentation/media_format.dart';
+import '../../../media/presentation/pages/media_detail_panel.dart';
 import '../rich_text/article_body_editor.dart';
+import '../rich_text/article_paste_handler.dart';
 import '../widgets/editor_locale_tabs.dart';
 import '../widgets/editor_top_bar.dart';
 import '../widgets/hero_image_panel.dart';
@@ -67,7 +72,22 @@ class _EditorState extends ConsumerState<_Editor> {
   late final ArticleEditor _editor = ArticleEditor(
     article: widget.article,
     api: ref.read(adminApiProvider),
+    autosaveEnabled: () => _autosaveEnabled,
   );
+
+  /// Whether the editor writes on its own.
+  ///
+  /// **On by default, and it lives here.** It is a property of this session at
+  /// this desk — someone drafting a sensitive story who does not want half a
+  /// sentence reaching the server, or working against a flaky connection —
+  /// not a property of the article, and it should not outlive the screen. So
+  /// [ArticleEditor] is handed a predicate rather than a flag: it asks, this
+  /// answers, and there is one copy of the answer.
+  ///
+  /// Turning it off never discards anything. The edits stay in the drafts,
+  /// the header says so, and Save draft, publishing and closing all still
+  /// write — see `ArticleEditor.autosaveEnabled` for which paths are gated.
+  var _autosaveEnabled = true;
 
   @override
   void initState() {
@@ -84,6 +104,7 @@ class _EditorState extends ConsumerState<_Editor> {
   }
 
   ArticleSaveState _lastSaveState = ArticleSaveState.idle;
+  var _lastPasteCount = 0;
 
   void _onEditorChanged() {
     if (!mounted) return;
@@ -95,6 +116,10 @@ class _EditorState extends ConsumerState<_Editor> {
         kind: ToastKind.error,
       );
     }
+    if (_editor.pasteCount != _lastPasteCount) {
+      _lastPasteCount = _editor.pasteCount;
+      _announcePaste(_editor.lastPasteOutcome!);
+    }
     if (_editor.saveState == ArticleSaveState.saved &&
         _lastSaveState == ArticleSaveState.saving) {
       ref.read(articleActionsProvider.notifier).refreshList();
@@ -103,8 +128,73 @@ class _EditorState extends ConsumerState<_Editor> {
     setState(() {});
   }
 
+  /// Says what a paste did, and offers the one action that answers it.
+  ///
+  /// The undo on a reformat is the important one. Reading plain text as
+  /// markdown is the only place this editor guesses, and a guess with no way
+  /// back is a guess nobody should be making on someone's copy.
+  void _announcePaste(ArticlePasteOutcome outcome) {
+    final l10n = context.l10n;
+
+    switch (outcome.result) {
+      case ArticlePasteResult.reformatted:
+        showConsoleToast(
+          context,
+          message: l10n.pastedAsFormatted,
+          action: SnackBarAction(
+            label: l10n.undo,
+            onPressed: _editor.draft.body.undo,
+          ),
+        );
+      case ArticlePasteResult.imageAdded:
+        final assetId = outcome.assetId;
+        showConsoleToast(
+          context,
+          message: l10n.pastedImageAdded,
+          action: assetId == null
+              ? null
+              : SnackBarAction(
+                  label: l10n.describeImage,
+                  onPressed: () => showMediaAsset(context, id: assetId),
+                ),
+        );
+      case ArticlePasteResult.imageTooLarge:
+        showConsoleToast(
+          context,
+          message: l10n.imageTooLarge(
+            MediaFormat.bytes(l10n, kMaxPastedImageBytes, context.languageCode),
+          ),
+          kind: ToastKind.error,
+        );
+      case ArticlePasteResult.imageRejected:
+        showConsoleToast(
+          context,
+          message: l10n.imageNotSupported,
+          kind: ToastKind.error,
+        );
+      case ArticlePasteResult.uploadFailed:
+        showConsoleToast(
+          context,
+          message: l10n.imageUploadFailed,
+          kind: ToastKind.error,
+        );
+    }
+  }
+
+  /// Turns unattended saving on or off.
+  ///
+  /// Switching it back on adopts whatever is already unsaved rather than
+  /// waiting for one more keystroke to notice — otherwise a journalist who
+  /// re-enables it and walks away has been told their work is being saved
+  /// while nothing is scheduled to save it.
+  void _setAutosave({required bool enabled}) {
+    if (_autosaveEnabled == enabled) return;
+    setState(() => _autosaveEnabled = enabled);
+    if (enabled && _editor.isDirty) unawaited(_editor.saveAll());
+  }
+
   Future<void> _close() async {
-    await _editor.saveDraft();
+    await _editor.saveAll();
     if (!mounted) return;
     ref.read(articleActionsProvider.notifier).refreshList();
     if (Navigator.of(context).canPop()) {
@@ -129,6 +219,8 @@ class _EditorState extends ConsumerState<_Editor> {
             EditorTopBar(
               editor: _editor,
               canPublish: canPublish,
+              autosaveEnabled: _autosaveEnabled,
+              onAutosaveChanged: (value) => _setAutosave(enabled: value),
               onClose: _close,
               onTransition: _transition,
             ),
@@ -386,6 +478,7 @@ class _LocaleComposerState extends State<_LocaleComposer> {
             child: ArticleBodyEditor(
               controller: _draft.body,
               locale: widget.locale,
+              paste: _draft.paste,
             ),
           ),
         ),

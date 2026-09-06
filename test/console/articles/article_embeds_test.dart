@@ -2,6 +2,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:puntland/console/features/articles/presentation/rich_text/article_body_editor.dart';
+import 'package:puntland/console/features/articles/presentation/rich_text/article_embeds.dart';
 import 'package:puntland/console/features/articles/presentation/rich_text/article_html.dart';
 import 'package:puntland/core/l10n/l10n.dart';
 import 'package:puntland/core/l10n/so_material_localizations.dart';
@@ -79,6 +80,53 @@ void main() {
     expect(find.byType(ArticleBodyEditor), findsOneWidget);
   });
 
+  testWidgets('a pasted image renders from its bytes, not over the network', (
+    t,
+  ) async {
+    // A fixture upload hands back a `data:` URL — it is the storage, so the
+    // bytes go where the bytes are. `Image.network` cannot open one on the VM,
+    // where `NetworkImage` goes through `HttpClient` and the test harness
+    // answers 400 to everything, so an image the operator can plainly see in a
+    // browser would be a broken box in every test that looks at one.
+    clearInlineImageCache();
+    await pumpEditor(t, bodyHtml: '<p>Roobab.</p><img src="$_dataUrl">');
+
+    expect(t.takeException(), isNull);
+    expect(find.byType(Image), findsOneWidget);
+    expect(t.widget<Image>(find.byType(Image)).image, isA<MemoryImage>());
+  });
+
+  testWidgets('a pasted image is decoded once, not once per frame', (t) async {
+    // `MemoryImage` keys Flutter's image cache by list identity, so re-parsing
+    // the URI on each build re-decodes the picture every frame — for every
+    // pasted image, while someone is typing.
+    clearInlineImageCache();
+    await pumpEditor(t, bodyHtml: '<img src="$_dataUrl">');
+
+    final first = t.widget<Image>(find.byType(Image)).image;
+    await t.pump();
+    final second = t.widget<Image>(find.byType(Image)).image;
+
+    expect((first as MemoryImage).bytes, same((second as MemoryImage).bytes));
+  });
+
+  testWidgets('a placeholder is shown while a paste is still uploading', (
+    t,
+  ) async {
+    final controller = await pumpEditor(t, bodyHtml: '<p>Roobab.</p>');
+
+    controller.replaceText(
+      0,
+      0,
+      const PendingImageEmbed('paste-0'),
+      const TextSelection.collapsed(offset: 1),
+    );
+    await t.pump();
+
+    expect(t.takeException(), isNull);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
+
   testWidgets('an embed with no builder costs one line, not the article', (
     t,
   ) async {
@@ -114,3 +162,8 @@ void main() {
     });
   });
 }
+
+/// A 1x1 PNG as a `data:` URL — what a fixture upload hands back.
+const _dataUrl =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAf'
+    'FcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';

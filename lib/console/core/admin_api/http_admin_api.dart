@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 import '../../../core/error/failure.dart';
@@ -171,9 +173,8 @@ class HttpAdminApi implements PuntlandAdminApi {
 
   /// Exchanges the refresh token for a new pair, once, however many callers ask.
   Future<ConsoleSessionDto?> _renew() {
-    return _renewal ??= restoreSession(
-      refreshToken: _credentials.refreshToken,
-    ).whenComplete(() => _renewal = null);
+    return _renewal ??= restoreSession(refreshToken: _credentials.refreshToken)
+        .whenComplete(() => _renewal = null);
   }
 
   // ---- Newsroom ----
@@ -460,11 +461,29 @@ class HttpAdminApi implements PuntlandAdminApi {
     required String filename,
     required MediaKind kind,
     required int byteSize,
-  }) => _send('POST', '/v1/admin/media/register', MediaAssetDto.fromJson, body: {
-    'filename': filename,
-    'kind': kind.name,
-    'byteSize': byteSize,
-  });
+    Uint8List? bytes,
+  }) {
+    // Two endpoints, one method, and the difference is whether the caller has
+    // the file. `/register` records an upload the client is about to make by
+    // some other route; `/media` is the route, and takes the file with it.
+    if (bytes == null) {
+      return _send(
+        'POST',
+        '/v1/admin/media/register',
+        MediaAssetDto.fromJson,
+        body: {'filename': filename, 'kind': kind.name, 'byteSize': byteSize},
+      );
+    }
+
+    FormData build() => FormData.fromMap({
+      'filename': filename,
+      'kind': kind.name,
+      'byteSize': byteSize,
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
+    });
+
+    return _sendMultipart('/v1/admin/media', MediaAssetDto.fromJson, build);
+  }
 
   @override
   Future<void> deleteMediaAsset(String id) => _delete('/v1/admin/media/$id');
@@ -639,11 +658,18 @@ class HttpAdminApi implements PuntlandAdminApi {
   /// login form because their session aged out mid-edit would lose the edit.
   /// One renewal, then one retry. If the renewal comes back empty the session
   /// really is over, and the original `401` is what the caller should see.
+  ///
+  /// [rebuildBody] exists for the one body that cannot be sent twice: dio
+  /// finalises a `FormData`'s stream on send, so replaying the same instance
+  /// after a renewal throws instead of retrying. Multipart callers pass a
+  /// closure that builds a fresh one; everyone else passes a map, which is
+  /// replayable as it stands.
   Future<Response<dynamic>> _request(
     String method,
     String path, {
     Map<String, dynamic>? query,
     Object? body,
+    Object? Function()? rebuildBody,
     bool authenticated = true,
   }) async {
     try {
@@ -654,8 +680,7 @@ class HttpAdminApi implements PuntlandAdminApi {
         options: Options(method: method, headers: _headers(authenticated)),
       );
     } on DioException catch (error) {
-      final isLapsed =
-          authenticated && error.response?.statusCode == 401;
+      final isLapsed = authenticated && error.response?.statusCode == 401;
       if (!isLapsed) rethrow;
 
       ConsoleSessionDto? renewed;
@@ -670,7 +695,7 @@ class HttpAdminApi implements PuntlandAdminApi {
 
       return await _dio.request<dynamic>(
         path,
-        data: body,
+        data: rebuildBody == null ? body : rebuildBody(),
         queryParameters: query,
         options: Options(method: method, headers: _headers(true)),
       );
@@ -743,6 +768,28 @@ class HttpAdminApi implements PuntlandAdminApi {
     try {
       final res = await _request(method, path, body: body);
       return _rowsOf(res.data).map(parse).toList(growable: false);
+    } catch (e, st) {
+      throw ApiExceptionMapper.map(e, st);
+    }
+  }
+
+  /// [_send] for a request carrying a file.
+  ///
+  /// Takes a builder rather than a body because the retry inside [_request]
+  /// cannot reuse a `FormData` — see the note there.
+  Future<T> _sendMultipart<T>(
+    String path,
+    T Function(Map<String, dynamic>) parse,
+    FormData Function() buildBody,
+  ) async {
+    try {
+      final res = await _request(
+        'POST',
+        path,
+        body: buildBody(),
+        rebuildBody: buildBody,
+      );
+      return parse(_requireBody(res.data));
     } catch (e, st) {
       throw ApiExceptionMapper.map(e, st);
     }

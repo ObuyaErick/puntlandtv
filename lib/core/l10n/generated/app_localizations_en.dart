@@ -1899,4 +1899,46 @@ class AppL10nEn extends AppL10n {
   String unsupportedEmbed(String kind) {
     return 'Unsupported content ($kind)';
   }
+
+  @override
+  String get imageFromComputer => 'From this computer';
+
+  @override
+  String get imageFromLibrary => 'From the media library';
+
+  @override
+  String get imageOrPasteUrl => 'Or paste a URL';
+
+  @override
+  String get uploadingImage => 'Uploading image…';
+
+  @override
+  String get imageUploadFailed => 'That image could not be uploaded';
+
+  @override
+  String imageTooLarge(String limit) {
+    return 'That image is too large. The limit is $limit.';
+  }
+
+  @override
+  String get imageNotSupported =>
+      'That file is not an image this console accepts';
+
+  @override
+  String get pastedAsFormatted => 'Pasted as formatted text';
+
+  @override
+  String get pastedImageAdded => 'Image added. It still needs alt text.';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get describeImage => 'Describe it';
+
+  @override
+  String get autosave => 'Autosave';
+
+  @override
+  String get autosaveOff => 'Autosave off';
 }

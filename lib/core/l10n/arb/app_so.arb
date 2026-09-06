@@ -514,5 +514,18 @@
   "deleteArticleBody": "“{title}” iyo dhammaan turjumaadihiisa waa la tirtiri doonaa. Tallaabadan lama celin karo.",
   "unpublishNeedsEditor": "Kaliya tifaftire ayaa wareejin kara sheeko la daabacay.",
   "imageFailedToLoad": "Sawirkaas lama soo bandhigin",
-  "unsupportedEmbed": "Nuxur aan la taageerin ({kind})"
+  "unsupportedEmbed": "Nuxur aan la taageerin ({kind})",
+  "imageFromComputer": "Kombiyuutarkan",
+  "imageFromLibrary": "Maktabadda warbaahinta",
+  "imageOrPasteUrl": "Ama ku dheji URL",
+  "uploadingImage": "Sawirka waa la soo gelinayaa…",
+  "imageUploadFailed": "Sawirkaas lama soo gelin karin",
+  "imageTooLarge": "Sawirkaas aad buu u weyn yahay. Xadku waa {limit}.",
+  "imageNotSupported": "Faylkaas maaha sawir uu konsoolkani aqbalo",
+  "pastedAsFormatted": "Waxaa loo dhejiyay qoraal la habeeyay",
+  "pastedImageAdded": "Sawir waa lagu daray. Wali wuxuu u baahan yahay qoraal sawir.",
+  "undo": "Ka noqo",
+  "describeImage": "Sharax",
+  "autosave": "Kaydin toos ah",
+  "autosaveOff": "Kaydinta tooska ah waa damisan"
 }

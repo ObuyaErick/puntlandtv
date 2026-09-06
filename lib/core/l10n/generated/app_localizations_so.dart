@@ -1913,4 +1913,46 @@ class AppL10nSo extends AppL10n {
   String unsupportedEmbed(String kind) {
     return 'Nuxur aan la taageerin ($kind)';
   }
+
+  @override
+  String get imageFromComputer => 'Kombiyuutarkan';
+
+  @override
+  String get imageFromLibrary => 'Maktabadda warbaahinta';
+
+  @override
+  String get imageOrPasteUrl => 'Ama ku dheji URL';
+
+  @override
+  String get uploadingImage => 'Sawirka waa la soo gelinayaa…';
+
+  @override
+  String get imageUploadFailed => 'Sawirkaas lama soo gelin karin';
+
+  @override
+  String imageTooLarge(String limit) {
+    return 'Sawirkaas aad buu u weyn yahay. Xadku waa $limit.';
+  }
+
+  @override
+  String get imageNotSupported => 'Faylkaas maaha sawir uu konsoolkani aqbalo';
+
+  @override
+  String get pastedAsFormatted => 'Waxaa loo dhejiyay qoraal la habeeyay';
+
+  @override
+  String get pastedImageAdded =>
+      'Sawir waa lagu daray. Wali wuxuu u baahan yahay qoraal sawir.';
+
+  @override
+  String get undo => 'Ka noqo';
+
+  @override
+  String get describeImage => 'Sharax';
+
+  @override
+  String get autosave => 'Kaydin toos ah';
+
+  @override
+  String get autosaveOff => 'Kaydinta tooska ah waa damisan';
 }

@@ -57,39 +57,41 @@ void main() {
     expect(
       withoutBridge,
       isNotNull,
-      reason: 'if this ever passes, material_ui and the SDK have converged '
+      reason:
+          'if this ever passes, material_ui and the SDK have converged '
           'and the bridge can go',
     );
   });
 
-  testWidgets('the bridge adds to the app’s localizations, never replaces them', (
-    tester,
-  ) async {
-    late AppL10n app;
-    late MaterialLocalizations appMaterial;
+  testWidgets(
+    'the bridge adds to the app’s localizations, never replaces them',
+    (tester) async {
+      late AppL10n app;
+      late MaterialLocalizations appMaterial;
 
-    await tester.pumpWidget(
-      host(
-        QuillMaterialBridge(
-          child: Builder(
-            builder: (context) {
-              // `material_ui`'s, and the app's own — both still in scope.
-              app = AppL10n.of(context);
-              appMaterial = MaterialLocalizations.of(context);
-              return const SizedBox();
-            },
+      await tester.pumpWidget(
+        host(
+          QuillMaterialBridge(
+            child: Builder(
+              builder: (context) {
+                // `material_ui`'s, and the app's own — both still in scope.
+                app = AppL10n.of(context);
+                appMaterial = MaterialLocalizations.of(context);
+                return const SizedBox();
+              },
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // A bare `Localizations` here replaces the delegates rather than merging
-    // them, which took `AppL10n` away from everything inside the editor. The
-    // first embed builder to ask for a string got a null-check failure where
-    // an image should have been.
-    expect(app.saveDraft, isNotEmpty);
-    expect(appMaterial.copyButtonLabel, 'Koobi');
-  });
+      // A bare `Localizations` here replaces the delegates rather than merging
+      // them, which took `AppL10n` away from everything inside the editor. The
+      // first embed builder to ask for a string got a null-check failure where
+      // an image should have been.
+      expect(app.saveDraft, isNotEmpty);
+      expect(appMaterial.copyButtonLabel, 'Koobi');
+    },
+  );
 
   testWidgets('inside the bridge, the SDK lookups resolve', (tester) async {
     late sdk.MaterialLocalizations localizations;
@@ -129,7 +131,9 @@ void main() {
     addTearDown(controller.dispose);
 
     await tester.pumpWidget(
-      host(QuillMaterialBridge(child: QuillEditor.basic(controller: controller))),
+      host(
+        QuillMaterialBridge(child: QuillEditor.basic(controller: controller)),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -144,9 +148,7 @@ void main() {
   testWidgets('the bridge paints no surface of its own', (tester) async {
     // The console draws the field's border and fill; a second opaque Material
     // underneath them washes the ground out by a shade.
-    await tester.pumpWidget(
-      host(const QuillMaterialBridge(child: SizedBox())),
-    );
+    await tester.pumpWidget(host(const QuillMaterialBridge(child: SizedBox())));
 
     final material = tester.widget<sdk.Material>(
       find.descendant(

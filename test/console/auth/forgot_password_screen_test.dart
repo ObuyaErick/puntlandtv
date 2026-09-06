@@ -113,10 +113,7 @@ void main() {
     expect(find.text('Enter the code'), findsOneWidget);
     // The development build has no gateway, so the code is shown rather than
     // sent. Its presence here is what makes the flow demonstrable.
-    expect(
-      find.textContaining(FixtureAdminApi.validResetCode),
-      findsOneWidget,
-    );
+    expect(find.textContaining(FixtureAdminApi.validResetCode), findsOneWidget);
 
     final fields = dialogFields();
     await tester.enterText(fields.at(0), FixtureAdminApi.validResetCode);

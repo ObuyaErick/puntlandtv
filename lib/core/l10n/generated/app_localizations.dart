@@ -3186,6 +3186,84 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Unsupported content ({kind})'**
   String unsupportedEmbed(String kind);
+
+  /// Body editor image dialog: opens the operating system's file picker.
+  ///
+  /// In en, this message translates to:
+  /// **'From this computer'**
+  String get imageFromComputer;
+
+  /// Body editor image dialog: opens the media library grid.
+  ///
+  /// In en, this message translates to:
+  /// **'From the media library'**
+  String get imageFromLibrary;
+
+  /// Body editor image dialog: the divider above the URL field.
+  ///
+  /// In en, this message translates to:
+  /// **'Or paste a URL'**
+  String get imageOrPasteUrl;
+
+  /// Shown while a pasted or picked image is on its way to the media library.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading image…'**
+  String get uploadingImage;
+
+  /// The upload of a pasted or picked image failed. Nothing was added to the story.
+  ///
+  /// In en, this message translates to:
+  /// **'That image could not be uploaded'**
+  String get imageUploadFailed;
+
+  /// A pasted or picked image was refused before it was uploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'That image is too large. The limit is {limit}.'**
+  String imageTooLarge(String limit);
+
+  /// Pasted bytes were not PNG, JPEG, GIF or WebP.
+  ///
+  /// In en, this message translates to:
+  /// **'That file is not an image this console accepts'**
+  String get imageNotSupported;
+
+  /// Plain text was recognised as markdown and converted. Offered with an undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted as formatted text'**
+  String get pastedAsFormatted;
+
+  /// A pasted image reached the media library undescribed.
+  ///
+  /// In en, this message translates to:
+  /// **'Image added. It still needs alt text.'**
+  String get pastedImageAdded;
+
+  /// Reverses the change a toast is reporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// Opens the media panel where an image's alt text is written.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe it'**
+  String get describeImage;
+
+  /// Editor menu switch: whether the editor writes on its own while you type.
+  ///
+  /// In en, this message translates to:
+  /// **'Autosave'**
+  String get autosave;
+
+  /// Shown beside the save state when the editor is not writing on its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Autosave off'**
+  String get autosaveOff;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
