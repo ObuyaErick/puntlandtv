@@ -255,7 +255,7 @@ class _EditorState extends ConsumerState<_Editor> {
   Widget _narrow() => ListView(
     padding: const EdgeInsets.all(Spacing.gutter),
     children: [
-      SizedBox(height: 520, child: _composer()),
+      SizedBox(height: 800, child: _composer()),
       const SizedBox(height: Spacing.gutter),
       _metadata(),
     ],

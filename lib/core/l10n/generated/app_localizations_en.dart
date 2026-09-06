@@ -456,6 +456,12 @@ class AppL10nEn extends AppL10n {
   String get fieldPassword => 'Password';
 
   @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
   String get actionContinue => 'Continue';
 
   @override
@@ -990,6 +996,18 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get colSlug => 'SLUG';
+
+  @override
+  String categoryArticleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count articles',
+      one: '1 article',
+      zero: 'No articles',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get colArticles => 'ARTICLES';

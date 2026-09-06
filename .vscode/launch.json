@@ -39,6 +39,22 @@
       ]
     },
     {
+      "name": "puntland (linux-console)",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "-d",
+        "linux",
+        "-v",
+        // "--dart-define",
+        // "USE_FIXTURES=true",
+        "--dart-define",
+        "API_BASE_URL=http://localhost:3000/api",
+        "-t",
+        "lib/main_console.dart"
+      ]
+    },
+    {
       "name": "puntland (profile mode)",
       "request": "launch",
       "type": "dart",

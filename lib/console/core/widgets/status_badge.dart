@@ -115,6 +115,10 @@ class StatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
+        // A badge in a starved table cell clips its word rather than painting
+        // an overflow stripe over the row next to it.
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: context.text.overline.copyWith(fontSize: 10, color: foreground),
       ),
     );

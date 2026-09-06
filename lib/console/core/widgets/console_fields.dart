@@ -20,6 +20,7 @@ class ConsoleTextField extends StatelessWidget {
     this.onSubmitted,
     this.onChanged,
     this.enabled = true,
+    this.suffixIcon,
   });
 
   final String label;
@@ -38,6 +39,9 @@ class ConsoleTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
 
   final bool enabled;
+
+  /// Trailing control inside the field — the password reveal toggle, for one.
+  final Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +73,7 @@ class ConsoleTextField extends StatelessWidget {
           style: context.text.body.copyWith(color: context.scheme.primary),
           decoration: InputDecoration(
             hintText: hintText,
+            suffixIcon: suffixIcon,
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,

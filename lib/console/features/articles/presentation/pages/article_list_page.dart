@@ -582,7 +582,11 @@ class _HeadlineCell extends StatelessWidget {
               Row(
                 children: [
                   if (article.isBreaking) ...[
-                    const StatusBadge(kind: BadgeKind.breaking),
+                    // Flexible: at 840 the headline column is narrow enough
+                    // that the badge and the headline have to share.
+                    const Flexible(
+                      child: StatusBadge(kind: BadgeKind.breaking),
+                    ),
                     const SizedBox(width: Spacing.chip),
                   ],
                   Flexible(

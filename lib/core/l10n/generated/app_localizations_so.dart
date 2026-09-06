@@ -460,6 +460,12 @@ class AppL10nSo extends AppL10n {
   String get fieldPassword => 'Furaha sirta ah';
 
   @override
+  String get showPassword => 'Muuji furaha sirta ah';
+
+  @override
+  String get hidePassword => 'Qari furaha sirta ah';
+
+  @override
   String get actionContinue => 'Sii wad';
 
   @override
@@ -996,6 +1002,18 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get colSlug => 'SLUG';
+
+  @override
+  String categoryArticleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count maqaal',
+      one: '1 maqaal',
+      zero: 'Maqaal ma jiro',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get colArticles => 'MAQAALLO';

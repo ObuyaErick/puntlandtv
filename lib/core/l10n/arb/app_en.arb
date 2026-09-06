@@ -556,6 +556,14 @@
   "@fieldPassword": {
     "description": "Password field label."
   },
+  "showPassword": "Show password",
+  "@showPassword": {
+    "description": "Reveals the characters typed into a password field."
+  },
+  "hidePassword": "Hide password",
+  "@hidePassword": {
+    "description": "Masks the characters typed into a password field."
+  },
   "actionContinue": "Continue",
   "@actionContinue": {
     "description": "Submits the sign-in form."
@@ -1321,6 +1329,13 @@
   "colSlug": "SLUG",
   "@colSlug": {
     "description": "Categories column. Uppercase."
+  },
+  "categoryArticleCount": "{count, plural, =0{No articles} =1{1 article} other{{count} articles}}",
+  "@categoryArticleCount": {
+    "description": "Article count on a category card, where no column header names the number.",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
   },
   "colArticles": "ARTICLES",
   "@colArticles": {

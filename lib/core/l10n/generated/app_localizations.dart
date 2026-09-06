@@ -841,6 +841,18 @@ abstract class AppL10n {
   /// **'Password'**
   String get fieldPassword;
 
+  /// Reveals the characters typed into a password field.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// Masks the characters typed into a password field.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
   /// Submits the sign-in form.
   ///
   /// In en, this message translates to:
@@ -1734,6 +1746,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'SLUG'**
   String get colSlug;
+
+  /// Article count on a category card, where no column header names the number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No articles} =1{1 article} other{{count} articles}}'**
+  String categoryArticleCount(int count);
 
   /// Categories column. Uppercase.
   ///
