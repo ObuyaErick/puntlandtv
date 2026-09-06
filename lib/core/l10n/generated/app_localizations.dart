@@ -571,6 +571,12 @@ abstract class AppL10n {
   /// **'Error: {code}'**
   String errorCodeLine(String code);
 
+  /// Category strip: the tab showing every story, unfiltered.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get categoryAll;
+
   /// Empty state for a category with no articles.
   ///
   /// In en, this message translates to:

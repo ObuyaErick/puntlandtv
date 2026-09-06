@@ -376,6 +376,10 @@
       }
     }
   },
+  "categoryAll": "All",
+  "@categoryAll": {
+    "description": "Category strip: the tab showing every story, unfiltered."
+  },
   "emptyCategoryTitle": "Nothing here yet",
   "@emptyCategoryTitle": {
     "description": "Empty state for a category with no articles."

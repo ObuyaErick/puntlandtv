@@ -31,7 +31,7 @@ class PltvAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 58,
+      height: 80,
       padding: const EdgeInsets.only(left: Spacing.gutter, right: 6),
       decoration: BoxDecoration(
         color: context.scheme.surface,

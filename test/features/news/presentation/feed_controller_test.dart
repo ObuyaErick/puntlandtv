@@ -21,6 +21,11 @@ class FakeNewsRepository implements NewsRepository {
 
   int articleCalls = 0;
 
+  /// The filter the controller actually asked for, so a test can assert that
+  /// the "all" tab sends no category at all.
+  String? lastCategorySlug;
+  bool categoryWasOmitted = false;
+
   @override
   Future<List<NewsCategory>> categories() async => const [
     NewsCategory(slug: 'top', name: 'Top news', isDefault: true),
@@ -32,6 +37,8 @@ class FakeNewsRepository implements NewsRepository {
     String? cursor,
   }) async {
     articleCalls++;
+    lastCategorySlug = categorySlug;
+    categoryWasOmitted = categorySlug == null;
     if (cursor != null && cursor == failOnCursor) {
       throw const Failure(kind: FailureKind.timeout, code: 'NETWORK_TIMEOUT');
     }
@@ -78,6 +85,24 @@ void main() {
 
     expect(state.items, hasLength(2));
     expect(state.hasMore, isTrue);
+  });
+
+  test('the all-categories tab asks for no category filter', () async {
+    final repo = FakeNewsRepository();
+    final container = containerWith(repo);
+
+    await container.read(feedProvider(allCategoriesSlug).future);
+
+    expect(repo.categoryWasOmitted, isTrue);
+  });
+
+  test('a real category is passed through to the repository', () async {
+    final repo = FakeNewsRepository();
+    final container = containerWith(repo);
+
+    await container.read(feedProvider('sport').future);
+
+    expect(repo.lastCategorySlug, 'sport');
   });
 
   test('loadMore appends rather than replaces', () async {

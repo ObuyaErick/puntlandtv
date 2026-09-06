@@ -317,6 +317,9 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
+  String get categoryAll => 'All';
+
+  @override
   String get emptyCategoryTitle => 'Nothing here yet';
 
   @override

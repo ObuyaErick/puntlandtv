@@ -32,10 +32,26 @@
         "-v",
         // "--dart-define",
         // "USE_FIXTURES=true",
+        // "--dart-define",
+        // "API_BASE_URL=http://localhost:3000/api",
         "--dart-define",
-        "API_BASE_URL=http://localhost:3000/api",
+        "API_BASE_URL=https://puntland-api.tenslet.com/api",
         "-t",
         "lib/main_console.dart"
+      ]
+    },
+    {
+      "name": "puntland (linux-app)",
+      "request": "launch",
+      "type": "dart",
+      "args": [
+        "-d",
+        "linux",
+        "-v",
+        // "--dart-define",
+        // "USE_FIXTURES=true",
+        "--dart-define",
+        "API_BASE_URL=http://localhost:3000/api"
       ]
     },
     {

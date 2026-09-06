@@ -319,6 +319,9 @@ class AppL10nSo extends AppL10n {
   }
 
   @override
+  String get categoryAll => 'Dhammaan';
+
+  @override
   String get emptyCategoryTitle => 'Weli waxba halkan ma jiraan';
 
   @override
