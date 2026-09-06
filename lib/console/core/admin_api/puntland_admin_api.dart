@@ -107,11 +107,19 @@ abstract interface class PuntlandAdminApi {
 
   /// Articles in every state, not just published ones.
   ///
-  /// [authorId] scopes the list to one person, which is how a Journalist sees
-  /// only their own drafts.
+  /// Every narrowing parameter is null-means-all, and they compose: the list
+  /// screen sends whichever of them the newsroom has set. [authorId] scopes
+  /// the list to one person, which is both how an Editor narrows to a byline
+  /// and how a Journalist sees only their own drafts.
+  ///
+  /// [locale] asks for articles that *have* a translation in that language,
+  /// not ones missing it — the language a story exists in is the thing an
+  /// editor filters by; what is missing is already said in words on the row.
   Future<List<AdminArticleDto>> fetchArticles({
     ArticleStatusFilter status = ArticleStatusFilter.all,
     String? authorId,
+    String? categorySlug,
+    String? locale,
     String? query,
   });
 

@@ -64,10 +64,23 @@ class ArticleListPage extends ConsumerWidget {
         ),
         data: (rows) {
           if (rows.isEmpty) {
+            // An empty newsroom and a filter that matched nothing are not the
+            // same problem, and telling someone to write their first article
+            // when they have thirty behind a filter is how a working screen
+            // gets reported as broken.
+            final narrowed = ref.watch(articleFilterProvider).isNarrowed;
             return EmptyView(
-              title: l10n.emptyArticles,
-              body: l10n.emptyArticlesBody,
-              icon: Icons.article_outlined,
+              title: narrowed ? l10n.emptyFilteredArticles : l10n.emptyArticles,
+              body: narrowed
+                  ? l10n.emptyFilteredArticlesBody
+                  : l10n.emptyArticlesBody,
+              icon: narrowed
+                  ? Icons.filter_alt_off_outlined
+                  : Icons.article_outlined,
+              actionLabel: narrowed ? l10n.clearFilters : null,
+              onAction: narrowed
+                  ? ref.read(articleFilterProvider.notifier).clear
+                  : null,
             );
           }
           return _ArticleBody(rows: rows, canPublish: canPublish);
@@ -115,8 +128,11 @@ class _FilterRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final selected = ref.watch(articleFilterProvider);
+    final locale = context.languageCode;
+    final query = ref.watch(articleFilterProvider);
     final controller = ref.read(articleFilterProvider.notifier);
+    final categories = ref.watch(categoryConfigProvider).value ?? const [];
+    final authors = ref.watch(articleAuthorsProvider).value ?? const [];
 
     final chips = <(ArticleStatusFilter, String)>[
       (
@@ -129,50 +145,134 @@ class _FilterRow extends ConsumerWidget {
       (ArticleStatusFilter.published, l10n.statusPublished),
     ];
 
+    final categoryName = categories
+        .where((c) => c.slug == query.categorySlug)
+        .map((c) => c.nameFor(locale))
+        // A slug the configured categories no longer contain still has to
+        // read as something: the filter is live, and silently showing "All"
+        // while the list stays narrowed is the worst of both.
+        .firstOrNull;
+
     return Container(
       height: 64,
       decoration: BoxDecoration(
         color: context.scheme.surface,
         border: Border(bottom: BorderSide(color: context.colors.outline)),
       ),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Spacing.sectionBreak),
+      child: Row(
         children: [
-          for (final (filter, label) in chips) ...[
-            Center(
-              child: ConsoleFilterChip(
-                label: label,
-                count: counts?.forFilter(filter) ?? 0,
-                selected: selected == filter,
-                onTap: () => controller.select(filter),
-              ),
+          Expanded(
+            child: ListView(
+              // Keyed: the row scrolls, so anything reaching for a filter that
+              // is off the end — a test, an accessibility scroll-to — needs to
+              // be able to name the scroller.
+              key: const Key('article-filters'),
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(left: Spacing.sectionBreak),
+              children: [
+                for (final (filter, label) in chips) ...[
+                  Center(
+                    child: ConsoleFilterChip(
+                      label: label,
+                      count: counts?.forFilter(filter) ?? 0,
+                      selected: query.status == filter,
+                      onTap: () => controller.select(filter),
+                    ),
+                  ),
+                  const SizedBox(width: Spacing.chip),
+                ],
+                // A rule between the status chips and the narrowing filters: they
+                // compose differently, and running them together reads as one long
+                // undifferentiated row.
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.chip,
+                    vertical: Spacing.listRhythm,
+                  ),
+                  child: VerticalDivider(
+                    width: 1,
+                    color: context.colors.outline,
+                  ),
+                ),
+                Center(
+                  child: _FilterSelect<String?>(
+                    key: const Key('filter-category'),
+                    label: l10n.filterCategory(
+                      categoryName ??
+                          query.categorySlug ??
+                          l10n.filterAllArticles,
+                    ),
+                    active: query.categorySlug != null,
+                    value: query.categorySlug,
+                    options: [
+                      (null, l10n.filterAllArticles),
+                      for (final category in categories)
+                        (category.slug, category.nameFor(locale)),
+                    ],
+                    onSelected: controller.setCategory,
+                  ),
+                ),
+                const SizedBox(width: Spacing.chip),
+                Center(
+                  child: _FilterSelect<String?>(
+                    key: const Key('filter-locale'),
+                    // The language name, not the raw code: a filter is prose like
+                    // everything else on this screen.
+                    label: l10n.filterLocale(
+                      query.locale == null
+                          ? l10n.filterAllArticles
+                          : context.languageNameOf(query.locale!),
+                    ),
+                    active: query.locale != null,
+                    value: query.locale,
+                    options: [
+                      (null, l10n.filterAllArticles),
+                      for (final code in AdminArticleDto.requiredLocales)
+                        (code, context.languageNameOf(code)),
+                    ],
+                    onSelected: controller.setLocale,
+                  ),
+                ),
+                // No author filter for a Journalist: their list is already scoped to
+                // their own byline, so the only choice the control could offer is
+                // the one they are already on.
+                if (canPublish) ...[
+                  const SizedBox(width: Spacing.chip),
+                  Center(
+                    child: _FilterSelect<String?>(
+                      key: const Key('filter-author'),
+                      label: l10n.filterAuthor(
+                        authors
+                                .where((a) => a.id == query.authorId)
+                                .map((a) => a.name)
+                                .firstOrNull ??
+                            l10n.filterAnyone,
+                      ),
+                      active: query.authorId != null,
+                      value: query.authorId,
+                      options: [
+                        (null, l10n.filterAnyone),
+                        for (final author in authors) (author.id, author.name),
+                      ],
+                      onSelected: controller.setAuthor,
+                    ),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(width: Spacing.chip),
-          ],
-          // A rule between the status chips and the narrowing filters: they
-          // compose differently, and running them together reads as one long
-          // undifferentiated row.
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Spacing.chip,
-              vertical: Spacing.listRhythm,
-            ),
-            child: VerticalDivider(width: 1, color: context.colors.outline),
           ),
-          for (final label in [
-            l10n.filterCategory(l10n.filterAllArticles),
-            // The language name, not the raw code: a filter is prose like
-            // everything else on this screen.
-            l10n.filterLocale(context.languageNameOf('so')),
-            l10n.filterAuthor(l10n.filterAnyone),
-          ]) ...[
-            Center(child: _FilterSelect(label: label)),
-            const SizedBox(width: Spacing.chip),
-          ],
-          Center(
+          // Outside the scroller, and deliberately. Eight controls do not fit
+          // a 1440dp row, and the one that undoes them all is the one that
+          // must never be the thing you have to scroll to find.
+          Padding(
+            padding: const EdgeInsets.only(
+              left: Spacing.chip,
+              right: Spacing.sectionBreak,
+            ),
             child: TextButton(
-              onPressed: () => controller.select(ArticleStatusFilter.all),
+              // Disabled on an unfiltered list rather than hidden: a control
+              // that disappears is one people stop looking for.
+              onPressed: query.isNarrowed ? controller.clear : null,
               child: Text(l10n.clearFilters),
             ),
           ),
@@ -183,31 +283,82 @@ class _FilterRow extends ConsumerWidget {
 }
 
 /// A narrowing filter, rendered as a bordered select.
-class _FilterSelect extends StatelessWidget {
-  const _FilterSelect({required this.label});
+///
+/// The chosen value is carried in the button's own label rather than only in
+/// the open menu, so a filtered list says what it is filtered by without
+/// anyone having to open anything.
+class _FilterSelect<T> extends StatelessWidget {
+  const _FilterSelect({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onSelected,
+    this.active = false,
+  });
 
   final String label;
+  final T value;
+  final List<(T, String)> options;
+  final ValueChanged<T> onSelected;
+
+  /// Whether this filter is narrowing anything. Outlined when it is not,
+  /// tinted when it is — one glance says which of three filters is on.
+  final bool active;
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        minimumSize: const Size(0, 40),
-        side: BorderSide(color: context.colors.outline),
-        foregroundColor: context.scheme.onSurface,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label),
-          const SizedBox(width: 6),
-          Icon(
-            Icons.expand_more_rounded,
-            size: 18,
-            color: context.scheme.onSurfaceVariant,
+    final colors = context.colors;
+
+    return PopupMenuButton<T>(
+      initialValue: value,
+      onSelected: onSelected,
+      tooltip: label,
+      position: PopupMenuPosition.under,
+      itemBuilder: (context) => [
+        for (final (optionValue, optionLabel) in options)
+          PopupMenuItem(
+            value: optionValue,
+            child: Row(
+              children: [
+                Expanded(child: Text(optionLabel)),
+                if (optionValue == value) ...[
+                  const SizedBox(width: Spacing.cardInternal),
+                  Icon(Icons.check_rounded, size: 18, color: colors.link),
+                ],
+              ],
+            ),
           ),
-        ],
+      ],
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: Spacing.cardInternal),
+        decoration: BoxDecoration(
+          color: active ? colors.accentContainer : Colors.transparent,
+          borderRadius: BorderRadius.circular(Radii.button),
+          border: Border.all(color: active ? colors.accent : colors.outline),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: context.text.body.copyWith(
+                color: active
+                    ? colors.onAccentContainer
+                    : context.scheme.onSurface,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Icon(
+              Icons.expand_more_rounded,
+              size: 18,
+              color: active
+                  ? colors.onAccentContainer
+                  : context.scheme.onSurfaceVariant,
+            ),
+          ],
+        ),
       ),
     );
   }

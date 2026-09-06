@@ -8,15 +8,27 @@ part of 'article_list_controller.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Which filter chip is active.
+/// The active filters.
+///
+/// Each setter builds the whole value rather than going through a `copyWith`:
+/// every narrowing field is nullable and null is meaningful, so a copyWith
+/// could not tell "leave this alone" from "clear this".
 
 @ProviderFor(ArticleFilter)
 final articleFilterProvider = ArticleFilterProvider._();
 
-/// Which filter chip is active.
+/// The active filters.
+///
+/// Each setter builds the whole value rather than going through a `copyWith`:
+/// every narrowing field is nullable and null is meaningful, so a copyWith
+/// could not tell "leave this alone" from "clear this".
 final class ArticleFilterProvider
-    extends $NotifierProvider<ArticleFilter, ArticleStatusFilter> {
-  /// Which filter chip is active.
+    extends $NotifierProvider<ArticleFilter, ArticleQuery> {
+  /// The active filters.
+  ///
+  /// Each setter builds the whole value rather than going through a `copyWith`:
+  /// every narrowing field is nullable and null is meaningful, so a copyWith
+  /// could not tell "leave this alone" from "clear this".
   ArticleFilterProvider._()
     : super(
         from: null,
@@ -36,35 +48,85 @@ final class ArticleFilterProvider
   ArticleFilter create() => ArticleFilter();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(ArticleStatusFilter value) {
+  Override overrideWithValue(ArticleQuery value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<ArticleStatusFilter>(value),
+      providerOverride: $SyncValueProvider<ArticleQuery>(value),
     );
   }
 }
 
-String _$articleFilterHash() => r'f9e797c75551c94e9093f0935831830cfad0be86';
+String _$articleFilterHash() => r'61d1b8ee56d7ff8fe0e0f33b8c78f766e823b9e8';
 
-/// Which filter chip is active.
+/// The active filters.
+///
+/// Each setter builds the whole value rather than going through a `copyWith`:
+/// every narrowing field is nullable and null is meaningful, so a copyWith
+/// could not tell "leave this alone" from "clear this".
 
-abstract class _$ArticleFilter extends $Notifier<ArticleStatusFilter> {
-  ArticleStatusFilter build();
+abstract class _$ArticleFilter extends $Notifier<ArticleQuery> {
+  ArticleQuery build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<ArticleStatusFilter, ArticleStatusFilter>;
+    final ref = this.ref as $Ref<ArticleQuery, ArticleQuery>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<ArticleStatusFilter, ArticleStatusFilter>,
-              ArticleStatusFilter,
+              AnyNotifier<ArticleQuery, ArticleQuery>,
+              ArticleQuery,
               Object?,
               Object?
             >;
     return element.handleCreate(ref, build);
   }
 }
+
+/// Staff as bylines, for the author filter.
+
+@ProviderFor(articleAuthors)
+final articleAuthorsProvider = ArticleAuthorsProvider._();
+
+/// Staff as bylines, for the author filter.
+
+final class ArticleAuthorsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ConsoleUser>>,
+          List<ConsoleUser>,
+          FutureOr<List<ConsoleUser>>
+        >
+    with
+        $FutureModifier<List<ConsoleUser>>,
+        $FutureProvider<List<ConsoleUser>> {
+  /// Staff as bylines, for the author filter.
+  ArticleAuthorsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'articleAuthorsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$articleAuthorsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ConsoleUser>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ConsoleUser>> create(Ref ref) {
+    return articleAuthors(ref);
+  }
+}
+
+String _$articleAuthorsHash() => r'214fb45a2b7f50877fb5a562cbbb671848d6a0c2';
 
 /// Rows currently ticked, for the bulk action bar.
 
@@ -180,7 +242,7 @@ final class ArticleListProvider
   }
 }
 
-String _$articleListHash() => r'2dab8660ac12cf7412c4e4bb46ba4912f25b9608';
+String _$articleListHash() => r'97e0a5d43e21fcc984f96c59f23ff4be51746d54';
 
 /// Counts for the filter chips, independent of the active filter — the chips
 /// have to keep showing the other totals while one is selected.
@@ -227,7 +289,7 @@ final class ArticleCountsProvider
   }
 }
 
-String _$articleCountsHash() => r'35f3c1bfaffe1386d5372c3955739c1a7a42d293';
+String _$articleCountsHash() => r'7fc84a3010c19d12362d98185e824c07f8d861ea';
 
 /// Bulk and single-row actions.
 ///

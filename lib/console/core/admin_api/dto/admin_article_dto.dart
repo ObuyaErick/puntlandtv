@@ -126,6 +126,10 @@ class AdminArticleDto {
       translations[sourceLocale] ??
       (translations.isEmpty ? null : translations.values.first);
 
+  /// The languages the newsroom publishes in, mirroring the same constant on
+  /// the programme, push and slate DTOs.
+  static const requiredLocales = ['so', 'en'];
+
   /// Required locales this article has no version in.
   List<String> missingLocales(List<String> required) => required
       .where((locale) => !translations.containsKey(locale))

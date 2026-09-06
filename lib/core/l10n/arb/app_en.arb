@@ -835,6 +835,14 @@
   "@emptyArticlesBody": {
     "description": "Empty state body."
   },
+  "emptyFilteredArticles": "No articles match these filters",
+  "@emptyFilteredArticles": {
+    "description": "Empty state when filters, rather than an empty newsroom, are what left the list with nothing."
+  },
+  "emptyFilteredArticlesBody": "There are articles here, but none in the state, category, language or byline you asked for.",
+  "@emptyFilteredArticlesBody": {
+    "description": "Body of the filtered-empty state."
+  },
   "overviewTitle": "Overview",
   "@overviewTitle": {
     "description": "Console dashboard heading."

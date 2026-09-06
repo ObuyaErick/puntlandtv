@@ -189,6 +189,8 @@ class HttpAdminApi implements PuntlandAdminApi {
   Future<List<AdminArticleDto>> fetchArticles({
     ArticleStatusFilter status = ArticleStatusFilter.all,
     String? authorId,
+    String? categorySlug,
+    String? locale,
     String? query,
   }) => _getList(
     '/v1/admin/articles',
@@ -196,7 +198,13 @@ class HttpAdminApi implements PuntlandAdminApi {
     // The backend narrows this to the actor for a role without publish rights,
     // whatever is asked for here. A Journalist seeing only their own drafts is
     // a property of the token, not of this parameter.
-    query: {'status': status.name, 'authorId': ?authorId, 'query': ?query},
+    query: {
+      'status': status.name,
+      'authorId': ?authorId,
+      'categorySlug': ?categorySlug,
+      'locale': ?locale,
+      'query': ?query,
+    },
   );
 
   @override

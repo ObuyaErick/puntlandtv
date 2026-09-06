@@ -12,6 +12,7 @@ import 'package:puntland/core/l10n/l10n.dart';
 import 'package:puntland/core/l10n/so_material_localizations.dart';
 import 'package:puntland/core/providers/preferences_providers.dart';
 import 'package:puntland/core/theme/app_theme.dart';
+import 'package:puntland/core/widgets/feedback_views.dart';
 import 'package:puntland/console/core/widgets/console_page.dart';
 import 'package:puntland/console/core/widgets/console_table.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -180,6 +181,204 @@ void main() {
       final rows = container.read(articleListProvider).value ?? [];
       expect(rows, isNotEmpty);
       expect(rows.every((a) => a.status == ArticleStatus.published), isTrue);
+    });
+
+    /// Opens one of the three narrowing selects and picks an option by name.
+    ///
+    /// Scrolls the filter row to the control first. The row is a horizontal
+    /// scroller, and under the test font — which renders every glyph square,
+    /// so a label measures about twice its real width — the last select sits
+    /// past the right edge at 1440.
+    Future<void> choose(
+      WidgetTester tester,
+      String selectKey,
+      String option,
+    ) async {
+      await tester.dragUntilVisible(
+        find.byKey(Key(selectKey)),
+        find.byKey(const Key('article-filters')),
+        const Offset(-120, 0),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(Key(selectKey)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(option).last);
+      await tester.pumpAndSettle();
+      await tester.pump(Duration.zero);
+      await tester.pump();
+    }
+
+    List<AdminArticleDto> rowsOf(WidgetTester tester) =>
+        ProviderScope.containerOf(tester.element(find.byType(ArticleListPage)))
+            .read(articleListProvider)
+            .value!;
+
+    testWidgets('picking a category narrows to it', (tester) async {
+      await pumpList(tester, role: ConsoleRole.editor, userId: 'u-editor');
+
+      final before = rowsOf(tester);
+      expect(
+        before.map((a) => a.categorySlug).toSet().length,
+        greaterThan(1),
+        reason: 'the fixture must span categories for this to mean anything',
+      );
+
+      await choose(tester, 'filter-category', 'Sport');
+
+      final after = rowsOf(tester);
+      expect(after, isNotEmpty);
+      expect(after.every((a) => a.categorySlug == 'sport'), isTrue);
+    });
+
+    testWidgets('picking a language keeps only articles written in it', (
+      tester,
+    ) async {
+      await pumpList(tester, role: ConsoleRole.editor, userId: 'u-editor');
+
+      expect(
+        rowsOf(tester).any((a) => !a.translations.containsKey('en')),
+        isTrue,
+        reason: 'a Somali-only article is what this filter has to remove',
+      );
+
+      await choose(tester, 'filter-locale', 'English');
+
+      final after = rowsOf(tester);
+      expect(after, isNotEmpty);
+      expect(after.every((a) => a.translations.containsKey('en')), isTrue);
+    });
+
+    testWidgets('picking an author narrows to their byline', (tester) async {
+      await pumpList(tester, role: ConsoleRole.editor, userId: 'u-editor');
+
+      expect(
+        rowsOf(tester).map((a) => a.authorId).toSet().length,
+        greaterThan(1),
+      );
+
+      await choose(tester, 'filter-author', 'F. Xasan');
+
+      final after = rowsOf(tester);
+      expect(after, isNotEmpty);
+      expect(after.every((a) => a.authorId == 'u-journalist'), isTrue);
+    });
+
+    testWidgets('the filters compose rather than replace each other', (
+      tester,
+    ) async {
+      await pumpList(tester, role: ConsoleRole.editor, userId: 'u-editor');
+
+      await choose(tester, 'filter-author', 'A. Yuusuf');
+      await choose(tester, 'filter-locale', 'English');
+
+      final query = ProviderScope.containerOf(
+        tester.element(find.byType(ArticleListPage)),
+      ).read(articleFilterProvider);
+      expect(query.authorId, 'u-editor');
+      expect(query.locale, 'en');
+
+      expect(
+        rowsOf(tester).every(
+          (a) => a.authorId == 'u-editor' && a.translations.containsKey('en'),
+        ),
+        isTrue,
+      );
+    });
+
+    testWidgets('the chip counts follow the narrowing filters', (tester) async {
+      await pumpList(tester, role: ConsoleRole.editor, userId: 'u-editor');
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ArticleListPage)),
+      );
+      final before = container.read(articleCountsProvider).value!.all;
+
+      await choose(tester, 'filter-category', 'Sport');
+
+      final after = container.read(articleCountsProvider).value!.all;
+      expect(after, lessThan(before));
+      expect(after, rowsOf(tester).length);
+    });
+
+    testWidgets('clear filters is dead until something is filtered', (
+      tester,
+    ) async {
+      await pumpList(tester, role: ConsoleRole.editor, userId: 'u-editor');
+
+      TextButton clearButton() => tester.widget<TextButton>(
+        find.ancestor(
+          of: find.text('Clear filters'),
+          matching: find.byType(TextButton),
+        ),
+      );
+      expect(clearButton().onPressed, isNull);
+
+      await choose(tester, 'filter-category', 'Sport');
+      expect(clearButton().onPressed, isNotNull);
+
+      await tester.tap(find.text('Clear filters'));
+      await tester.pumpAndSettle();
+      await tester.pump(Duration.zero);
+      await tester.pump();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ArticleListPage)),
+      );
+      expect(container.read(articleFilterProvider).isNarrowed, isFalse);
+      expect(clearButton().onPressed, isNull);
+    });
+
+    testWidgets('a journalist is offered no author filter', (tester) async {
+      await pumpList(
+        tester,
+        role: ConsoleRole.journalist,
+        userId: 'u-journalist',
+      );
+
+      expect(find.byKey(const Key('filter-author')), findsNothing);
+      expect(find.byKey(const Key('filter-category')), findsOneWidget);
+    });
+
+    testWidgets('a filter that matches nothing says so, and offers a way out', (
+      tester,
+    ) async {
+      await pumpList(tester, role: ConsoleRole.editor, userId: 'u-editor');
+
+      // Sport has no article in review; the pair is empty by construction.
+      await choose(tester, 'filter-category', 'Sport');
+
+      // `choose` left the row scrolled right; the status chips are back the
+      // other way.
+      final chip = find.descendant(
+        of: find.byType(ConsoleFilterChip),
+        matching: find.text('IN REVIEW'),
+      );
+      await tester.dragUntilVisible(
+        chip,
+        find.byKey(const Key('article-filters')),
+        const Offset(120, 0),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(chip);
+      await tester.pumpAndSettle();
+      await tester.pump(Duration.zero);
+      await tester.pump();
+
+      expect(rowsOf(tester), isEmpty);
+      expect(find.text('No articles match these filters'), findsOneWidget);
+      expect(find.text('No articles here yet'), findsNothing);
+
+      await tester.tap(
+        find.descendant(
+          of: find.byType(EmptyView),
+          matching: find.text('Clear filters'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.pump(Duration.zero);
+      await tester.pump();
+
+      expect(rowsOf(tester), isNotEmpty);
     });
   });
 }

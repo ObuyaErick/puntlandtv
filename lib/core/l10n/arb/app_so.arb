@@ -183,6 +183,8 @@
   "deselectAll": "Ka saar doorashada",
   "emptyArticles": "Weli maqaallo ma jiraan",
   "emptyArticlesBody": "Maqaallada aad abuurto halkan ayay ka muuqan doonaan. Isticmaal Maqaal cusub si aad u bilowdo.",
+  "emptyFilteredArticles": "Maqaal kuma jiro miirayaashan",
+  "emptyFilteredArticlesBody": "Maqaallo way jiraan, laakiin midna kuma jiro xaaladda, qaybta, luqadda ama qoraaga aad codsatay.",
   "overviewTitle": "Guudmar",
   "onAirNow": "HADDA WAA BAAHINAYAA",
   "publishedToday": "MAANTA LA DAABACAY",

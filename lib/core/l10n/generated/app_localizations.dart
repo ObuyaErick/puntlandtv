@@ -1195,6 +1195,18 @@ abstract class AppL10n {
   /// **'Articles you create appear here. Use New article to start one.'**
   String get emptyArticlesBody;
 
+  /// Empty state when filters, rather than an empty newsroom, are what left the list with nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No articles match these filters'**
+  String get emptyFilteredArticles;
+
+  /// Body of the filtered-empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'There are articles here, but none in the state, category, language or byline you asked for.'**
+  String get emptyFilteredArticlesBody;
+
   /// Console dashboard heading.
   ///
   /// In en, this message translates to:

@@ -268,6 +268,8 @@ class FixtureAdminApi implements PuntlandAdminApi {
   Future<List<AdminArticleDto>> fetchArticles({
     ArticleStatusFilter status = ArticleStatusFilter.all,
     String? authorId,
+    String? categorySlug,
+    String? locale,
     String? query,
   }) => _respond(() {
     var rows = _articles.values.toList();
@@ -286,6 +288,17 @@ class FixtureAdminApi implements PuntlandAdminApi {
     // Scoping to an author is how a Journalist sees only their own work.
     if (authorId != null) {
       rows = rows.where((a) => a.authorId == authorId).toList();
+    }
+
+    if (categorySlug != null) {
+      rows = rows.where((a) => a.categorySlug == categorySlug).toList();
+    }
+
+    // The same test `missingLocales` uses, deliberately: the row already tells
+    // an editor which languages a story is missing, and a filter that
+    // disagreed with the note printed beside it would be read as a bug.
+    if (locale != null) {
+      rows = rows.where((a) => a.translations.containsKey(locale)).toList();
     }
 
     if (query != null && query.trim().isNotEmpty) {

@@ -663,6 +663,13 @@ class AppL10nEn extends AppL10n {
       'Articles you create appear here. Use New article to start one.';
 
   @override
+  String get emptyFilteredArticles => 'No articles match these filters';
+
+  @override
+  String get emptyFilteredArticlesBody =>
+      'There are articles here, but none in the state, category, language or byline you asked for.';
+
+  @override
   String get overviewTitle => 'Overview';
 
   @override

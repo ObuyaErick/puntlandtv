@@ -667,6 +667,13 @@ class AppL10nSo extends AppL10n {
       'Maqaallada aad abuurto halkan ayay ka muuqan doonaan. Isticmaal Maqaal cusub si aad u bilowdo.';
 
   @override
+  String get emptyFilteredArticles => 'Maqaal kuma jiro miirayaashan';
+
+  @override
+  String get emptyFilteredArticlesBody =>
+      'Maqaallo way jiraan, laakiin midna kuma jiro xaaladda, qaybta, luqadda ama qoraaga aad codsatay.';
+
+  @override
   String get overviewTitle => 'Guudmar';
 
   @override
