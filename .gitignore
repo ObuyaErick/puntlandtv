@@ -50,6 +50,10 @@ app.*.map.json
 # FVM Version Cache
 .fvm/
 
+# Local docker compose config. `.env.example` is the committed template.
+.env
+.env.local
+
 # AI agent / assistant directories and files
 .claude/
 .clauderc

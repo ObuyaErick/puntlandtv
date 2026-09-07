@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../features/auth/domain/entities/console_user.dart';
 import 'dto/admin_article_dto.dart';
 import 'dto/admin_program_dto.dart';
@@ -105,20 +107,94 @@ abstract interface class PuntlandAdminApi {
 
   /// Articles in every state, not just published ones.
   ///
-  /// [authorId] scopes the list to one person, which is how a Journalist sees
-  /// only their own drafts.
+  /// Every narrowing parameter is null-means-all, and they compose: the list
+  /// screen sends whichever of them the newsroom has set. [authorId] scopes
+  /// the list to one person, which is both how an Editor narrows to a byline
+  /// and how a Journalist sees only their own drafts.
+  ///
+  /// [locale] asks for articles that *have* a translation in that language,
+  /// not ones missing it — the language a story exists in is the thing an
+  /// editor filters by; what is missing is already said in words on the row.
   Future<List<AdminArticleDto>> fetchArticles({
     ArticleStatusFilter status = ArticleStatusFilter.all,
     String? authorId,
+    String? categorySlug,
+    String? locale,
     String? query,
   });
 
   Future<AdminArticleDto> fetchArticle(String id);
 
-  Future<AdminArticleDto> saveArticle(AdminArticleDto article);
+  /// Starts a story: a draft with a slug and one empty translation.
+  ///
+  /// Separate from saving one, and deliberately so. An article has an identity
+  /// before it has any text — the id is what the autosave below writes
+  /// against, and what the URL an editor sends a colleague is built from. A
+  /// console that only created articles on first save would have nothing to
+  /// autosave *to*, which is how a first draft gets lost.
+  Future<AdminArticleDto> createArticle({
+    required String categorySlug,
+    required String sourceLocale,
+    String title = '',
+  });
 
-  /// Moves an article between states. Separate from [saveArticle] because a
-  /// state change is audited and a content edit is not.
+  /// Writes one language's text, and nothing else.
+  ///
+  /// **The write the editor actually performs.** Article metadata and article
+  /// prose are edited by different people at different moments — a sub-editor
+  /// setting a category is not touching the Somali body — and saving them
+  /// together means each save silently restates the other's fields. Worse, it
+  /// makes freshness meaningless: the whole model rests on comparing one
+  /// translation's `updatedAt` with another's, and a save that stamped every
+  /// locale would clear the stale flag on a language nobody had opened.
+  ///
+  /// So this touches exactly one [ArticleTranslationDto] and moves exactly one
+  /// clock. See [updateArticle] for the other half.
+  Future<AdminArticleDto> saveArticleTranslation({
+    required String id,
+    required String locale,
+    required String title,
+    String? excerpt,
+    String? bodyHtml,
+    String? caption,
+  });
+
+  /// Marks a translation as still faithful, without changing a word of it.
+  ///
+  /// The "re-confirm translation" button. An editor who has read the English
+  /// against a changed Somali and judged it still correct needs a way to say
+  /// so; the only thing that clears a stale flag is a newer timestamp, and the
+  /// alternative — retyping a character to force a save — would be a lie in
+  /// the audit trail. Touches `updatedAt` and nothing else.
+  Future<AdminArticleDto> reconfirmArticleTranslation({
+    required String id,
+    required String locale,
+  });
+
+  /// Writes the article's own fields: category, hero image, breaking flag.
+  ///
+  /// Null means "leave alone" for every parameter, which is what makes this
+  /// safe to call from a metadata panel that only knows about the one control
+  /// the operator touched. Detaching the hero image is [clearImage], because
+  /// null is already spoken for.
+  ///
+  /// The image is attached **by asset id**: the backend can then refuse one
+  /// that has not finished ingesting, and the library can answer "what breaks
+  /// if I delete this" — neither of which a URL can express.
+  Future<AdminArticleDto> updateArticle({
+    required String id,
+    String? categorySlug,
+    String? imageId,
+    bool clearImage = false,
+    bool? isBreaking,
+  });
+
+  /// Moves an article between states, and records who moved it.
+  ///
+  /// Separate from the content writes because a state change is audited and an
+  /// edit is not: publishing is the moment the newsroom becomes answerable for
+  /// a story, and "who published this, and from what" has to survive the next
+  /// edit that overwrites the prose.
   Future<AdminArticleDto> setArticleStatus({
     required String id,
     required ArticleStatus status,
@@ -177,15 +253,26 @@ abstract interface class PuntlandAdminApi {
   /// the newsroom's to change.
   Future<MediaAssetDto> saveMediaAsset(MediaAssetDto asset);
 
-  /// Registers an upload.
+  /// Registers an upload, carrying [bytes] when the caller has the file.
   ///
   /// Returns the asset as it lands, which for an image means **with no alt
   /// text** — the library's job is to make that visible immediately rather
   /// than let an undescribed image sit in the grid looking finished.
+  ///
+  /// **One upload, with an optional payload — not two doctrines.** Everything
+  /// that puts a file in this library has, until now, been a registration: the
+  /// media screen's drop zone stands in for a file picker it does not have,
+  /// and posts a filename and a size. Pasting a screenshot into an article is
+  /// the first caller that actually holds the file, and the drop zone is the
+  /// next one. Giving that caller its own method would leave the library with
+  /// two ways in and two sets of rules to keep in step; [bytes] being optional
+  /// keeps the alt-text rule, the ingest state and the usage bookkeeping in
+  /// one place regardless of how the file arrived.
   Future<MediaAssetDto> uploadMedia({
     required String filename,
     required MediaKind kind,
     required int byteSize,
+    Uint8List? bytes,
   });
 
   /// Deletes an asset.

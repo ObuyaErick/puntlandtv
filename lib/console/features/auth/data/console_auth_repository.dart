@@ -141,10 +141,7 @@ class ConsoleAuthRepository implements AuthRepository {
 
     try {
       final challenge = await _api.requestPasswordReset(email: email);
-      return ResetCodeSent(
-        email: challenge.email,
-        devCode: challenge.devCode,
-      );
+      return ResetCodeSent(email: challenge.email, devCode: challenge.devCode);
     } on Failure catch (failure) {
       // Reaching here means the request itself failed — no network, a 500. An
       // address with no account behind it is a *success*, by design.

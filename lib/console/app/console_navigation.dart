@@ -19,6 +19,16 @@ extension ConsoleNavigation on BuildContext {
   /// The programme list.
   void openPrograms() => go(ConsoleRoutes.programs);
 
+  /// The article list.
+  void openArticles() => go(ConsoleRoutes.articles);
+
+  /// One article, in the editor.
+  ///
+  /// `push`, not `go`: the editor is opened *from* the list and the back
+  /// button has to return to it with its filter and scroll position intact.
+  /// `go` would rebuild the branch and drop both.
+  void openArticle(String id) => push<void>(ConsoleRoutes.article(id));
+
   /// One programme's episodes.
   void openProgram(String id) => go(ConsoleRoutes.program(id));
 }

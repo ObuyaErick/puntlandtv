@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puntland/console/core/admin_api/dto/media_dto.dart';
 import 'package:puntland/console/core/admin_api/fixture_admin_api.dart';
@@ -221,6 +224,41 @@ void main() {
       );
     });
 
+    test('an upload carrying its bytes comes back with somewhere to fetch them', () async {
+      // The first real bytes path in the product. The fixture is the storage,
+      // so the URL it hands back has to actually resolve — a pasted screenshot
+      // pointed at a hostname nobody serves is a broken box the moment it
+      // lands.
+      final api = FixtureAdminApi(latency: Duration.zero);
+
+      final asset = await api.uploadMedia(
+        filename: 'sawir-la-dhejiyay.png',
+        kind: MediaKind.image,
+        byteSize: _png.length,
+        bytes: _png,
+      );
+
+      expect(asset.url, startsWith('data:image/png;'));
+      expect(UriData.parse(asset.url).contentAsBytes(), _png);
+      expect(
+        asset.blocksPublishing,
+        isTrue,
+        reason: 'arriving with its bytes does not make it described',
+      );
+    });
+
+    test('an upload without bytes behaves exactly as it always did', () async {
+      final api = FixtureAdminApi(latency: Duration.zero);
+
+      final asset = await api.uploadMedia(
+        filename: 'sawir.jpg',
+        kind: MediaKind.image,
+        byteSize: 1024,
+      );
+
+      expect(asset.url, startsWith('https://'));
+    });
+
     test('an uploaded video lands mid-ingest', () async {
       final api = FixtureAdminApi(latency: Duration.zero);
 
@@ -327,3 +365,10 @@ void main() {
     expect(restored.canDelete, isFalse);
   });
 }
+
+/// A real 1x1 PNG, so the fixture's format sniffer has something to read.
+final _png = Uint8List.fromList(
+  base64Decode(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  ),
+);

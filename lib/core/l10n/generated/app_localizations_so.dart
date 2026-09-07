@@ -319,6 +319,9 @@ class AppL10nSo extends AppL10n {
   }
 
   @override
+  String get categoryAll => 'Dhammaan';
+
+  @override
   String get emptyCategoryTitle => 'Weli waxba halkan ma jiraan';
 
   @override
@@ -458,6 +461,12 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get fieldPassword => 'Furaha sirta ah';
+
+  @override
+  String get showPassword => 'Muuji furaha sirta ah';
+
+  @override
+  String get hidePassword => 'Qari furaha sirta ah';
 
   @override
   String get actionContinue => 'Sii wad';
@@ -659,6 +668,13 @@ class AppL10nSo extends AppL10n {
   @override
   String get emptyArticlesBody =>
       'Maqaallada aad abuurto halkan ayay ka muuqan doonaan. Isticmaal Maqaal cusub si aad u bilowdo.';
+
+  @override
+  String get emptyFilteredArticles => 'Maqaal kuma jiro miirayaashan';
+
+  @override
+  String get emptyFilteredArticlesBody =>
+      'Maqaallo way jiraan, laakiin midna kuma jiro xaaladda, qaybta, luqadda ama qoraaga aad codsatay.';
 
   @override
   String get overviewTitle => 'Guudmar';
@@ -996,6 +1012,18 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get colSlug => 'SLUG';
+
+  @override
+  String categoryArticleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count maqaal',
+      one: '1 maqaal',
+      zero: 'Maqaal ma jiro',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get colArticles => 'MAQAALLO';
@@ -1735,4 +1763,224 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get unsavedChanges => 'Beddelo aan la kaydin';
+
+  @override
+  String addTranslation(String language) {
+    return 'Ku dar $language';
+  }
+
+  @override
+  String get apply => 'Dabbaq';
+
+  @override
+  String articleRef(String id) {
+    return 'maqaal #$id';
+  }
+
+  @override
+  String get backToArticles => 'Ku noqo maqaallada';
+
+  @override
+  String get badgeBehind => 'DAAHAY';
+
+  @override
+  String get badgeSource => 'ISHA';
+
+  @override
+  String get bodyPlaceholder => 'Bilaab qorista sheekada…';
+
+  @override
+  String get bodyRequired =>
+      'Qoraalka waa loo baahan yahay ka hor daabacaadda.';
+
+  @override
+  String get captionHint => 'Waxa hoos ka muuqda sawirka barnaamijka';
+
+  @override
+  String changedSince(String time) {
+    return 'Waa la beddelay tan iyo $time';
+  }
+
+  @override
+  String get chooseHeroImage => 'Dooro sawir';
+
+  @override
+  String editorCaption(String locale) {
+    return 'QORAALKA SAWIRKA · $locale';
+  }
+
+  @override
+  String get exitSideBySide => 'Ka bax barbar-dhigga';
+
+  @override
+  String get formatBold => 'Qaro weyn';
+
+  @override
+  String get formatItalic => 'Jiifsan';
+
+  @override
+  String get formatHeading2 => 'Cinwaan 2';
+
+  @override
+  String get formatHeading3 => 'Cinwaan 3';
+
+  @override
+  String get formatBulletList => 'Liis dhibco leh';
+
+  @override
+  String get formatQuote => 'Xigasho';
+
+  @override
+  String get formatLink => 'Xiriiriye';
+
+  @override
+  String get formatImage => 'Sawir';
+
+  @override
+  String get headlineRequired =>
+      'Cinwaan waa loo baahan yahay ka hor daabacaadda.';
+
+  @override
+  String get heroReplace => '16:9 · Beddel';
+
+  @override
+  String get notScheduled => 'Lama jadwalayn';
+
+  @override
+  String get notYetWritten => 'Weli lama qorin';
+
+  @override
+  String openLocaleSideBySide(String language) {
+    return 'Fur $language barbar-dhig';
+  }
+
+  @override
+  String get publishOptions => 'Doorashooyin kale oo daabacaad';
+
+  @override
+  String get removeImage => 'Ka saar';
+
+  @override
+  String get removeLink => 'Ka saar';
+
+  @override
+  String get replaceHeroImage => 'Beddel sawirka';
+
+  @override
+  String get reviewTranslation => 'Dib u eeg';
+
+  @override
+  String get saveFailed => 'Lama kaydin';
+
+  @override
+  String get saving => 'Waa la kaydinayaa…';
+
+  @override
+  String get scheduleFor => 'Jadwal…';
+
+  @override
+  String get sideBySide => 'Barbar-dhig';
+
+  @override
+  String statusChangedTo(String status) {
+    return 'Waxa loo wareejiyay $status';
+  }
+
+  @override
+  String get submitForReview => 'U gudbi dib-u-eegis';
+
+  @override
+  String translationLocaleBehind(String locale) {
+    return '$locale DAAHAY';
+  }
+
+  @override
+  String get unpublish => 'Ka saar daabacaadda';
+
+  @override
+  String updatedAtTime(String time) {
+    return 'La cusboonaysiiyay $time';
+  }
+
+  @override
+  String updatedAtTimeBy(String time, String name) {
+    return 'La cusboonaysiiyay $time — $name';
+  }
+
+  @override
+  String get urlHint => 'https://example.so';
+
+  @override
+  String get preview => 'Eegis hore';
+
+  @override
+  String get close => 'Xir';
+
+  @override
+  String get delete => 'Tirtir';
+
+  @override
+  String get openInEditor => 'Ku fur tifaftiraha';
+
+  @override
+  String get deleteArticleTitle => 'Tirtir maqaalkan?';
+
+  @override
+  String deleteArticleBody(String title) {
+    return '“$title” iyo dhammaan turjumaadihiisa waa la tirtiri doonaa. Tallaabadan lama celin karo.';
+  }
+
+  @override
+  String get unpublishNeedsEditor =>
+      'Kaliya tifaftire ayaa wareejin kara sheeko la daabacay.';
+
+  @override
+  String get imageFailedToLoad => 'Sawirkaas lama soo bandhigin';
+
+  @override
+  String unsupportedEmbed(String kind) {
+    return 'Nuxur aan la taageerin ($kind)';
+  }
+
+  @override
+  String get imageFromComputer => 'Kombiyuutarkan';
+
+  @override
+  String get imageFromLibrary => 'Maktabadda warbaahinta';
+
+  @override
+  String get imageOrPasteUrl => 'Ama ku dheji URL';
+
+  @override
+  String get uploadingImage => 'Sawirka waa la soo gelinayaa…';
+
+  @override
+  String get imageUploadFailed => 'Sawirkaas lama soo gelin karin';
+
+  @override
+  String imageTooLarge(String limit) {
+    return 'Sawirkaas aad buu u weyn yahay. Xadku waa $limit.';
+  }
+
+  @override
+  String get imageNotSupported => 'Faylkaas maaha sawir uu konsoolkani aqbalo';
+
+  @override
+  String get pastedAsFormatted => 'Waxaa loo dhejiyay qoraal la habeeyay';
+
+  @override
+  String get pastedImageAdded =>
+      'Sawir waa lagu daray. Wali wuxuu u baahan yahay qoraal sawir.';
+
+  @override
+  String get undo => 'Ka noqo';
+
+  @override
+  String get describeImage => 'Sharax';
+
+  @override
+  String get autosave => 'Kaydin toos ah';
+
+  @override
+  String get autosaveOff => 'Kaydinta tooska ah waa damisan';
 }

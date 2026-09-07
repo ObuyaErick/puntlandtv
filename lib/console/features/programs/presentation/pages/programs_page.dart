@@ -298,12 +298,20 @@ class _ProgramCard extends StatelessWidget {
             Row(
               children: [
                 ShelfPills(program: program),
-                const Spacer(),
-                Text(
-                  '${ConsoleLabels.cadence(l10n, program.cadence)} · '
-                  '${program.episodeCount}',
-                  style: context.text.meta.copyWith(
-                    color: context.scheme.onSurfaceVariant,
+                const SizedBox(width: Spacing.chip),
+                // Expanded rather than a Spacer: the Somali cadence names are
+                // long enough to need the slack rather than be pushed past
+                // the edge by it.
+                Expanded(
+                  child: Text(
+                    '${ConsoleLabels.cadence(l10n, program.cadence)} · '
+                    '${program.episodeCount}',
+                    textAlign: TextAlign.end,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.meta.copyWith(
+                      color: context.scheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ],

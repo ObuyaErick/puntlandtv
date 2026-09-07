@@ -54,7 +54,16 @@ class NewsFeedPage extends ConsumerWidget {
             if (offline) const OfflineBanner(),
             categories.when(
               data: (list) => CategoryTabs(
-                categories: list,
+                // "All" leads the strip. It is not a backend category — see
+                // [allCategoriesSlug] — so its name is localised here rather
+                // than arriving with the request locale like the others.
+                categories: [
+                  NewsCategory(
+                    slug: allCategoriesSlug,
+                    name: context.l10n.categoryAll,
+                  ),
+                  ...list,
+                ],
                 selectedSlug: selected,
                 onSelected: ref.read(selectedCategoryProvider.notifier).select,
               ),

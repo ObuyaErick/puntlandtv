@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 
 import '../../../core/error/failure.dart';
@@ -171,9 +173,8 @@ class HttpAdminApi implements PuntlandAdminApi {
 
   /// Exchanges the refresh token for a new pair, once, however many callers ask.
   Future<ConsoleSessionDto?> _renew() {
-    return _renewal ??= restoreSession(
-      refreshToken: _credentials.refreshToken,
-    ).whenComplete(() => _renewal = null);
+    return _renewal ??= restoreSession(refreshToken: _credentials.refreshToken)
+        .whenComplete(() => _renewal = null);
   }
 
   // ---- Newsroom ----
@@ -188,6 +189,8 @@ class HttpAdminApi implements PuntlandAdminApi {
   Future<List<AdminArticleDto>> fetchArticles({
     ArticleStatusFilter status = ArticleStatusFilter.all,
     String? authorId,
+    String? categorySlug,
+    String? locale,
     String? query,
   }) => _getList(
     '/v1/admin/articles',
@@ -195,7 +198,13 @@ class HttpAdminApi implements PuntlandAdminApi {
     // The backend narrows this to the actor for a role without publish rights,
     // whatever is asked for here. A Journalist seeing only their own drafts is
     // a property of the token, not of this parameter.
-    query: {'status': status.name, 'authorId': ?authorId, 'query': ?query},
+    query: {
+      'status': status.name,
+      'authorId': ?authorId,
+      'categorySlug': ?categorySlug,
+      'locale': ?locale,
+      'query': ?query,
+    },
   );
 
   @override
@@ -203,30 +212,80 @@ class HttpAdminApi implements PuntlandAdminApi {
       _get('/v1/admin/articles/$id', AdminArticleDto.fromJson);
 
   @override
-  Future<AdminArticleDto> saveArticle(AdminArticleDto article) => _send(
-    'PUT',
-    '/v1/admin/articles/${article.id}',
+  Future<AdminArticleDto> createArticle({
+    required String categorySlug,
+    required String sourceLocale,
+    String title = '',
+  }) => _send(
+    'POST',
+    '/v1/admin/articles',
     AdminArticleDto.fromJson,
-    // `status` is absent deliberately: a state change is audited and goes
-    // through [setArticleStatus]. So is the hero image — `AdminArticleDto`
-    // carries `image_url`, and the backend attaches by asset id after checking
-    // the asset is ready, which a URL cannot express. Sending nothing leaves
-    // the current image alone; clearing one needs an id-carrying field on the
-    // DTO first.
+    // The slug and the author come back rather than going up: the slug is the
+    // backend's to mint and keep unique, and the author is the actor on the
+    // token. A console that named its own author would be a console that could
+    // file a story under somebody else's byline.
     body: {
-      'id': article.id,
-      'categorySlug': article.categorySlug,
-      'sourceLocale': article.sourceLocale,
-      'isBreaking': article.isBreaking,
-      'translations': {
-        for (final entry in article.translations.entries)
-          entry.key: {
-            'title': entry.value.title,
-            'excerpt': ?entry.value.excerpt,
-            'bodyHtml': ?entry.value.bodyHtml,
-            'caption': ?entry.value.caption,
-          },
-      },
+      'categorySlug': categorySlug,
+      'sourceLocale': sourceLocale,
+      'title': title,
+    },
+  );
+
+  @override
+  Future<AdminArticleDto> saveArticleTranslation({
+    required String id,
+    required String locale,
+    required String title,
+    String? excerpt,
+    String? bodyHtml,
+    String? caption,
+  }) => _send(
+    'PUT',
+    '/v1/admin/articles/$id/translations/$locale',
+    AdminArticleDto.fromJson,
+    // Every field of the translation, every time — this is a PUT of one
+    // locale's row, not a patch of it. Omitting a field an editor has just
+    // emptied is how a cleared excerpt comes back on the next load.
+    body: {
+      'title': title,
+      'excerpt': excerpt,
+      'bodyHtml': bodyHtml,
+      'caption': caption,
+    },
+  );
+
+  @override
+  Future<AdminArticleDto> reconfirmArticleTranslation({
+    required String id,
+    required String locale,
+  }) => _send(
+    'POST',
+    '/v1/admin/articles/$id/translations/$locale/reconfirm',
+    AdminArticleDto.fromJson,
+    // No body. The whole operation is "stamp this row's `updatedAt`", and
+    // sending the text back would let a stale editor tab overwrite an edit
+    // made since it loaded — under a button that promises to change nothing.
+    body: const {},
+  );
+
+  @override
+  Future<AdminArticleDto> updateArticle({
+    required String id,
+    String? categorySlug,
+    String? imageId,
+    bool clearImage = false,
+    bool? isBreaking,
+  }) => _send(
+    'PATCH',
+    '/v1/admin/articles/$id',
+    AdminArticleDto.fromJson,
+    // A true PATCH: only the keys the caller named are sent, so a metadata
+    // panel cannot restate — and so clobber — a field it never showed. An
+    // explicit null detaches the hero image; `?` omits the key entirely.
+    body: {
+      'categorySlug': ?categorySlug,
+      if (clearImage) 'imageId': null else 'imageId': ?imageId,
+      'isBreaking': ?isBreaking,
     },
   );
 
@@ -237,10 +296,14 @@ class HttpAdminApi implements PuntlandAdminApi {
     DateTime? scheduledFor,
   }) => _send(
     'POST',
-    '/v1/admin/articles/$id/status',
+    // `transitions`, not `status`: the request appends to an audit log and the
+    // article's state is the consequence. A `PUT .../status` would read as a
+    // field assignment, and the first person to optimise away a "redundant"
+    // write would erase the record of who published what.
+    '/v1/admin/articles/$id/transitions',
     AdminArticleDto.fromJson,
     body: {
-      'status': status.name,
+      'toStatus': status.name,
       'scheduledFor': ?scheduledFor?.toIso8601String(),
     },
   );
@@ -406,11 +469,29 @@ class HttpAdminApi implements PuntlandAdminApi {
     required String filename,
     required MediaKind kind,
     required int byteSize,
-  }) => _send('POST', '/v1/admin/media/register', MediaAssetDto.fromJson, body: {
-    'filename': filename,
-    'kind': kind.name,
-    'byteSize': byteSize,
-  });
+    Uint8List? bytes,
+  }) {
+    // Two endpoints, one method, and the difference is whether the caller has
+    // the file. `/register` records an upload the client is about to make by
+    // some other route; `/media` is the route, and takes the file with it.
+    if (bytes == null) {
+      return _send(
+        'POST',
+        '/v1/admin/media/register',
+        MediaAssetDto.fromJson,
+        body: {'filename': filename, 'kind': kind.name, 'byteSize': byteSize},
+      );
+    }
+
+    FormData build() => FormData.fromMap({
+      'filename': filename,
+      'kind': kind.name,
+      'byteSize': byteSize,
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
+    });
+
+    return _sendMultipart('/v1/admin/media', MediaAssetDto.fromJson, build);
+  }
 
   @override
   Future<void> deleteMediaAsset(String id) => _delete('/v1/admin/media/$id');
@@ -585,11 +666,18 @@ class HttpAdminApi implements PuntlandAdminApi {
   /// login form because their session aged out mid-edit would lose the edit.
   /// One renewal, then one retry. If the renewal comes back empty the session
   /// really is over, and the original `401` is what the caller should see.
+  ///
+  /// [rebuildBody] exists for the one body that cannot be sent twice: dio
+  /// finalises a `FormData`'s stream on send, so replaying the same instance
+  /// after a renewal throws instead of retrying. Multipart callers pass a
+  /// closure that builds a fresh one; everyone else passes a map, which is
+  /// replayable as it stands.
   Future<Response<dynamic>> _request(
     String method,
     String path, {
     Map<String, dynamic>? query,
     Object? body,
+    Object? Function()? rebuildBody,
     bool authenticated = true,
   }) async {
     try {
@@ -600,8 +688,7 @@ class HttpAdminApi implements PuntlandAdminApi {
         options: Options(method: method, headers: _headers(authenticated)),
       );
     } on DioException catch (error) {
-      final isLapsed =
-          authenticated && error.response?.statusCode == 401;
+      final isLapsed = authenticated && error.response?.statusCode == 401;
       if (!isLapsed) rethrow;
 
       ConsoleSessionDto? renewed;
@@ -616,7 +703,7 @@ class HttpAdminApi implements PuntlandAdminApi {
 
       return await _dio.request<dynamic>(
         path,
-        data: body,
+        data: rebuildBody == null ? body : rebuildBody(),
         queryParameters: query,
         options: Options(method: method, headers: _headers(true)),
       );
@@ -689,6 +776,28 @@ class HttpAdminApi implements PuntlandAdminApi {
     try {
       final res = await _request(method, path, body: body);
       return _rowsOf(res.data).map(parse).toList(growable: false);
+    } catch (e, st) {
+      throw ApiExceptionMapper.map(e, st);
+    }
+  }
+
+  /// [_send] for a request carrying a file.
+  ///
+  /// Takes a builder rather than a body because the retry inside [_request]
+  /// cannot reuse a `FormData` — see the note there.
+  Future<T> _sendMultipart<T>(
+    String path,
+    T Function(Map<String, dynamic>) parse,
+    FormData Function() buildBody,
+  ) async {
+    try {
+      final res = await _request(
+        'POST',
+        path,
+        body: buildBody(),
+        rebuildBody: buildBody,
+      );
+      return parse(_requireBody(res.data));
     } catch (e, st) {
       throw ApiExceptionMapper.map(e, st);
     }

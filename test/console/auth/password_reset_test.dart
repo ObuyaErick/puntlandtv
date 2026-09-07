@@ -141,9 +141,7 @@ void main() {
         code: FixtureAdminApi.validResetCode,
         password: 'another-long-passphrase',
       ),
-      throwsA(
-        isA<Failure>().having((f) => f.code, 'code', 'RESET_EXPIRED'),
-      ),
+      throwsA(isA<Failure>().having((f) => f.code, 'code', 'RESET_EXPIRED')),
       reason: 'a spent code must not set a second password',
     );
   });
@@ -157,9 +155,7 @@ void main() {
         code: FixtureAdminApi.validResetCode,
         password: 'a-long-enough-passphrase',
       ),
-      throwsA(
-        isA<Failure>().having((f) => f.code, 'code', 'RESET_EXPIRED'),
-      ),
+      throwsA(isA<Failure>().having((f) => f.code, 'code', 'RESET_EXPIRED')),
     );
   });
 

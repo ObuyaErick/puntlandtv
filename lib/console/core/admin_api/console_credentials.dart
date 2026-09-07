@@ -25,8 +25,7 @@ class ConsoleCredentials {
   /// repository because it persists it, the client because it sends it — and
   /// neither should have to know whether the other went first.
   void hold({String? accessToken, String? refreshToken}) {
-    if (accessToken == this.accessToken &&
-        refreshToken == this.refreshToken) {
+    if (accessToken == this.accessToken && refreshToken == this.refreshToken) {
       return;
     }
     this.accessToken = accessToken;

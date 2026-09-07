@@ -8,6 +8,13 @@ import '../../domain/entities/article.dart';
 
 part 'news_controllers.g.dart';
 
+/// The "All" tab's slug.
+///
+/// A client-side sentinel, not a backend category: the API has no slug meaning
+/// "no filter", so the strip synthesises this tab and [Feed] translates it back
+/// into a request that carries no category at all.
+const allCategoriesSlug = 'all';
+
 /// The category tabs. Cached for the session — categories change on the scale
 /// of months, and re-fetching them on every tab switch wastes a request on a
 /// metered connection.
@@ -74,7 +81,10 @@ class Feed extends _$Feed {
     return FeedState(page: page);
   }
 
-  String? get _slugOrNull => categorySlug == 'top' ? null : categorySlug;
+  String? get _slugOrNull =>
+      categorySlug == 'top' || categorySlug == allCategoriesSlug
+      ? null
+      : categorySlug;
 
   /// Pull-to-refresh. Discards the cursor and starts from the head.
   Future<void> refresh() async {

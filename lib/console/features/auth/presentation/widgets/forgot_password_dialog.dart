@@ -59,7 +59,9 @@ class ForgotPasswordFormState extends ConsumerState<ForgotPasswordForm> {
   }
 
   Future<void> _request() async {
-    await ref.read(passwordResetControllerProvider.notifier).request(_email.text);
+    await ref
+        .read(passwordResetControllerProvider.notifier)
+        .request(_email.text);
   }
 
   Future<void> _submit() async {

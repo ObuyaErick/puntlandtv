@@ -226,39 +226,54 @@ class _MessageSectionState extends ConsumerState<_MessageSection> {
         children: [
           Row(
             children: [
-              Text(
-                l10n.messageInLocale(isSomali ? 'SOOMAALI' : 'ENGLISH'),
-                style: context.text.overline.copyWith(
-                  color: context.scheme.onSurfaceVariant,
+              // The label and its chip wrap onto a second line on a phone
+              // rather than pushing the completeness state off the card.
+              Expanded(
+                child: Wrap(
+                  spacing: Spacing.chip,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      l10n.messageInLocale(isSomali ? 'SOOMAALI' : 'ENGLISH'),
+                      style: context.text.overline.copyWith(
+                        color: context.scheme.onSurfaceVariant,
+                      ),
+                    ),
+                    // A tinted chip, not bare red text: it is a standing
+                    // requirement, not an error the user has just caused.
+                    Container(
+                      height: 19,
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: LightTokens.errorContainer,
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(
+                          color: LightTokens.errorContainerOutline,
+                        ),
+                      ),
+                      child: Text(
+                        l10n.required,
+                        style: context.text.overline.copyWith(
+                          fontSize: 9.5,
+                          color: LightTokens.error,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: Spacing.chip),
-              // A tinted chip, not bare red text: it is a standing requirement,
-              // not an error the user has just caused.
-              Container(
-                height: 19,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: LightTokens.errorContainer,
-                  borderRadius: BorderRadius.circular(3),
-                  border: Border.all(color: LightTokens.errorContainerOutline),
-                ),
+              Flexible(
                 child: Text(
-                  l10n.required,
-                  style: context.text.overline.copyWith(
-                    fontSize: 9.5,
-                    color: LightTokens.error,
+                  message.isComplete ? l10n.complete : l10n.bodyMissing,
+                  textAlign: TextAlign.end,
+                  style: context.text.meta.copyWith(
+                    color: message.isComplete
+                        ? context.colors.accent
+                        : context.scheme.error,
                   ),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                message.isComplete ? l10n.complete : l10n.bodyMissing,
-                style: context.text.meta.copyWith(
-                  color: message.isComplete
-                      ? context.colors.accent
-                      : context.scheme.error,
                 ),
               ),
             ],

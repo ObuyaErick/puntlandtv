@@ -37,8 +37,16 @@ abstract final class ConsoleRoutes {
   /// One programme's episodes.
   static String program(String id) => '$programs/$id';
 
-  /// Path pattern fragment used when registering the route.
+  /// One article, open in the editor.
+  ///
+  /// A URL rather than a modal, because "the story I mean is
+  /// /articles/a-rains" is how one editor hands work to another — and because
+  /// a reload in the middle of writing has to come back to the same story.
+  static String article(String id) => '$articles/$id';
+
+  /// Path pattern fragments used when registering the child routes.
   static const programPattern = ':id';
+  static const articlePattern = ':id';
 
   /// The branch a location belongs to, or -1 for a location outside the shell.
   ///

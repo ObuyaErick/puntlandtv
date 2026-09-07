@@ -571,6 +571,12 @@ abstract class AppL10n {
   /// **'Error: {code}'**
   String errorCodeLine(String code);
 
+  /// Category strip: the tab showing every story, unfiltered.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get categoryAll;
+
   /// Empty state for a category with no articles.
   ///
   /// In en, this message translates to:
@@ -840,6 +846,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Password'**
   String get fieldPassword;
+
+  /// Reveals the characters typed into a password field.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// Masks the characters typed into a password field.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
 
   /// Submits the sign-in form.
   ///
@@ -1182,6 +1200,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Articles you create appear here. Use New article to start one.'**
   String get emptyArticlesBody;
+
+  /// Empty state when filters, rather than an empty newsroom, are what left the list with nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No articles match these filters'**
+  String get emptyFilteredArticles;
+
+  /// Body of the filtered-empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'There are articles here, but none in the state, category, language or byline you asked for.'**
+  String get emptyFilteredArticlesBody;
 
   /// Console dashboard heading.
   ///
@@ -1734,6 +1764,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'SLUG'**
   String get colSlug;
+
+  /// Article count on a category card, where no column header names the number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No articles} =1{1 article} other{{count} articles}}'**
+  String categoryArticleCount(int count);
 
   /// Categories column. Uppercase.
   ///
@@ -2880,6 +2916,390 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Unsaved changes'**
   String get unsavedChanges;
+
+  /// Adds a language the article does not have yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {language}'**
+  String addTranslation(String language);
+
+  /// Confirms a formatting dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// The article's identifier, in the editor's header line.
+  ///
+  /// In en, this message translates to:
+  /// **'article #{id}'**
+  String articleRef(String id);
+
+  /// Tooltip on the editor's back button.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to articles'**
+  String get backToArticles;
+
+  /// Locale tab badge: this translation is older than the source. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'BEHIND'**
+  String get badgeBehind;
+
+  /// Locale tab badge: the language the story was written in. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'SOURCE'**
+  String get badgeSource;
+
+  /// Placeholder in the empty body editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Start writing the story…'**
+  String get bodyPlaceholder;
+
+  /// Why the publish button is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'A body is required before publishing.'**
+  String get bodyRequired;
+
+  /// Hint under the hero image caption field.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown under the picture in the app'**
+  String get captionHint;
+
+  /// How far behind a stale translation is.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed since {time}'**
+  String changedSince(String time);
+
+  /// Opens the media picker for the hero image.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image'**
+  String get chooseHeroImage;
+
+  /// Hero caption field label with the language code. Uppercase locale.
+  ///
+  /// In en, this message translates to:
+  /// **'Caption · {locale}'**
+  String editorCaption(String locale);
+
+  /// Leaves the two-column translation view.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit side-by-side'**
+  String get exitSideBySide;
+
+  /// Body editor toolbar control.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get formatBold;
+
+  /// Body editor toolbar control.
+  ///
+  /// In en, this message translates to:
+  /// **'Italic'**
+  String get formatItalic;
+
+  /// Body editor toolbar control.
+  ///
+  /// In en, this message translates to:
+  /// **'Heading 2'**
+  String get formatHeading2;
+
+  /// Body editor toolbar control.
+  ///
+  /// In en, this message translates to:
+  /// **'Heading 3'**
+  String get formatHeading3;
+
+  /// Body editor toolbar control.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulleted list'**
+  String get formatBulletList;
+
+  /// Body editor toolbar control.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote'**
+  String get formatQuote;
+
+  /// Body editor toolbar control.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get formatLink;
+
+  /// Body editor toolbar control.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get formatImage;
+
+  /// Why the publish button is refused.
+  ///
+  /// In en, this message translates to:
+  /// **'A headline is required before publishing.'**
+  String get headlineRequired;
+
+  /// Overlay on the hero image frame. The ratio is fixed, not translated.
+  ///
+  /// In en, this message translates to:
+  /// **'16:9 · Replace'**
+  String get heroReplace;
+
+  /// Shown in the schedule field when no time is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Not scheduled'**
+  String get notScheduled;
+
+  /// Shown for a language the article has no text in.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet written'**
+  String get notYetWritten;
+
+  /// Opens the stale translation next to the source.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {language} side-by-side'**
+  String openLocaleSideBySide(String language);
+
+  /// Screen-reader label for the caret beside Publish.
+  ///
+  /// In en, this message translates to:
+  /// **'More publishing options'**
+  String get publishOptions;
+
+  /// Detaches the hero image.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeImage;
+
+  /// Clears a link in the body editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeLink;
+
+  /// Screen-reader label on the hero image frame when one is set.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace image'**
+  String get replaceHeroImage;
+
+  /// Opens a stale translation to be read against the source.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get reviewTranslation;
+
+  /// Autosave could not reach the backend. The text is kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Not saved'**
+  String get saveFailed;
+
+  /// Autosave is in flight.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get saving;
+
+  /// Menu item: pick a publication time.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule…'**
+  String get scheduleFor;
+
+  /// Shows the source and its translation in two columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Side-by-side'**
+  String get sideBySide;
+
+  /// Toast after an article changes state.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved to {status}'**
+  String statusChangedTo(String status);
+
+  /// Hands a draft to an editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit for review'**
+  String get submitForReview;
+
+  /// Badge on the translation card. Uppercase locale name.
+  ///
+  /// In en, this message translates to:
+  /// **'{locale} BEHIND'**
+  String translationLocaleBehind(String locale);
+
+  /// Takes a published article back to draft.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpublish'**
+  String get unpublish;
+
+  /// When a translation was last edited.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {time}'**
+  String updatedAtTime(String time);
+
+  /// When a translation was last edited, and by whom.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {time} by {name}'**
+  String updatedAtTimeBy(String time, String name);
+
+  /// Placeholder in the link dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'https://example.so'**
+  String get urlHint;
+
+  /// Shows the story as the app would render it.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get preview;
+
+  /// Dismisses a dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// Destructive action in a row menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Row menu: opens the article editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in editor'**
+  String get openInEditor;
+
+  /// Confirmation dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this article?'**
+  String get deleteArticleTitle;
+
+  /// Confirmation dialog body, naming the story.
+  ///
+  /// In en, this message translates to:
+  /// **'“{title}” and every translation of it will be removed. This cannot be undone.'**
+  String deleteArticleBody(String title);
+
+  /// Why a journalist cannot act on their own published article.
+  ///
+  /// In en, this message translates to:
+  /// **'Only an editor can move a published story.'**
+  String get unpublishNeedsEditor;
+
+  /// Shown in place of a body image whose URL is wrong or unreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'That image did not load'**
+  String get imageFailedToLoad;
+
+  /// Placeholder for an embed this editor cannot render.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported content ({kind})'**
+  String unsupportedEmbed(String kind);
+
+  /// Body editor image dialog: opens the operating system's file picker.
+  ///
+  /// In en, this message translates to:
+  /// **'From this computer'**
+  String get imageFromComputer;
+
+  /// Body editor image dialog: opens the media library grid.
+  ///
+  /// In en, this message translates to:
+  /// **'From the media library'**
+  String get imageFromLibrary;
+
+  /// Body editor image dialog: the divider above the URL field.
+  ///
+  /// In en, this message translates to:
+  /// **'Or paste a URL'**
+  String get imageOrPasteUrl;
+
+  /// Shown while a pasted or picked image is on its way to the media library.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading image…'**
+  String get uploadingImage;
+
+  /// The upload of a pasted or picked image failed. Nothing was added to the story.
+  ///
+  /// In en, this message translates to:
+  /// **'That image could not be uploaded'**
+  String get imageUploadFailed;
+
+  /// A pasted or picked image was refused before it was uploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'That image is too large. The limit is {limit}.'**
+  String imageTooLarge(String limit);
+
+  /// Pasted bytes were not PNG, JPEG, GIF or WebP.
+  ///
+  /// In en, this message translates to:
+  /// **'That file is not an image this console accepts'**
+  String get imageNotSupported;
+
+  /// Plain text was recognised as markdown and converted. Offered with an undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted as formatted text'**
+  String get pastedAsFormatted;
+
+  /// A pasted image reached the media library undescribed.
+  ///
+  /// In en, this message translates to:
+  /// **'Image added. It still needs alt text.'**
+  String get pastedImageAdded;
+
+  /// Reverses the change a toast is reporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// Opens the media panel where an image's alt text is written.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe it'**
+  String get describeImage;
+
+  /// Editor menu switch: whether the editor writes on its own while you type.
+  ///
+  /// In en, this message translates to:
+  /// **'Autosave'**
+  String get autosave;
+
+  /// Shown beside the save state when the editor is not writing on its own.
+  ///
+  /// In en, this message translates to:
+  /// **'Autosave off'**
+  String get autosaveOff;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

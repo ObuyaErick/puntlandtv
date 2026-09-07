@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../../../core/error/failure.dart';
 import '../../../../../core/l10n/l10n.dart';
+import '../../../../../core/responsive/window_size.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../../core/widgets/feedback_views.dart';
@@ -75,60 +76,163 @@ class _CategoryTable extends StatelessWidget {
       ConsoleColumn(label: l10n.colInApp, width: 110),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        Spacing.sectionBreak,
-        Spacing.gutter,
-        Spacing.sectionBreak,
-        Spacing.sectionBreak,
-      ),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.scheme.surface,
-          borderRadius: Radii.cardBorder,
-          border: Border.all(color: context.colors.outline),
-        ),
-        child: ClipRRect(
-          borderRadius: Radii.cardBorder,
-          child: Column(
+    // Four columns need ~700dp before the NAME column is squeezed into
+    // something unreadable. Below that each row becomes a card, the same
+    // trade the article list makes.
+    return WindowSizeScope(
+      builder: (context, size) {
+        if (!size.isAtLeastExpanded) {
+          return ListView(
+            padding: const EdgeInsets.fromLTRB(
+              Spacing.gutter,
+              Spacing.gutter,
+              Spacing.gutter,
+              Spacing.emptyState,
+            ),
             children: [
-              ConsoleTableHeader(columns: columns),
-              Expanded(
-                child: ListView(
-                  children: [
-                    for (final category in rows)
-                      ConsoleTableRow(
-                        columns: columns,
-                        onTap: () {},
-                        cells: [
-                          // Monospace-ish weight to signal "identifier, not prose".
-                          Text(
-                            category.slug,
-                            style: context.text.label.copyWith(
-                              color: context.scheme.primary,
-                            ),
+              for (final category in rows)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: Spacing.cardInternal),
+                  child: _CategoryCard(category: category, locale: locale),
+                ),
+              Text(
+                l10n.untranslatedHiddenNote,
+                style: context.text.meta.copyWith(
+                  color: context.scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(
+            Spacing.sectionBreak,
+            Spacing.gutter,
+            Spacing.sectionBreak,
+            Spacing.sectionBreak,
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: context.scheme.surface,
+              borderRadius: Radii.cardBorder,
+              border: Border.all(color: context.colors.outline),
+            ),
+            child: ClipRRect(
+              borderRadius: Radii.cardBorder,
+              child: Column(
+                children: [
+                  ConsoleTableHeader(columns: columns),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        for (final category in rows)
+                          ConsoleTableRow(
+                            columns: columns,
+                            onTap: () {},
+                            cells: [
+                              // Monospace-ish weight to signal "identifier,
+                              // not prose".
+                              Text(
+                                category.slug,
+                                style: context.text.label.copyWith(
+                                  color: context.scheme.primary,
+                                ),
+                              ),
+                              _NameCell(category: category, locale: locale),
+                              Text(
+                                '${category.articleCount}',
+                                style: context.text.meta.copyWith(
+                                  color: context.scheme.onSurface,
+                                ),
+                              ),
+                              _VisibilityCell(category: category),
+                            ],
                           ),
-                          _NameCell(category: category, locale: locale),
-                          Text(
-                            '${category.articleCount}',
+                        Padding(
+                          padding: const EdgeInsets.all(Spacing.gutter),
+                          child: Text(
+                            l10n.untranslatedHiddenNote,
                             style: context.text.meta.copyWith(
-                              color: context.scheme.onSurface,
+                              color: context.scheme.onSurfaceVariant,
                             ),
                           ),
-                          _VisibilityCell(category: category),
-                        ],
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.all(Spacing.gutter),
-                      child: Text(
-                        l10n.untranslatedHiddenNote,
-                        style: context.text.meta.copyWith(
-                          color: context.scheme.onSurfaceVariant,
                         ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// The compact-width presentation of a category.
+///
+/// Keeps the table's one lesson intact: the permanent slug and the editable
+/// name are shown together, the slug visibly an identifier rather than prose.
+class _CategoryCard extends StatelessWidget {
+  const _CategoryCard({required this.category, required this.locale});
+
+  final CategoryConfigDto category;
+  final String locale;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return Material(
+      color: context.scheme.surface,
+      borderRadius: Radii.cardBorder,
+      child: InkWell(
+        onTap: () {},
+        borderRadius: Radii.cardBorder,
+        child: Container(
+          padding: const EdgeInsets.all(Spacing.listRhythm),
+          decoration: BoxDecoration(
+            borderRadius: Radii.cardBorder,
+            border: Border.all(color: context.colors.outline),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _NameCell(category: category, locale: locale),
+                  ),
+                  const SizedBox(width: Spacing.cardInternal),
+                  _VisibilityCell(category: category),
+                ],
+              ),
+              const SizedBox(height: Spacing.chip),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      category.slug,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.text.label.copyWith(
+                        color: context.scheme.primary,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: Spacing.cardInternal),
+                  // The count carries its own noun here: there is no column
+                  // header above a card to say what the number counts.
+                  Text(
+                    l10n.categoryArticleCount(category.articleCount),
+                    style: context.text.meta.copyWith(
+                      color: context.scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

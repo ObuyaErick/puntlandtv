@@ -43,19 +43,17 @@ class LockScreenPreview extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                '${locale == 'so' ? 'SOOMAALI · so' : 'ENGLISH · en-US'}'
-                '${incomplete ? ' · ${l10n.previewIncomplete}' : ''}',
-                style: context.text.overline.copyWith(
-                  fontSize: 9.5,
-                  color: incomplete
-                      ? context.scheme.error
-                      : DarkTokens.onSurfaceVariant,
-                ),
-              ),
-            ],
+          // No Row around this: the locale, its tag and the incomplete note
+          // run past a phone's width on one line and have to be free to wrap.
+          Text(
+            '${locale == 'so' ? 'SOOMAALI · so' : 'ENGLISH · en-US'}'
+            '${incomplete ? ' · ${l10n.previewIncomplete}' : ''}',
+            style: context.text.overline.copyWith(
+              fontSize: 9.5,
+              color: incomplete
+                  ? context.scheme.error
+                  : DarkTokens.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: Spacing.listRhythm),
           Text(

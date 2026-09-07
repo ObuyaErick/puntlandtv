@@ -58,7 +58,10 @@ void main() {
     router = GoRouter(
       initialLocation: '/',
       routes: [
-        GoRoute(path: '/', builder: (_, _) => Scaffold(body: screen)),
+        GoRoute(
+          path: '/',
+          builder: (_, _) => Scaffold(body: screen),
+        ),
         GoRoute(
           path: ConsoleRoutes.programs,
           builder: (_, _) => const Scaffold(body: ProgramsPage()),

@@ -1,3 +1,52 @@
+import 'dart:typed_data';
+
+/// The image formats a pasted or picked file may be in, identified by its
+/// leading bytes.
+///
+/// **Sniffed rather than trusted.** A file arriving from a clipboard has no
+/// name and no declared type — a screenshot is just bytes — so the extension
+/// shown in the media grid and the MIME type sent to the backend both have to
+/// be derived from the content. Anything unrecognised is refused rather than
+/// guessed at: uploading a PDF as `sawir.png` would put a file in the image
+/// filter that no image rule can describe.
+enum ImageFormat {
+  png('image/png', 'png'),
+  jpeg('image/jpeg', 'jpg'),
+  gif('image/gif', 'gif'),
+  webp('image/webp', 'webp');
+
+  const ImageFormat(this.mimeType, this.extension);
+
+  final String mimeType;
+  final String extension;
+
+  /// The format [bytes] are in, or null when it is not one this product
+  /// accepts.
+  static ImageFormat? of(Uint8List bytes) {
+    bool starts(List<int> magic) {
+      if (bytes.length < magic.length) return false;
+      for (var i = 0; i < magic.length; i++) {
+        if (bytes[i] != magic[i]) return false;
+      }
+      return true;
+    }
+
+    if (starts(const [0x89, 0x50, 0x4E, 0x47])) return png;
+    if (starts(const [0xFF, 0xD8, 0xFF])) return jpeg;
+    if (starts(const [0x47, 0x49, 0x46, 0x38])) return gif;
+    // `RIFF....WEBP` — the four size bytes in between are not part of the tag.
+    if (bytes.length >= 12 &&
+        starts(const [0x52, 0x49, 0x46, 0x46]) &&
+        bytes[8] == 0x57 &&
+        bytes[9] == 0x45 &&
+        bytes[10] == 0x42 &&
+        bytes[11] == 0x50) {
+      return webp;
+    }
+    return null;
+  }
+}
+
 /// What kind of file an asset is.
 ///
 /// The distinction is not cosmetic: it decides which rules apply. An image
@@ -61,6 +110,16 @@ enum MediaKindFilter {
 /// Carried on the asset rather than looked up on demand because it exists to
 /// answer a question asked at the moment of deletion, when a second round trip
 /// is a second chance to get it wrong.
+///
+/// **The hero image is the only use this list can see from the client.** It is
+/// attached by id, so the backend knows the reference exists. A *body* image is
+/// stored inside `body_html` as a bare `<img src>` — the reader renders HTML
+/// and resolves URLs, not asset ids, and `article_html.dart` records why that
+/// is not worth changing. So the server, not the console, is what closes the
+/// gap: `used_in` is computed by scanning `body_html` for the backend's own
+/// media URLs alongside the `image_id` join. Without that scan, deleting an
+/// asset three published stories illustrate is allowed, and nobody finds out
+/// until a reader does.
 class MediaUsageDto {
   const MediaUsageDto({
     required this.articleId,

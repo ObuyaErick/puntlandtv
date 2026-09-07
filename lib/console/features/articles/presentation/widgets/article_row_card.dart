@@ -52,12 +52,20 @@ class ArticleRowCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  StatusBadge.forArticle(article.status),
-                  if (article.isBreaking) ...[
-                    const SizedBox(width: Spacing.chip),
-                    const StatusBadge(kind: BadgeKind.breaking),
-                  ],
-                  const Spacer(),
+                  // Two badges plus a timestamp is more than 320dp holds, so
+                  // the badges wrap and the time keeps its corner.
+                  Expanded(
+                    child: Wrap(
+                      spacing: Spacing.chip,
+                      runSpacing: 6,
+                      children: [
+                        StatusBadge.forArticle(article.status),
+                        if (article.isBreaking)
+                          const StatusBadge(kind: BadgeKind.breaking),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: Spacing.chip),
                   Text(
                     AppDateFormat.time(article.updatedAt, context.languageCode),
                     style: context.text.meta.copyWith(

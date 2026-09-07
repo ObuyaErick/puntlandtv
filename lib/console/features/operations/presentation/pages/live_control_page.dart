@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:material_ui/material_ui.dart';
@@ -69,8 +71,12 @@ class LiveControlPage extends ConsumerWidget {
 class _DarkCard extends StatelessWidget {
   const _DarkCard({
     required this.child,
-    this.padding = const EdgeInsets.all(20),
+    this.padding = const EdgeInsets.all(inset),
   });
+
+  /// Named so a caller working out how much room a card leaves its content
+  /// does not have to repeat the number.
+  static const inset = 20.0;
 
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -95,9 +101,13 @@ class _DarkCard extends StatelessWidget {
 
 /// The stream preview, with its LIVE flag pinned to the corner.
 class _StreamPreview extends StatelessWidget {
-  const _StreamPreview({required this.isLive});
+  const _StreamPreview({required this.isLive, this.maxWidth});
 
   final bool isLive;
+
+  /// Caps the preview below its artboard size, keeping the aspect. Stacked on
+  /// a phone the card has less than 212 to give once its padding is paid.
+  final double? maxWidth;
 
   /// 212×120 on the TV panel, per the artboard.
   static const width = 212.0;
@@ -105,49 +115,52 @@ class _StreamPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: const Color(0xFF04101F),
-                borderRadius: BorderRadius.circular(Radii.button),
+    final w = maxWidth == null
+        ? width
+        : math.max(0.0, math.min(width, maxWidth!));
+    return SizedBox(width: w, height: w * height / width, child: _box(context));
+  }
+
+  Widget _box(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: const Color(0xFF04101F),
+              borderRadius: BorderRadius.circular(Radii.button),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.videocam_outlined,
+                size: 26,
+                color: DarkTokens.onSurfaceVariant,
               ),
-              child: const Center(
-                child: Icon(
-                  Icons.videocam_outlined,
-                  size: 26,
-                  color: DarkTokens.onSurfaceVariant,
+            ),
+          ),
+        ),
+        if (isLive)
+          Positioned(
+            left: 8,
+            top: 8,
+            child: Container(
+              height: 22,
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: LightTokens.accent,
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Text(
+                context.l10n.live,
+                style: context.text.overline.copyWith(
+                  fontSize: 9.5,
+                  color: Colors.white,
                 ),
               ),
             ),
           ),
-          if (isLive)
-            Positioned(
-              left: 8,
-              top: 8,
-              child: Container(
-                height: 22,
-                padding: const EdgeInsets.symmetric(horizontal: 7),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: LightTokens.accent,
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Text(
-                  context.l10n.live,
-                  style: context.text.overline.copyWith(
-                    fontSize: 9.5,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -171,12 +184,27 @@ class _ControlBody extends ConsumerWidget {
       children: [
         // TV beside radio at width, stacked below it: the two are read
         // together when checking whether the station is up.
-        WindowSizeScope(
-          builder: (context, size) {
-            final tv = _TvPanel(control: control, onSave: save);
+        //
+        // A LayoutBuilder rather than a WindowSizeScope, and it has to stay
+        // outside the IntrinsicHeight below: intrinsics cannot be measured
+        // through a layout callback, so the TV panel is handed the width it
+        // will get instead of measuring it for itself.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final sideBySide = width >= WindowSizeClass.expandedMin;
+            final tvWidth = sideBySide
+                ? (width - Spacing.listRhythm) * 3 / 5
+                : width;
+
+            final tv = _TvPanel(
+              control: control,
+              onSave: save,
+              contentWidth: tvWidth - _DarkCard.inset * 2,
+            );
             final radio = _RadioPanel(control: control, onSave: save);
 
-            if (!size.isAtLeastExpanded) {
+            if (!sideBySide) {
               return Column(
                 children: [
                   tv,
@@ -236,7 +264,6 @@ class _ControlBody extends ConsumerWidget {
         WindowSizeScope(
           builder: (context, size) {
             final editor = _SlateEditor(control: control, onSave: save);
-            final preview = _SlatePreview(control: control);
 
             if (!size.isAtLeastExpanded) {
               return Column(
@@ -244,7 +271,7 @@ class _ControlBody extends ConsumerWidget {
                 children: [
                   editor,
                   const SizedBox(height: Spacing.listRhythm),
-                  preview,
+                  _SlatePreview(control: control),
                 ],
               );
             }
@@ -255,7 +282,10 @@ class _ControlBody extends ConsumerWidget {
                 children: [
                   Expanded(flex: 3, child: editor),
                   const SizedBox(width: Spacing.listRhythm),
-                  Expanded(flex: 2, child: preview),
+                  Expanded(
+                    flex: 2,
+                    child: _SlatePreview(control: control, expand: true),
+                  ),
                 ],
               ),
             );
@@ -268,105 +298,172 @@ class _ControlBody extends ConsumerWidget {
 
 /// TV channel status, preview and on-air toggle.
 class _TvPanel extends StatelessWidget {
-  const _TvPanel({required this.control, required this.onSave});
+  const _TvPanel({
+    required this.control,
+    required this.onSave,
+    required this.contentWidth,
+  });
 
   final BroadcastControlDto control;
   final ValueChanged<BroadcastControlDto> onSave;
+
+  /// What the card has left for its contents once its own padding is paid.
+  final double contentWidth;
+
+  /// The preview, the channel name and the toggle need about this much between
+  /// them before the name is squeezed to one word per line.
+  static const _threeAcrossMin = 560.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final info = _TvIdentity(control: control);
+
+    return _DarkCard(
+      child: contentWidth >= _threeAcrossMin
+          ? Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _StreamPreview(isLive: control.tvOnAir),
+                const SizedBox(width: Spacing.gutter),
+                Expanded(child: info),
+                const SizedBox(width: Spacing.gutter),
+                // The toggle sits beside the channel it governs rather than
+                // spanning the card. Stretched across the full width it read
+                // as a section control, not as this channel's switch.
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 200),
+                  child: _TvOnAirToggle(control: control, onSave: onSave),
+                ),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _StreamPreview(isLive: control.tvOnAir, maxWidth: contentWidth),
+                const SizedBox(height: Spacing.listRhythm),
+                info,
+                const SizedBox(height: Spacing.listRhythm),
+                // Stacked, the switch is unambiguously this card's, so it can
+                // take the full width and read left to right.
+                _TvOnAirToggle(
+                  control: control,
+                  onSave: onSave,
+                  stretched: true,
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+/// Channel name, uptime and audience.
+class _TvIdentity extends StatelessWidget {
+  const _TvIdentity({required this.control});
+
+  final BroadcastControlDto control;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          l10n.sectionTvChannel,
+          style: context.text.overline.copyWith(
+            color: DarkTokens.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: Spacing.chip),
+        Text(
+          control.channelName,
+          style: context.text.title.copyWith(color: Colors.white),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          l10n.uptimeAndViewers(
+            '${control.uptime.inHours}h '
+            '${(control.uptime.inMinutes % 60).toString().padLeft(2, '0')}m',
+            AppNumberFormat.decimal(
+              control.concurrentViewers,
+              context.languageCode,
+            ),
+          ),
+          style: context.text.meta.copyWith(color: DarkTokens.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+}
+
+/// The on-air switch and the sentence explaining why it may be unavailable.
+class _TvOnAirToggle extends StatelessWidget {
+  const _TvOnAirToggle({
+    required this.control,
+    required this.onSave,
+    this.stretched = false,
+  });
+
+  final BroadcastControlDto control;
+  final ValueChanged<BroadcastControlDto> onSave;
+
+  /// Fills the card rather than hugging its own width.
+  final bool stretched;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final blocked = control.tvOnAir && !control.canGoOffAir;
 
-    return _DarkCard(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _StreamPreview(isLive: control.tvOnAir),
-          const SizedBox(width: Spacing.gutter),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.sectionTvChannel,
-                  style: context.text.overline.copyWith(
-                    color: DarkTokens.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: Spacing.chip),
-                Text(
-                  control.channelName,
-                  style: context.text.title.copyWith(color: Colors.white),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.uptimeAndViewers(
-                    '${control.uptime.inHours}h '
-                    '${(control.uptime.inMinutes % 60).toString().padLeft(2, '0')}m',
-                    AppNumberFormat.decimal(
-                      control.concurrentViewers,
-                      context.languageCode,
-                    ),
-                  ),
-                  style: context.text.meta.copyWith(
-                    color: DarkTokens.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: Spacing.gutter),
-          // The toggle sits beside the channel it governs rather than spanning
-          // the card. Stretched across the full width it read as a section
-          // control, not as this channel's switch.
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      l10n.onAir,
-                      style: context.text.body.copyWith(color: Colors.white),
-                    ),
-                    const SizedBox(width: Spacing.cardInternal),
-                    Switch(
-                      key: const Key('tv-on-air'),
-                      value: control.tvOnAir,
-                      // Disabled rather than warned: an off-air channel with no
-                      // slate is a dead player, and with only one language it is
-                      // a dead player for everyone reading in the other.
-                      onChanged: blocked
-                          ? null
-                          : (value) => onSave(control.copyWith(tvOnAir: value)),
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: LightTokens.accent,
-                      inactiveTrackColor: DarkTokens.surfaceRaised,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  control.canGoOffAir
-                      ? l10n.switchingOffShowsSlate
-                      : l10n.slateBothRequired,
-                  textAlign: TextAlign.end,
-                  style: context.text.meta.copyWith(
-                    color: blocked
-                        ? DarkTokens.error
-                        : DarkTokens.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+    final label = Text(
+      l10n.onAir,
+      style: context.text.body.copyWith(color: Colors.white),
+    );
+    final switchControl = Switch(
+      key: const Key('tv-on-air'),
+      value: control.tvOnAir,
+      // Disabled rather than warned: an off-air channel with no slate is a
+      // dead player, and with only one language it is a dead player for
+      // everyone reading in the other.
+      onChanged: blocked
+          ? null
+          : (value) => onSave(control.copyWith(tvOnAir: value)),
+      activeThumbColor: Colors.white,
+      activeTrackColor: LightTokens.accent,
+      inactiveTrackColor: DarkTokens.surfaceRaised,
+    );
+    final note = Text(
+      control.canGoOffAir
+          ? l10n.switchingOffShowsSlate
+          : l10n.slateBothRequired,
+      textAlign: stretched ? TextAlign.start : TextAlign.end,
+      style: context.text.meta.copyWith(
+        color: blocked ? DarkTokens.error : DarkTokens.onSurfaceVariant,
       ),
+    );
+
+    return Column(
+      crossAxisAlignment: stretched
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: stretched ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            // Flexible either way: the Somali label plus a switch is wider
+            // than the 200 the beside-the-channel form allows.
+            if (stretched) Expanded(child: label) else Flexible(child: label),
+            const SizedBox(width: Spacing.cardInternal),
+            switchControl,
+          ],
+        ),
+        const SizedBox(height: 4),
+        note,
+      ],
     );
   }
 }
@@ -491,142 +588,301 @@ class _RenditionsTable extends StatelessWidget {
 
     final last = control.renditions.last;
 
-    return Column(
-      children: [
-        // A dark table needs its own header and dividers; the shared
-        // `ConsoleTableHeader` is built for the white surface.
-        Container(
-          height: 40,
-          padding: const EdgeInsets.symmetric(horizontal: Spacing.listRhythm),
-          decoration: const BoxDecoration(
-            color: DarkTokens.background,
-            border: Border(bottom: BorderSide(color: DarkTokens.outline)),
-          ),
-          child: Row(
+    return WindowSizeScope(
+      builder: (context, size) {
+        // Five columns, four of them fixed, need ~700dp before the URL is
+        // clipped to nothing. Below that each rung becomes its own block —
+        // an operator on a phone still has to see health and flip a switch.
+        if (!size.isAtLeastExpanded) {
+          return Column(
             children: [
-              for (final column in columns) ...[
-                _DarkCell(
-                  column: column,
-                  child: Text(
-                    column.label,
-                    textAlign: column.alignEnd
-                        ? TextAlign.end
-                        : TextAlign.start,
-                    style: context.text.overline.copyWith(
-                      fontSize: 10.5,
-                      color: DarkTokens.onSurfaceVariant,
-                    ),
-                  ),
+              for (final rendition in control.renditions)
+                _RenditionCard(
+                  rendition: rendition,
+                  last: rendition.rung == last.rung,
+                  onToggle: onToggle,
                 ),
-                const SizedBox(width: Spacing.cardInternal),
-              ],
             ],
-          ),
-        ),
-        for (final rendition in control.renditions)
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Spacing.listRhythm,
-              vertical: 6,
-            ),
-            decoration: BoxDecoration(
-              // No divider under the last row: it would sit on top of the
-              // card's own border and read as a doubled line.
-              border: rendition.rung == last.rung
-                  ? null
-                  : const Border(bottom: BorderSide(color: DarkTokens.outline)),
-            ),
-            child: _DarkRow(
-              columns: columns,
-              cells: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
+          );
+        }
+
+        return Column(
+          children: [
+            // A dark table needs its own header and dividers; the shared
+            // `ConsoleTableHeader` is built for the white surface.
+            Container(
+              height: 40,
+              padding: const EdgeInsets.symmetric(
+                horizontal: Spacing.listRhythm,
+              ),
+              decoration: const BoxDecoration(
+                color: DarkTokens.background,
+                border: Border(bottom: BorderSide(color: DarkTokens.outline)),
+              ),
+              child: Row(
+                children: [
+                  for (final column in columns) ...[
+                    _DarkCell(
+                      column: column,
                       child: Text(
-                        rendition.rung,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.text.label.copyWith(color: Colors.white),
-                      ),
-                    ),
-                    if (rendition.isProtected) ...[
-                      const SizedBox(width: Spacing.chip),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 5,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: DarkTokens.accent,
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        child: Text(
-                          l10n.keyRung,
-                          style: context.text.overline.copyWith(
-                            fontSize: 9,
-                            color: const Color(0xFF04220F),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                Text(
-                  rendition.url,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.text.meta.copyWith(
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                    color: DarkTokens.onSurfaceVariant,
-                  ),
-                ),
-                Text(
-                  rendition.bitrateLabel,
-                  style: context.text.meta.copyWith(
-                    color: DarkTokens.onSurface,
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: rendition.healthy
-                            ? DarkTokens.accent
-                            : DarkTokens.error,
-                      ),
-                    ),
-                    const SizedBox(width: 7),
-                    Flexible(
-                      child: Text(
-                        rendition.healthy ? l10n.healthy : l10n.degraded,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.text.meta.copyWith(
+                        column.label,
+                        textAlign: column.alignEnd
+                            ? TextAlign.end
+                            : TextAlign.start,
+                        style: context.text.overline.copyWith(
+                          fontSize: 10.5,
                           color: DarkTokens.onSurfaceVariant,
                         ),
                       ),
                     ),
+                    const SizedBox(width: Spacing.cardInternal),
+                  ],
+                ],
+              ),
+            ),
+            for (final rendition in control.renditions)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.listRhythm,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  // No divider under the last row: it would sit on top of the
+                  // card's own border and read as a doubled line.
+                  border: rendition.rung == last.rung
+                      ? null
+                      : const Border(
+                          bottom: BorderSide(color: DarkTokens.outline),
+                        ),
+                ),
+                child: _DarkRow(
+                  columns: columns,
+                  cells: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            rendition.rung,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.text.label.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        if (rendition.isProtected) ...[
+                          const SizedBox(width: Spacing.chip),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: DarkTokens.accent,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: Text(
+                              l10n.keyRung,
+                              style: context.text.overline.copyWith(
+                                fontSize: 9,
+                                color: const Color(0xFF04220F),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    Text(
+                      rendition.url,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.text.meta.copyWith(
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                        color: DarkTokens.onSurfaceVariant,
+                      ),
+                    ),
+                    Text(
+                      rendition.bitrateLabel,
+                      style: context.text.meta.copyWith(
+                        color: DarkTokens.onSurface,
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 7,
+                          height: 7,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: rendition.healthy
+                                ? DarkTokens.accent
+                                : DarkTokens.error,
+                          ),
+                        ),
+                        const SizedBox(width: 7),
+                        Flexible(
+                          child: Text(
+                            rendition.healthy ? l10n.healthy : l10n.degraded,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.text.meta.copyWith(
+                              color: DarkTokens.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Switch(
+                      key: Key('rendition-${rendition.rung}'),
+                      value: rendition.enabled,
+                      onChanged: rendition.isProtected
+                          ? null
+                          : (value) => onToggle(rendition.rung, value),
+                      activeThumbColor: const Color(0xFF04220F),
+                      activeTrackColor: DarkTokens.accent,
+                      inactiveTrackColor: DarkTokens.surfaceRaised,
+                    ),
                   ],
                 ),
-                Switch(
-                  key: Key('rendition-${rendition.rung}'),
-                  value: rendition.enabled,
-                  onChanged: rendition.isProtected
-                      ? null
-                      : (value) => onToggle(rendition.rung, value),
-                  activeThumbColor: const Color(0xFF04220F),
-                  activeTrackColor: DarkTokens.accent,
-                  inactiveTrackColor: DarkTokens.surfaceRaised,
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// One rung as a block, for widths where the table cannot hold five columns.
+class _RenditionCard extends StatelessWidget {
+  const _RenditionCard({
+    required this.rendition,
+    required this.last,
+    required this.onToggle,
+  });
+
+  final RenditionConfigDto rendition;
+  final bool last;
+  final void Function(String rung, bool enabled) onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Spacing.listRhythm,
+        vertical: Spacing.cardInternal,
+      ),
+      decoration: BoxDecoration(
+        border: last
+            ? null
+            : const Border(bottom: BorderSide(color: DarkTokens.outline)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  spacing: Spacing.chip,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      rendition.rung,
+                      style: context.text.label.copyWith(color: Colors.white),
+                    ),
+                    if (rendition.isProtected) const _KeyRungBadge(),
+                  ],
                 ),
-              ],
+              ),
+              const SizedBox(width: Spacing.chip),
+              Switch(
+                key: Key('rendition-${rendition.rung}'),
+                value: rendition.enabled,
+                onChanged: rendition.isProtected
+                    ? null
+                    : (value) => onToggle(rendition.rung, value),
+                activeThumbColor: const Color(0xFF04220F),
+                activeTrackColor: DarkTokens.accent,
+                inactiveTrackColor: DarkTokens.surfaceRaised,
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Row(
+            children: [
+              _HealthDot(healthy: rendition.healthy),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  '${rendition.healthy ? l10n.healthy : l10n.degraded}'
+                  ' · ${rendition.bitrateLabel}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.meta.copyWith(
+                    color: DarkTokens.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            rendition.url,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.text.meta.copyWith(
+              fontFeatures: const [FontFeature.tabularFigures()],
+              color: DarkTokens.onSurfaceVariant,
             ),
           ),
-      ],
+        ],
+      ),
+    );
+  }
+}
+
+/// The badge marking the rung that cannot be switched off.
+class _KeyRungBadge extends StatelessWidget {
+  const _KeyRungBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: DarkTokens.accent,
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Text(
+        context.l10n.keyRung,
+        style: context.text.overline.copyWith(
+          fontSize: 9,
+          color: const Color(0xFF04220F),
+        ),
+      ),
+    );
+  }
+}
+
+class _HealthDot extends StatelessWidget {
+  const _HealthDot({required this.healthy});
+
+  final bool healthy;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 7,
+      height: 7,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: healthy ? DarkTokens.accent : DarkTokens.error,
+      ),
     );
   }
 }
@@ -838,9 +1094,14 @@ class _SlateField extends StatelessWidget {
 
 /// What the app renders while the channel is down.
 class _SlatePreview extends StatelessWidget {
-  const _SlatePreview({required this.control});
+  const _SlatePreview({required this.control, this.expand = false});
 
   final BroadcastControlDto control;
+
+  /// Fills the height of the row it shares with the editor. Only ever true
+  /// inside that [IntrinsicHeight] — stacked, the card is a child of a
+  /// scrollable and has no height to expand into.
+  final bool expand;
 
   @override
   Widget build(BuildContext context) {
@@ -849,6 +1110,7 @@ class _SlatePreview extends StatelessWidget {
     return _DarkCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
         children: [
           Text(
             context.l10n.slatePreview,
@@ -857,7 +1119,8 @@ class _SlatePreview extends StatelessWidget {
             ),
           ),
           const SizedBox(height: Spacing.cardInternal),
-          Expanded(
+          _MaybeExpanded(
+            expand: expand,
             child: Container(
               constraints: const BoxConstraints(minHeight: 170),
               decoration: BoxDecoration(
@@ -895,4 +1158,16 @@ class _SlatePreview extends StatelessWidget {
       ),
     );
   }
+}
+
+/// [Expanded] where there is a height to expand into, a plain child where
+/// there is not.
+class _MaybeExpanded extends StatelessWidget {
+  const _MaybeExpanded({required this.expand, required this.child});
+
+  final bool expand;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => expand ? Expanded(child: child) : child;
 }

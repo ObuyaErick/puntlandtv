@@ -152,7 +152,7 @@ class _BrandPanel extends StatelessWidget {
   }
 }
 
-class _SignInCard extends ConsumerWidget {
+class _SignInCard extends ConsumerStatefulWidget {
   const _SignInCard({
     required this.email,
     required this.password,
@@ -168,8 +168,22 @@ class _SignInCard extends ConsumerWidget {
   final VoidCallback onSubmit;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_SignInCard> createState() => _SignInCardState();
+}
+
+class _SignInCardState extends ConsumerState<_SignInCard> {
+  /// Masked until asked otherwise. Someone signing in from the newsroom floor
+  /// has people behind them; revealing is the deliberate act, not the default.
+  var _obscurePassword = true;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final email = widget.email;
+    final password = widget.password;
+    final errorCode = widget.errorCode;
+    final submitting = widget.submitting;
+    final onSubmit = widget.onSubmit;
 
     // A real backend can refuse for reasons the fixtures never produced — an
     // account with no second factor, a lost connection, a 500. The fallback is
@@ -233,8 +247,22 @@ class _SignInCard extends ConsumerWidget {
           ConsoleTextField(
             label: l10n.fieldPassword,
             controller: password,
-            obscureText: true,
+            obscureText: _obscurePassword,
             onSubmitted: (_) => onSubmit(),
+            suffixIcon: IconButton(
+              // Tooltip and semantics both name the *result* of pressing, which
+              // is what a screen reader user needs to hear.
+              tooltip: _obscurePassword ? l10n.showPassword : l10n.hidePassword,
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
+              icon: Icon(
+                _obscurePassword
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                size: 20,
+                color: context.scheme.onSurfaceVariant,
+              ),
+            ),
           ),
           const SizedBox(height: Spacing.gutter),
           FilledButton(

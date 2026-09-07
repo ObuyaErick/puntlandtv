@@ -1,0 +1,52 @@
+# Puntland TV — both web apps.
+#
+#   docker compose up -d --build
+#
+#   reader app  http://localhost:3002
+#   console     http://localhost:3003
+#
+# Both services build from the same Dockerfile and share every layer up to the
+# final compile, so the second image costs one `flutter build web`, not a second
+# SDK download.
+#
+# API_BASE_URL is compiled in, not read at startup. After changing it in .env,
+# `docker compose up -d --build` — a plain restart serves the old value.
+
+name: puntland
+
+x-app: &app
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  app:
+    <<: *app
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TARGET: lib/main.dart
+        API_BASE_URL: ${API_BASE_URL:-}
+        USE_FIXTURES: ${USE_FIXTURES:-false}
+    image: puntland-app:${TAG:-latest}
+    container_name: puntland-app
+    ports:
+      - "${APP_PORT:-3002}:8080"
+
+  console:
+    <<: *app
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TARGET: lib/main_console.dart
+        API_BASE_URL: ${API_BASE_URL:-}
+        USE_FIXTURES: ${USE_FIXTURES:-false}
+    image: puntland-console:${TAG:-latest}
+    container_name: puntland-console
+    ports:
+      - "${CONSOLE_PORT:-3003}:8080"

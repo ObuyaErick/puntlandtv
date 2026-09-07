@@ -193,11 +193,9 @@ class PasswordResetController extends Notifier<PasswordResetState> {
     if (pending is! ResetCodeSent) return;
 
     state = pending.copyWith(submitting: true);
-    state = await ref.read(authRepositoryProvider).resetPassword(
-      pending: pending,
-      code: code,
-      password: password,
-    );
+    state = await ref
+        .read(authRepositoryProvider)
+        .resetPassword(pending: pending, code: code, password: password);
   }
 
   /// Back to the start — on cancel, and after a completed reset, so reopening
