@@ -154,6 +154,44 @@ tasks:
     cmds:
       - "{{.FLUTTER}} build apk --dart-define=API_BASE_URL={{.API}} {{.CLI_ARGS}}"
 
+  # ---- Docker -------------------------------------------------------------
+  #
+  # The container ports are 3002 and 3003, not the 9001/9000 above: those are
+  # the `flutter run` dev servers, and keeping the two apart means a container
+  # and an F5 run can be up at the same time without a port clash.
+  #
+  # Everything the images need is configured in `.env` (copy `.env.example`),
+  # not in the vars here — `docker compose` reads that file itself.
+
+  docker:build:
+    desc: "Build both web images (:3002 reader, :3003 console)"
+    cmds:
+      - "docker compose build {{.CLI_ARGS}}"
+
+  docker:up:
+    desc: "Build and start both apps in the background"
+    cmds:
+      # --build every time on purpose: API_BASE_URL is compiled in, so a plain
+      # `up` after editing .env silently serves the previous backend.
+      - "docker compose up -d --build {{.CLI_ARGS}}"
+      - 'echo "reader  http://localhost:$(grep -E "^APP_PORT=" .env 2>/dev/null | cut -d= -f2 || echo 3002)"'
+      - 'echo "console http://localhost:$(grep -E "^CONSOLE_PORT=" .env 2>/dev/null | cut -d= -f2 || echo 3003)"'
+
+  docker:down:
+    desc: "Stop both apps"
+    cmds:
+      - "docker compose down {{.CLI_ARGS}}"
+
+  docker:logs:
+    desc: "Follow the nginx logs of both apps"
+    cmds:
+      - "docker compose logs -f {{.CLI_ARGS}}"
+
+  docker:ps:
+    desc: "Show both containers and their health"
+    cmds:
+      - "docker compose ps"
+
   # ---- Development --------------------------------------------------------
 
   deps:

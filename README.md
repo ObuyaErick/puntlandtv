@@ -24,6 +24,47 @@ fvm flutter run --dart-define=API_BASE_URL=https://api.puntlandtv.nt
 fvm flutter run --dart-define=API_BASE_URL=https://... --dart-define=USE_FIXTURES=true   # force fixtures anyway
 ```
 
+## Docker
+
+Both apps ship as static web builds behind nginx — one image recipe, two
+entrypoints:
+
+```bash
+cp .env.example .env
+task docker:up          # or: docker compose up -d --build
+```
+
+| | Port | Entrypoint |
+| :--- | :--- | :--- |
+| Reader app | http://localhost:3002 | `lib/main.dart` |
+| Console | http://localhost:3003 | `lib/main_console.dart` |
+
+The two services share every layer up to the final compile, so the second image
+costs one `flutter build web` rather than a second SDK download. The SDK is
+pinned to the `.fvmrc` version and fetched from the official archive — the same
+tarball FVM uses, so a container build and a local one use one toolchain.
+
+**`API_BASE_URL` is compiled in, not read at startup.** It is a
+`String.fromEnvironment` (see `core/api/api_providers.dart`), so it travels
+`.env` → compose build arg → `--dart-define`. After changing it, rebuild:
+
+```bash
+docker compose up -d --build     # a plain restart serves the old backend
+```
+
+Leaving it empty is the no-backend mode — the containers then serve the same
+bundled fixtures the app uses locally.
+
+Two deployment details worth knowing before changing them:
+
+- **CanvasKit is bundled** (`--no-web-resources-cdn`) rather than loaded from
+  `gstatic.com`, so the apps work on a network that cannot reach Google's CDN.
+- **Nothing is cached without revalidation.** Flutter's output is not
+  content-hashed — `main.dart.js` keeps its name across builds — so any
+  `max-age` would serve a stale app after a deploy with no URL change to break
+  the cache. `no-cache` still lets the browser keep the file; it just
+  revalidates and gets a 304 from the ETag.
+
 ## Checks
 
 ```bash
