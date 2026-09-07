@@ -1,0 +1,43 @@
+# Everything the web build does not read. Keeping this tight matters more than
+# usual here: the build context is sent to the daemon on every `compose build`,
+# and `build/` alone is larger than the entire source tree.
+
+.git
+.gitignore
+
+# Build output and tool caches — regenerated inside the image.
+build/
+.dart_tool/
+.pub-cache/
+.fvm/
+.flutter-plugins-dependencies
+coverage/
+
+# Platforms other than web.
+android/
+ios/
+linux/
+macos/
+windows/
+
+# Not part of the app.
+test/
+docs/
+mockups/
+tool/
+Taskfile.yml
+README.md
+
+# Editor and agent files.
+.idea/
+.vscode/
+.claude/
+*.iml
+.metadata
+
+# Docker's own files: changing the compose file must not invalidate the build.
+# `docker/` stays in the context — the runtime stage copies nginx.conf from it.
+Dockerfile
+docker-compose.yml
+.env
+.env.*
