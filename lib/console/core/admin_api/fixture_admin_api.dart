@@ -481,6 +481,16 @@ class FixtureAdminApi implements PuntlandAdminApi {
 
   // ---- Operations ----
 
+  static const _rtmpBase = 'rtmp://puntland-ingest.tenslet.com:1937';
+  static const _srtBase = 'srt://puntland-ingest.tenslet.com:8891';
+
+  /// Shaped like the signed token the real server puts in a publish URL, so a
+  /// fixture run wraps and truncates the way production does. Not a valid one.
+  static const _fixtureToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'
+      'eyJzdWIiOiJmaXh0dXJlIiwiYXVkIjoibWVkaWFtdHgtcHVibGlzaCJ9.'
+      'ZmlfeHR1cmUtc2lnbmF0dXJlLW5vdC1hLXJlYWwtb25lLXNvLWl0LXdvbnQ';
+
   late BroadcastControlDto _broadcast = BroadcastControlDto(
     tvOnAir: true,
     radioOnAir: true,
@@ -515,8 +525,8 @@ class FixtureAdminApi implements PuntlandAdminApi {
       protocol: 'rtmp',
       publisher: '10.14.2.31:51884',
       videoLabel: '720p H264',
-      rtmpUrl: 'rtmp://puntland-ingest.tenslet.com:1937',
-      srtUrl: 'srt://puntland-ingest.tenslet.com:8891',
+      rtmpUrl: _rtmpBase,
+      srtUrl: _srtBase,
     ),
     ingestKeys: [
       IngestKeyDto(
@@ -525,6 +535,10 @@ class FixtureAdminApi implements PuntlandAdminApi {
         username: 'studio-obs',
         createdAt: DateTime(2026, 8, 30, 9, 12),
         lastUsedAt: DateTime(2026, 9, 7, 18, 56),
+        rtmpPublishUrl: '$_rtmpBase/main?user=studio-obs&pass=$_fixtureToken',
+        srtPublishUrl:
+            '$_srtBase?streamid=publish:main:studio-obs:$_fixtureToken',
+        streamKey: 'main?user=studio-obs&pass=$_fixtureToken',
       ),
       // Never used, which is the state the screen has to call out: a studio
       // still configured with the key this one was meant to replace.
@@ -533,6 +547,10 @@ class FixtureAdminApi implements PuntlandAdminApi {
         label: 'Backup encoder',
         username: 'backup-encoder',
         createdAt: DateTime(2026, 9, 6, 14, 2),
+        rtmpPublishUrl: '$_rtmpBase/main?user=backup-encoder&pass=$_fixtureToken',
+        srtPublishUrl:
+            '$_srtBase?streamid=publish:main:backup-encoder:$_fixtureToken',
+        streamKey: 'main?user=backup-encoder&pass=$_fixtureToken',
       ),
     ],
     // Seeded with only Somali, so the on-air toggle starts blocked and the
@@ -602,29 +620,24 @@ class FixtureAdminApi implements PuntlandAdminApi {
 
   @override
   Future<IngestKeyDto> createIngestKey({required String label}) => _respond(() {
-    // A secret in the response and nowhere else, exactly as the real endpoint
-    // behaves — a fixture that let it be read back twice would let the console
-    // ship a screen that reads it back twice.
+    // The mint answers with the same shape as every other key, exactly as the
+    // real endpoint does: the token in these URLs is derived from the row, so
+    // there is nothing shown once for the console to treat differently.
+    final username = label
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+        .replaceAll(RegExp(r'^-+|-+$'), '');
     final key = IngestKeyDto(
       id: newId(),
       label: label,
-      username: label
-          .toLowerCase()
-          .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
-          .replaceAll(RegExp(r'^-+|-+$'), ''),
+      username: username,
       createdAt: DateTime.now(),
-      secret: 'fixture-${newId()}',
+      rtmpPublishUrl: '$_rtmpBase/main?user=$username&pass=$_fixtureToken',
+      srtPublishUrl: '$_srtBase?streamid=publish:main:$username:$_fixtureToken',
+      streamKey: 'main?user=$username&pass=$_fixtureToken',
     );
     _broadcast = _broadcast.copyWith(
-      ingestKeys: [
-        ..._broadcast.ingestKeys,
-        IngestKeyDto(
-          id: key.id,
-          label: key.label,
-          username: key.username,
-          createdAt: key.createdAt,
-        ),
-      ],
+      ingestKeys: [..._broadcast.ingestKeys, key],
     );
     return key;
   });

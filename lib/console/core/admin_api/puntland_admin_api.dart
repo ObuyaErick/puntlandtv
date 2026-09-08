@@ -215,9 +215,9 @@ abstract interface class PuntlandAdminApi {
 
   /// Mints an ingest credential for an encoder.
   ///
-  /// The returned [IngestKeyDto.secret] is populated on this call and on no
-  /// other — the server keeps only a scrypt hash, so there is nothing to read
-  /// back later. The console has to show it once and say so.
+  /// Answers with the same shape every other key has, publish URLs included.
+  /// Nothing is shown once: the credential inside those URLs is a token the
+  /// server signs from the row, so every read produces it again.
   Future<IngestKeyDto> createIngestKey({required String label});
 
   /// Revokes one, answering with the credentials that remain.

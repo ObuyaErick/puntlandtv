@@ -507,11 +507,12 @@ class _IngestPanel extends ConsumerStatefulWidget {
 }
 
 class _IngestPanelState extends ConsumerState<_IngestPanel> {
-  /// The secret from the most recent mint, held only until dismissed.
+  /// The key minted in this sitting, so its row opens with the URLs showing.
   ///
-  /// Not in the DTO and not re-fetchable: the server stores a scrypt hash, so
-  /// this is the one moment it exists anywhere the operator can reach.
-  IngestKeyDto? _justMinted;
+  /// An id rather than the key itself: there is nothing transient to hold on to
+  /// any more. The server signs the token in every publish URL from the row, so
+  /// the same strings come back on every read and the list is the only source.
+  String? _justMintedId;
   bool _busy = false;
 
   Future<void> _mint() async {
@@ -524,7 +525,7 @@ class _IngestPanelState extends ConsumerState<_IngestPanel> {
           .read(adminApiProvider)
           .createIngestKey(label: label.trim());
       if (!mounted) return;
-      setState(() => _justMinted = minted);
+      setState(() => _justMintedId = minted.id);
       widget.onChanged();
     } on Failure catch (failure) {
       if (!mounted) return;
@@ -694,16 +695,6 @@ class _IngestPanelState extends ConsumerState<_IngestPanel> {
             ],
           ),
 
-          // Shown once, with the reason it will not be shown again. Dismissing
-          // it is the only way it leaves the screen — an operator who has not
-          // copied it yet must not lose it to a rebuild.
-          if (_justMinted?.secret != null)
-            _MintedSecret(
-              minted: _justMinted!,
-              path: ingest.path,
-              onDismiss: () => setState(() => _justMinted = null),
-            ),
-
           if (widget.control.ingestKeys.isEmpty)
             Padding(
               padding: const EdgeInsets.only(top: Spacing.chip),
@@ -714,7 +705,11 @@ class _IngestPanelState extends ConsumerState<_IngestPanel> {
             ),
           for (final key in widget.control.ingestKeys)
             _IngestKeyRow(
+              key: ValueKey(key.id),
               entry: key,
+              // The one just minted opens showing its URLs, because minting is
+              // something an operator only does when about to hand them over.
+              startExpanded: key.id == _justMintedId,
               onRevoke: _busy ? null : () => _revoke(key),
             ),
         ],
@@ -837,135 +832,166 @@ class _CopyButton extends StatelessWidget {
   );
 }
 
-/// A freshly minted secret, with the warning that it is the only showing.
-class _MintedSecret extends StatelessWidget {
-  const _MintedSecret({
-    required this.minted,
-    required this.path,
-    required this.onDismiss,
+/// One credential, with its publish URLs behind a disclosure.
+///
+/// Collapsed by default because the URLs are long and most visits to this
+/// screen are not handovers. Expanded, each row copies a complete string an
+/// encoder accepts verbatim — joining a server, a path and a credential by
+/// hand into somebody else's OBS over the phone is how a broadcast starts late.
+class _IngestKeyRow extends StatefulWidget {
+  const _IngestKeyRow({
+    super.key,
+    required this.entry,
+    required this.onRevoke,
+    this.startExpanded = false,
   });
 
-  final IngestKeyDto minted;
-  final String path;
-  final VoidCallback onDismiss;
+  final IngestKeyDto entry;
+  final VoidCallback? onRevoke;
+  final bool startExpanded;
+
+  @override
+  State<_IngestKeyRow> createState() => _IngestKeyRowState();
+}
+
+class _IngestKeyRowState extends State<_IngestKeyRow> {
+  late bool _expanded = widget.startExpanded;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    // The whole Stream Key field, assembled — an operator copying two halves
-    // into someone else's OBS over the phone is how a broadcast starts late.
-    final streamKey = '$path?user=${minted.username}&pass=${minted.secret}';
+    final entry = widget.entry;
 
-    return Container(
-      key: const Key('minted-ingest-secret'),
-      margin: const EdgeInsets.only(top: Spacing.chip),
-      padding: const EdgeInsets.all(Spacing.cardInternal),
-      decoration: BoxDecoration(
-        color: DarkTokens.surfaceRaised,
-        borderRadius: BorderRadius.circular(Radii.button),
-        border: Border.all(color: LightTokens.accent),
-      ),
+    // Empty when the server has no endpoint configured for that protocol —
+    // a missing env var, and a URL built on nothing looks copyable and is not.
+    final urls = [
+      ('RTMP', entry.rtmpPublishUrl),
+      ('SRT', entry.srtPublishUrl),
+      (l10n.ingestStreamKeyLabel, entry.streamKey),
+    ].where((pair) => pair.$2.isNotEmpty).toList(growable: false);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: Spacing.chip),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Expanded(
-                child: Text(
-                  l10n.ingestSecretShownOnce,
-                  style: context.text.meta.copyWith(color: LightTokens.accent),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entry.label,
+                      style: context.text.label.copyWith(color: Colors.white),
+                    ),
+                    Text(
+                      entry.username,
+                      style: context.text.meta.copyWith(
+                        color: DarkTokens.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              IconButton(
-                iconSize: 16,
-                constraints: const BoxConstraints.tightFor(
-                  width: 32,
-                  height: 32,
+              // "Never used" is the fastest way to spot a studio still
+              // configured with the credential this one was minted to replace.
+              Text(
+                entry.hasNeverBeenUsed
+                    ? l10n.ingestKeyNeverUsed
+                    : l10n.ingestKeyLastUsed(
+                        // Day and time, not a relative phrase: "2 hours ago" is
+                        // read at a glance and then quoted wrongly in a
+                        // handover an hour later.
+                        '${AppDateFormat.dayMonth(entry.lastUsedAt!, context.languageCode)} '
+                        '${AppDateFormat.time(entry.lastUsedAt!, context.languageCode)}',
+                      ),
+                style: context.text.meta.copyWith(
+                  color: entry.hasNeverBeenUsed
+                      ? DarkTokens.error
+                      : DarkTokens.onSurfaceVariant,
                 ),
-                onPressed: onDismiss,
-                icon: const Icon(Icons.close_rounded, color: Colors.white),
               ),
-            ],
-          ),
-          const SizedBox(height: Spacing.chip),
-          _CopyableFact(label: l10n.ingestStreamKeyLabel, value: streamKey),
-        ],
-      ),
-    );
-  }
-}
-
-/// One credential in the list, with what it is and when it was last used.
-class _IngestKeyRow extends StatelessWidget {
-  const _IngestKeyRow({required this.entry, required this.onRevoke});
-
-  final IngestKeyDto entry;
-  final VoidCallback? onRevoke;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Padding(
-      padding: const EdgeInsets.only(top: Spacing.chip),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  entry.label,
-                  style: context.text.label.copyWith(color: Colors.white),
-                ),
-                Text(
-                  entry.username,
-                  style: context.text.meta.copyWith(
-                    color: DarkTokens.onSurfaceVariant,
+              if (urls.isNotEmpty) ...[
+                const SizedBox(width: Spacing.chip),
+                TextButton.icon(
+                  key: Key('publish-urls-${entry.id}'),
+                  onPressed: () => setState(() => _expanded = !_expanded),
+                  icon: Icon(
+                    _expanded
+                        ? Icons.expand_less_rounded
+                        : Icons.expand_more_rounded,
+                    size: 18,
+                  ),
+                  label: Text(l10n.ingestPublishUrls),
+                  style: TextButton.styleFrom(
+                    foregroundColor: DarkTokens.onAccentContainer,
+                    backgroundColor: DarkTokens.accentContainer,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Spacing.cardInternal,
+                      vertical: Spacing.chip,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(
+                        color: DarkTokens.accentContainerOutline,
+                      ),
+                    ),
                   ),
                 ),
               ],
-            ),
-          ),
-          // "Never used" is the fastest way to spot a studio still configured
-          // with the credential this one was minted to replace.
-          Text(
-            entry.hasNeverBeenUsed
-                ? l10n.ingestKeyNeverUsed
-                : l10n.ingestKeyLastUsed(
-                    // Day and time, not a relative phrase: "2 hours ago" is
-                    // read at a glance and then quoted wrongly in a handover
-                    // an hour later.
-                    '${AppDateFormat.dayMonth(entry.lastUsedAt!, context.languageCode)} '
-                    '${AppDateFormat.time(entry.lastUsedAt!, context.languageCode)}',
+              const SizedBox(width: Spacing.chip),
+              TextButton(
+                onPressed: widget.onRevoke,
+                style: TextButton.styleFrom(
+                  // Destructive, and it was near-invisible plain text before.
+                  // An error-toned chip both surfaces it and warns what it does.
+                  foregroundColor: DarkTokens.error,
+                  backgroundColor: DarkTokens.errorContainer,
+                  disabledForegroundColor: DarkTokens.onSurfaceVariant,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.cardInternal,
+                    vertical: Spacing.chip,
                   ),
-            style: context.text.meta.copyWith(
-              color: entry.hasNeverBeenUsed
-                  ? DarkTokens.error
-                  : DarkTokens.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(width: Spacing.chip),
-          TextButton(
-            onPressed: onRevoke,
-            style: TextButton.styleFrom(
-              // Destructive, and it was near-invisible plain text before. An
-              // error-toned chip both surfaces it and warns what it does.
-              foregroundColor: DarkTokens.error,
-              backgroundColor: DarkTokens.errorContainer,
-              disabledForegroundColor: DarkTokens.onSurfaceVariant,
-              padding: const EdgeInsets.symmetric(
-                horizontal: Spacing.cardInternal,
-                vertical: Spacing.chip,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: const BorderSide(
-                  color: DarkTokens.errorContainerOutline,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: const BorderSide(
+                      color: DarkTokens.errorContainerOutline,
+                    ),
+                  ),
                 ),
+                child: Text(l10n.revokeIngestKey),
+              ),
+            ],
+          ),
+
+          if (_expanded && urls.isNotEmpty)
+            Container(
+              key: Key('publish-urls-panel-${entry.id}'),
+              margin: const EdgeInsets.only(top: Spacing.chip),
+              padding: const EdgeInsets.all(Spacing.cardInternal),
+              decoration: BoxDecoration(
+                color: DarkTokens.surfaceRaised,
+                borderRadius: BorderRadius.circular(Radii.button),
+                border: Border.all(color: DarkTokens.accentContainerOutline),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: Spacing.chip),
+                    child: Text(
+                      l10n.ingestUrlCarriesCredential,
+                      style: context.text.meta.copyWith(
+                        color: DarkTokens.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  for (final (label, value) in urls)
+                    _CopyableFact(label: label, value: value),
+                ],
               ),
             ),
-            child: Text(l10n.revokeIngestKey),
-          ),
         ],
       ),
     );

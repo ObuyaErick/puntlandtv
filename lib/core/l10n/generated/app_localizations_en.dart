@@ -2031,8 +2031,11 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
-  String get ingestSecretShownOnce =>
-      'Copy this now — it is not stored and will not be shown again';
+  String get ingestPublishUrls => 'Publish URLs';
+
+  @override
+  String get ingestUrlCarriesCredential =>
+      'These URLs contain the credential. Anyone holding one can publish until the key is revoked.';
 
   @override
   String get copyToClipboard => 'Copy';

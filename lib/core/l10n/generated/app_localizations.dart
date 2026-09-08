@@ -3409,11 +3409,17 @@ abstract class AppL10n {
   /// **'Revoke {label}? Any encoder using it stops publishing immediately.'**
   String revokeIngestKeyConfirm(String label);
 
-  /// Warning shown with a freshly minted secret.
+  /// Button: show or hide a key's ready-to-paste ingest URLs.
   ///
   /// In en, this message translates to:
-  /// **'Copy this now — it is not stored and will not be shown again'**
-  String get ingestSecretShownOnce;
+  /// **'Publish URLs'**
+  String get ingestPublishUrls;
+
+  /// Note above a key's assembled publish URLs.
+  ///
+  /// In en, this message translates to:
+  /// **'These URLs contain the credential. Anyone holding one can publish until the key is revoked.'**
+  String get ingestUrlCarriesCredential;
 
   /// Button: copy a value to the clipboard.
   ///

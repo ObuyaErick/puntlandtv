@@ -2746,9 +2746,13 @@
       }
     }
   },
-  "ingestSecretShownOnce": "Copy this now — it is not stored and will not be shown again",
-  "@ingestSecretShownOnce": {
-    "description": "Warning shown with a freshly minted secret."
+  "ingestPublishUrls": "Publish URLs",
+  "@ingestPublishUrls": {
+    "description": "Button: show or hide a key's ready-to-paste ingest URLs."
+  },
+  "ingestUrlCarriesCredential": "These URLs contain the credential. Anyone holding one can publish until the key is revoked.",
+  "@ingestUrlCarriesCredential": {
+    "description": "Note above a key's assembled publish URLs."
   },
   "copyToClipboard": "Copy",
   "@copyToClipboard": {

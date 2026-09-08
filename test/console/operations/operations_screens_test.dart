@@ -214,14 +214,55 @@ void main() {
       expect(find.text('Never used'), findsOneWidget);
     });
 
-    /// The secret exists in the mint response and nowhere else — the server
-    /// keeps a scrypt hash — so the screen has to show it once and say so.
-    testWidgets('shows a freshly minted secret once, with the warning', (
+    /// The URLs are the deliverable: an operator joining a server, a path and
+    /// a credential by hand into somebody else's OBS over the phone is how a
+    /// broadcast starts late. Collapsed by default, because most visits to this
+    /// screen are not handovers.
+    testWidgets('copies a complete publish URL for an existing key', (
       tester,
     ) async {
       await pumpScreen(tester, const LiveControlPage());
 
-      expect(find.byKey(const Key('minted-ingest-secret')), findsNothing);
+      expect(
+        find.byKey(const Key('publish-urls-panel-key-studio')),
+        findsNothing,
+      );
+
+      await tester.tap(find.byKey(const Key('publish-urls-key-studio')));
+      await tester.pumpAndSettle();
+
+      // Asserted from the endpoint onwards, because a URL that is right in
+      // three places out of four is a URL that does not publish.
+      expect(
+        find.textContaining(
+          'rtmp://puntland-ingest.tenslet.com:1937/main?user=studio-obs&pass=',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining(
+          'srt://puntland-ingest.tenslet.com:8891'
+          '?streamid=publish:main:studio-obs:',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining(RegExp(r'^main\?user=studio-obs&pass=.')),
+        findsOneWidget,
+      );
+
+      // Whoever holds one can publish until the key is revoked, and the panel
+      // has to say so — these are not the shareable half of a credential pair.
+      expect(find.textContaining('contain the credential'), findsOneWidget);
+    });
+
+    /// Nothing is shown once any more: the server signs the token in each URL
+    /// from the row, so a freshly minted key is an ordinary row that happens to
+    /// start open.
+    testWidgets('a freshly minted key opens with its URLs showing', (
+      tester,
+    ) async {
+      await pumpScreen(tester, const LiveControlPage());
 
       await tester.tap(find.byKey(const Key('new-ingest-key')));
       await tester.pumpAndSettle();
@@ -229,12 +270,11 @@ void main() {
       await tester.tap(find.text('New key').last);
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('minted-ingest-secret')), findsOneWidget);
-      expect(find.textContaining('not be shown again'), findsOneWidget);
-      // The whole Stream Key field, assembled: an operator copying two halves
-      // into someone else's OBS over the phone is how a broadcast starts late.
       expect(
-        find.textContaining('main?user=outside-broadcast'),
+        find.textContaining(
+          'rtmp://puntland-ingest.tenslet.com:1937/main'
+          '?user=outside-broadcast&pass=',
+        ),
         findsOneWidget,
       );
     });

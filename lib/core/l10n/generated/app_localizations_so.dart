@@ -2045,8 +2045,11 @@ class AppL10nSo extends AppL10n {
   }
 
   @override
-  String get ingestSecretShownOnce =>
-      'Hadda koobi — lama kaydiyo oo mar dambe lama tusi doono';
+  String get ingestPublishUrls => 'URL-yada baahinta';
+
+  @override
+  String get ingestUrlCarriesCredential =>
+      'URL-yadan waxay ku jiraan aqoonsiga. Qof kasta oo haysta wuu baahin karaa ilaa furaha la buriyo.';
 
   @override
   String get copyToClipboard => 'Koobi';

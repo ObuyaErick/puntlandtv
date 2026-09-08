@@ -158,7 +158,9 @@ class IngestKeyDto {
     required this.username,
     required this.createdAt,
     this.lastUsedAt,
-    this.secret,
+    this.rtmpPublishUrl = '',
+    this.srtPublishUrl = '',
+    this.streamKey = '',
   });
 
   factory IngestKeyDto.fromJson(Map<String, dynamic> json) => IngestKeyDto(
@@ -169,7 +171,9 @@ class IngestKeyDto {
     lastUsedAt: json['last_used_at'] == null
         ? null
         : DateTime.parse(json['last_used_at'] as String),
-    secret: json['secret'] as String?,
+    rtmpPublishUrl: json['rtmp_publish_url'] as String? ?? '',
+    srtPublishUrl: json['srt_publish_url'] as String? ?? '',
+    streamKey: json['stream_key'] as String? ?? '',
   );
 
   final String id;
@@ -187,11 +191,18 @@ class IngestKeyDto {
   /// previous credential.
   final DateTime? lastUsedAt;
 
-  /// Present **only** on the response that minted this key.
+  /// Complete and ready to paste, credential included. Empty when the server
+  /// has no endpoint configured for that protocol.
   ///
-  /// The server stores a scrypt hash and nothing else, so there is no endpoint
-  /// that can read it back. The console has to show it once and say so.
-  final String? secret;
+  /// Assembled server-side, and present on every read rather than only on the
+  /// mint: the credential inside them is a signed token the server can derive
+  /// again from the row, so there is nothing to show once and nothing to lose.
+  final String rtmpPublishUrl;
+  final String srtPublishUrl;
+
+  /// The Stream Key half of OBS's RTMP form, which takes two fields and will
+  /// not accept a whole URL in either.
+  final String streamKey;
 
   bool get hasNeverBeenUsed => lastUsedAt == null;
 }
