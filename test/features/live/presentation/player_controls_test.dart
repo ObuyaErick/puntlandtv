@@ -27,6 +27,11 @@ void main() {
     required double width,
     double textScale = 1,
     PlaybackState state = const PlaybackState(source: source, isPlaying: true),
+    // Supplied rather than measured. In the app the rung comes from what the
+    // decoder reports, which a widget test has no decoder to produce — and
+    // these cases are about where the chip goes, not where its text comes
+    // from. The measured-versus-absent behaviour is covered on its own below.
+    String? quality = '720p',
   }) async {
     tester.view.physicalSize = Size(width * 3, 844 * 3);
     tester.view.devicePixelRatio = 3;
@@ -43,6 +48,7 @@ void main() {
                 color: const Color(0xFF04101F),
                 child: PlayerControls(
                   state: state,
+                  quality: quality,
                   clockLabel: '21:04',
                   onPlayPause: () {},
                   onMute: () {},
@@ -83,7 +89,7 @@ void main() {
     testWidgets('keeps the quality chip at and above 360dp', (tester) async {
       await pumpControls(tester, width: Layout.transportCollapseWidth);
 
-      expect(find.text('HD'), findsOneWidget);
+      expect(find.text('720p'), findsOneWidget);
       expect(find.byIcon(Icons.more_vert_rounded), findsNothing);
     });
 
@@ -91,7 +97,7 @@ void main() {
       await pumpControls(tester, width: 320);
 
       expect(
-        find.text('HD'),
+        find.text('720p'),
         findsNothing,
         reason: 'controls are dropped below 360dp, never squeezed',
       );
@@ -108,7 +114,42 @@ void main() {
 
       // Whatever the strip drops has to remain reachable, or "collapsed"
       // just means "removed".
-      expect(find.text('HD'), findsOneWidget);
+      expect(find.text('720p'), findsOneWidget);
+    });
+  });
+
+  group('the quality chip reports rather than reassures', () {
+    /// It used to read `HD` unconditionally — the same word whether the viewer
+    /// had 1080p or the 240p rung the ladder exists to provide. The rung is
+    /// now measured from the stream, so the chip either says something true or
+    /// says nothing.
+    testWidgets('shows the rung the stream is actually delivering', (
+      tester,
+    ) async {
+      await pumpControls(
+        tester,
+        width: 390,
+        quality: null,
+        state: const PlaybackState(
+          source: source,
+          isPlaying: true,
+          qualityLabel: '240p',
+        ),
+      );
+
+      expect(find.text('240p'), findsOneWidget);
+      expect(find.text('HD'), findsNothing);
+    });
+
+    testWidgets('shows no chip at all before a frame has been decoded', (
+      tester,
+    ) async {
+      await pumpControls(tester, width: 390, quality: null);
+
+      // A blank chip says less than no chip, and a guess says worse than
+      // either.
+      expect(find.text('HD'), findsNothing);
+      expect(find.byType(PlayerControls), findsOneWidget);
     });
   });
 

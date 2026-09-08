@@ -192,35 +192,60 @@ void main() {
   });
 
   group('broadcast control', () {
+    const ladder = [
+      RenditionConfigDto(
+        rung: '1080p',
+        url: 'https://cdn.pltv.so/live/1080/index.m3u8',
+        bitrateKbps: 4500,
+        healthy: true,
+        enabled: true,
+      ),
+      RenditionConfigDto(
+        rung: '240p',
+        url: 'https://cdn.pltv.so/live/240/index.m3u8',
+        bitrateKbps: 420,
+        healthy: true,
+        enabled: true,
+        isProtected: true,
+      ),
+    ];
+
+    /// What is actually deployed: MediaMTX remuxes, so there is one rung and
+    /// it is therefore the protected one.
+    const passthrough = [
+      RenditionConfigDto(
+        rung: 'source',
+        url: 'https://api.example/hls/main/index.m3u8',
+        bitrateKbps: 2600,
+        healthy: true,
+        enabled: true,
+        isProtected: true,
+      ),
+    ];
+
     BroadcastControlDto control({
       Map<String, SlateMessageDto> slate = const {},
+      List<RenditionConfigDto> renditions = ladder,
+      bool tvOnAir = true,
+      IngestStatusDto ingest = const IngestStatusDto(isPublishing: true),
     }) => BroadcastControlDto(
-      tvOnAir: true,
+      tvOnAir: tvOnAir,
       radioOnAir: true,
       channelName: 'Puntland TV — main',
       uptime: const Duration(hours: 2, minutes: 4),
       concurrentViewers: 4182,
       radioListeners: 1904,
-      renditions: const [
-        RenditionConfigDto(
-          rung: '1080p',
-          url: 'https://cdn.pltv.so/live/1080/index.m3u8',
-          bitrateKbps: 4500,
-          healthy: true,
-          enabled: true,
-        ),
-        RenditionConfigDto(
-          rung: '240p',
-          url: 'https://cdn.pltv.so/live/240/index.m3u8',
-          bitrateKbps: 420,
-          healthy: true,
-          enabled: true,
-        ),
-      ],
+      ingest: ingest,
+      // `protected` arrives from the server rather than being a comparison
+      // the console makes against a constant. Which rung deserves protecting
+      // is a property of the ladder, and the ladder changed shape: the
+      // passthrough setup publishes one rung called `source`, so a client
+      // hard-coding `240p` protected a row that did not exist.
+      renditions: renditions,
       slate: slate,
     );
 
-    test('cannot go off air without a slate in both languages', () {
+    test('cannot move the on-air switch without a slate in both languages', () {
       final onlySomali = control(
         slate: const {
           'so': SlateMessageDto(
@@ -230,8 +255,24 @@ void main() {
         },
       );
 
-      expect(onlySomali.canGoOffAir, isFalse);
+      expect(onlySomali.canToggleOnAir, isFalse);
       expect(onlySomali.incompleteSlateLocales, ['en']);
+    });
+
+    /// Going *on* air is gated too, which reverses what this DTO used to say.
+    ///
+    /// While the switch was the only thing that could take the channel down,
+    /// an operator was always present at the moment the slate was needed. It
+    /// is not any more: a dropped feed shows the slate with nobody watching,
+    /// so an incomplete slate is a latent outage and the moment to refuse is
+    /// before the channel goes up.
+    test('the same gate applies while the channel is off air', () {
+      final offAir = control(
+        tvOnAir: false,
+        slate: const {'so': SlateMessageDto(title: 'A', detail: 'B')},
+      );
+
+      expect(offAir.canToggleOnAir, isFalse);
     });
 
     test('a complete slate in both languages unlocks the toggle', () {
@@ -242,10 +283,10 @@ void main() {
         },
       );
 
-      expect(both.canGoOffAir, isTrue);
+      expect(both.canToggleOnAir, isTrue);
     });
 
-    test('the 240p rung cannot be disabled', () {
+    test('the protected rung cannot be disabled', () {
       final after = control().setRenditionEnabled('240p', enabled: false);
 
       expect(
@@ -255,6 +296,43 @@ void main() {
             'disabling it does not break the stream — it silently makes '
             'it unwatchable for everyone on a slow connection',
       );
+    });
+
+    /// The case a hard-coded `240p` got wrong. With one passthrough rung
+    /// there is nothing to fall back to, so the console must not offer to turn
+    /// off the only stream there is.
+    test('the only rung of a passthrough stream is protected', () {
+      final after = control(renditions: passthrough)
+          .setRenditionEnabled('source', enabled: false);
+
+      expect(after.renditions.single.enabled, isTrue);
+    });
+
+    // -----------------------------------------------------------------------
+    // Live is two facts
+    // -----------------------------------------------------------------------
+
+    /// The operator's switch was never enough on its own; it was just the only
+    /// thing the console could observe. A signal that drops at 03:00 takes the
+    /// channel down without anyone touching the switch.
+    test('readers see the channel only when intent and signal agree', () {
+      expect(control().isLiveToReaders, isTrue);
+      expect(
+        control(ingest: const IngestStatusDto(isPublishing: false))
+            .isLiveToReaders,
+        isFalse,
+      );
+      expect(control(tvOnAir: false).isLiveToReaders, isFalse);
+    });
+
+    /// Armed with nothing arriving is the state worth interrupting an operator
+    /// for: they believe the channel is up, and readers are seeing the slate.
+    test('names the armed-but-silent state on its own', () {
+      final armed = control(ingest: const IngestStatusDto(isPublishing: false));
+      expect(armed.isArmedWithoutSignal, isTrue);
+
+      expect(control().isArmedWithoutSignal, isFalse);
+      expect(control(tvOnAir: false).isArmedWithoutSignal, isFalse);
     });
 
     test('other rungs can be disabled and re-enabled', () {

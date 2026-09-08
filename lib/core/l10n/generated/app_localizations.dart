@@ -3300,6 +3300,150 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Autosave off'**
   String get autosaveOff;
+
+  /// Live control section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'INGEST'**
+  String get sectionIngest;
+
+  /// Ingest state: the encoder is sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal arriving'**
+  String get ingestPublishing;
+
+  /// Ingest state: nothing is arriving.
+  ///
+  /// In en, this message translates to:
+  /// **'No signal'**
+  String get ingestIdle;
+
+  /// Warning when the operator has armed the channel and the studio is not pushing.
+  ///
+  /// In en, this message translates to:
+  /// **'On air, but nothing is arriving — readers see the slate'**
+  String get ingestArmedNoSignal;
+
+  /// Note when the studio is pushing and the operator has not armed the channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal arriving, but the channel is off air'**
+  String get ingestSignalNotOnAir;
+
+  /// Whether the feed arrived over RTMP or SRT.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get ingestProtocolLabel;
+
+  /// The encoder's network address.
+  ///
+  /// In en, this message translates to:
+  /// **'Publisher'**
+  String get ingestPublisherLabel;
+
+  /// What the encoder is actually sending, e.g. 720p H264.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get ingestSourceLabel;
+
+  /// The ingest URL an encoder is pointed at.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get ingestServerLabel;
+
+  /// What goes in OBS's Stream Key field.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream key'**
+  String get ingestStreamKeyLabel;
+
+  /// Live control section. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'INGEST KEYS'**
+  String get sectionIngestKeys;
+
+  /// A credential no encoder has authenticated with yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Never used'**
+  String get ingestKeyNeverUsed;
+
+  /// When an encoder last authenticated with a credential.
+  ///
+  /// In en, this message translates to:
+  /// **'Last used {when}'**
+  String ingestKeyLastUsed(String when);
+
+  /// Button: mint an ingest credential.
+  ///
+  /// In en, this message translates to:
+  /// **'New key'**
+  String get newIngestKey;
+
+  /// Dialog title for minting a credential.
+  ///
+  /// In en, this message translates to:
+  /// **'New ingest key'**
+  String get newIngestKeyTitle;
+
+  /// Hint for the credential's label field.
+  ///
+  /// In en, this message translates to:
+  /// **'Which encoder is this for?'**
+  String get ingestKeyLabelHint;
+
+  /// Button: revoke an ingest credential.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke'**
+  String get revokeIngestKey;
+
+  /// Confirmation before revoking a credential.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke {label}? Any encoder using it stops publishing immediately.'**
+  String revokeIngestKeyConfirm(String label);
+
+  /// Warning shown with a freshly minted secret.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy this now — it is not stored and will not be shown again'**
+  String get ingestSecretShownOnce;
+
+  /// Button: copy a value to the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copyToClipboard;
+
+  /// Toast after copying a value.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copiedToClipboard;
+
+  /// Empty state for the ingest credential list.
+  ///
+  /// In en, this message translates to:
+  /// **'No ingest keys. The studio cannot publish until one is minted.'**
+  String get noIngestKeys;
+
+  /// Placeholder in the stream preview while nothing is being published.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview appears when a signal arrives'**
+  String get previewUnavailable;
+
+  /// Empty state for the renditions table when the ladder has no rungs.
+  ///
+  /// In en, this message translates to:
+  /// **'No renditions yet. Rungs appear once the ladder is published.'**
+  String get noRenditions;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

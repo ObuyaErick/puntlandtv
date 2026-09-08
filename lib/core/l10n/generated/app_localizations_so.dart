@@ -1983,4 +1983,86 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get autosaveOff => 'Kaydinta tooska ah waa damisan';
+
+  @override
+  String get sectionIngest => 'SOO-GELINTA';
+
+  @override
+  String get ingestPublishing => 'Calaamad ayaa imanaysa';
+
+  @override
+  String get ingestIdle => 'Calaamad ma jirto';
+
+  @override
+  String get ingestArmedNoSignal =>
+      'Waa hawada, laakiin waxba ma imanayaan — akhristayaashu waxay arkayaan slate-ka';
+
+  @override
+  String get ingestSignalNotOnAir =>
+      'Calaamad ayaa imanaysa, laakiin kanaalka hawada kuma jiro';
+
+  @override
+  String get ingestProtocolLabel => 'Gaadiidka';
+
+  @override
+  String get ingestPublisherLabel => 'Daabacaha';
+
+  @override
+  String get ingestSourceLabel => 'Isha';
+
+  @override
+  String get ingestServerLabel => 'Server';
+
+  @override
+  String get ingestStreamKeyLabel => 'Furaha baahinta';
+
+  @override
+  String get sectionIngestKeys => 'FURAYAASHA SOO-GELINTA';
+
+  @override
+  String get ingestKeyNeverUsed => 'Weligiis lama isticmaalin';
+
+  @override
+  String ingestKeyLastUsed(String when) {
+    return 'Markii ugu dambeysay $when';
+  }
+
+  @override
+  String get newIngestKey => 'Fure cusub';
+
+  @override
+  String get newIngestKeyTitle => 'Fure soo-gelin cusub';
+
+  @override
+  String get ingestKeyLabelHint => 'Waa kuma qalabka uu u yahay?';
+
+  @override
+  String get revokeIngestKey => 'Buri';
+
+  @override
+  String revokeIngestKeyConfirm(String label) {
+    return 'Ma burinaysaa $label? Qalab kasta oo isticmaalaya isla markiiba wuu joojinayaa baahinta.';
+  }
+
+  @override
+  String get ingestSecretShownOnce =>
+      'Hadda koobi — lama kaydiyo oo mar dambe lama tusi doono';
+
+  @override
+  String get copyToClipboard => 'Koobi';
+
+  @override
+  String get copiedToClipboard => 'La koobiyeeyay';
+
+  @override
+  String get noIngestKeys =>
+      'Furayaal soo-gelin ma jiraan. Istuudiyaha wax ma baahin karo ilaa mid la sameeyo.';
+
+  @override
+  String get previewUnavailable =>
+      'Muuqaalka wuu soo baxayaa marka calaamad timaado';
+
+  @override
+  String get noRenditions =>
+      'Weli qeexid ma jirto. Heerarku waxay soo muuqdaan marka jaranjarada la daabaco.';
 }

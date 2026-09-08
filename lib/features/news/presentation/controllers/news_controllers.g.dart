@@ -178,7 +178,7 @@ final class FeedProvider extends $AsyncNotifierProvider<Feed, FeedState> {
   }
 }
 
-String _$feedHash() => r'8225f3eefe1e9f8273302edc4732c8afddec37cd';
+String _$feedHash() => r'6b449b0f3e340366446688cc2b6d8261f00f2cd1';
 
 /// One category's feed, with cursor pagination.
 ///

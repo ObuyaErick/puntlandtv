@@ -350,6 +350,32 @@ class HttpAdminApi implements PuntlandAdminApi {
       );
 
   @override
+  Future<IngestKeyDto> createIngestKey({required String label}) => _send(
+    'POST',
+    '/v1/admin/broadcast/ingest-keys',
+    IngestKeyDto.fromJson,
+    body: {'label': label},
+  );
+
+  @override
+  Future<List<IngestKeyDto>> revokeIngestKey(String id) async {
+    try {
+      // DELETE, but it answers with the remaining list rather than 204, so it
+      // goes through the list path instead of `_delete`. The screen re-renders
+      // from what the server says is left rather than dropping a row locally.
+      final res = await _request(
+        'DELETE',
+        '/v1/admin/broadcast/ingest-keys/$id',
+      );
+      return _rowsOf(res.data)
+          .map(IngestKeyDto.fromJson)
+          .toList(growable: false);
+    } catch (e, st) {
+      throw ApiExceptionMapper.map(e, st);
+    }
+  }
+
+  @override
   Future<DayScheduleDto> fetchSchedule(DateTime day) => _get(
     '/v1/admin/schedule',
     _dayScheduleFromJson,

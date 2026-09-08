@@ -10,8 +10,8 @@ is built from.
 
 ## Running it
 
-There is no backend yet, so the app ships with a fixture implementation of the
-full API and runs end-to-end out of the box:
+The app ships with a fixture implementation of the full API and runs end-to-end
+out of the box, with no backend required:
 
 ```bash
 fvm flutter run              # fixtures — no backend required
@@ -124,6 +124,51 @@ the bookmark store touches one file each.
 
 Both are selected in one provider (`core/api/api_providers.dart`).
 
+## Video playback
+
+Live TV is HLS, and the two platforms need different engines for it.
+`lib/core/playback/` holds the abstraction and both implementations; a compile-
+time conditional export in `video_engine_factory.dart` picks one.
+
+| Platform | Engine | Why |
+| :--- | :--- | :--- |
+| Android / iOS | `video_player` (ExoPlayer / AVPlayer) | Both play HLS natively. |
+| Web | `hls.js` driving an `HTMLVideoElement` | On web `video_player` is a plain `<video>` tag, and only Safari can play an `.m3u8` from one. Chrome and Firefox need the manifest parsed in JavaScript. |
+
+Both the reader app and the console ship web builds, so the web path is not an
+edge case — it is how every console operator sees the channel. hls.js is loaded
+from a pinned `<script>` in `web/index.html`; the engine checks the global
+exists and reports `PLAYBACK_FAILED` rather than spinning forever if it is ever
+blocked.
+
+`PlaybackController` holds one engine for its whole life and calls `load()` per
+source, because Flutter web cannot unregister a platform view factory — an
+engine per source would leak one dead entry on every channel change.
+
+The controller hands widgets a **built surface**, not a controller. That is
+what makes the claim above true rather than merely intended: `video_player` is
+named in exactly one file, and `tool/check_layers.dart` has nothing to say
+about it because there is nothing left to enforce.
+
+### Live is two facts
+
+`GET /v1/live` reports the channel live only when the operator has set it on
+air **and** a signal is actually arriving at the packager. So the app has to
+notice a signal that drops with nobody watching:
+
+- `liveChannelWatch` re-checks every 30s **while the live screen is up**, and
+  the timer dies with the route. Not a background poll — the original decision
+  not to poll at all was right about the data cost, and this is the narrowest
+  form of the fix.
+- The live page re-checks *immediately* on `PLAYBACK_FAILED`, which is faster
+  than the timer and is what turns a dead player into the localised slate at
+  roughly the speed the viewer noticed.
+
+The quality chip reports the rung actually being received, measured from the
+stream. It used to read `HD` unconditionally — the same word whether the viewer
+had 1080p or the 240p rung the ladder exists to provide. With nothing measured
+yet it shows nothing.
+
 ## Localisation
 
 English (`en-US`) is the template and fallback; Somali (`so`) is at full parity
@@ -137,12 +182,21 @@ future SDK adds real Somali support, that test tells you the workaround can go.
 
 ## Status
 
-Implemented: news feed with cursor pagination, article reading, live TV with a
-persistent mini-player, VOD programmes and episodes, radio, device-local
-bookmarks with offline reading, settings with a live language switch, light and
-dark themes, and the full loading/empty/error/offline state set.
+Implemented: news feed with cursor pagination, article reading, live TV against
+a real RTMP/SRT → HLS origin with a persistent mini-player, VOD programmes and
+episodes, radio, device-local bookmarks with offline reading, settings with a
+live language switch, light and dark themes, and the full
+loading/empty/error/offline state set.
 
 Not yet implemented — see the MVP plan: push notifications (needs the Firebase
 project), background audio via `audio_service` (needs the platform manifest
 work), drift-backed bookmarks (currently `shared_preferences` behind the same
 interface), and Crashlytics.
+
+**The live stream is passthrough, not adaptive.** MediaMTX remuxes rather than
+transcodes, so there is one rung and viewers receive whatever the studio's
+encoder sends. The MVP plan calls a 240p rung essential for this audience, and
+that rung does not exist yet — a viewer on a weak connection gets the source
+bitrate or nothing. The protected-rung rule and the quality chip are both
+already shaped for a ladder; what is missing is an ffmpeg transcode beside the
+packager, and the cores to run it 24/7.

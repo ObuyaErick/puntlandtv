@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:video_player/video_player.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/app_date_format.dart';
@@ -64,7 +63,10 @@ class _LivePageState extends ConsumerState<LivePage> {
 
   @override
   Widget build(BuildContext context) {
-    final channel = ref.watch(liveChannelProvider);
+    // The watching variant, not the bare provider: while this screen is up,
+    // the channel is re-checked so a signal that drops unattended becomes the
+    // slate rather than a frozen frame. The timer dies with the route.
+    final channel = ref.watch(liveChannelWatchProvider);
 
     return Scaffold(
       backgroundColor: context.colors.playerSurface,
@@ -226,6 +228,29 @@ class _PlayerSurfaceState extends ConsumerState<PlayerSurface> {
     if (widget.immersive) _scheduleDismiss();
   }
 
+  /// Re-asks the API whether the channel is still up, the moment playback
+  /// fails.
+  ///
+  /// This is the fast half of the recovery loop; `liveChannelWatch`'s timer is
+  /// the slow half. When the studio's encoder drops, the manifest's segments
+  /// stop existing and the engine reports `PLAYBACK_FAILED` within a second or
+  /// two — long before the next scheduled re-check. Asking immediately turns a
+  /// dead player into the localised slate at roughly the speed the viewer
+  /// noticed something was wrong.
+  ///
+  /// Guarded on the source being ours: a VOD episode failing is not a reason
+  /// to re-fetch the live channel.
+  void _refreshOnPlaybackFailure() {
+    ref.listen(playbackControllerProvider, (previous, next) {
+      final justFailed =
+          next.errorCode == 'PLAYBACK_FAILED' &&
+          previous?.errorCode != 'PLAYBACK_FAILED';
+      if (!justFailed) return;
+      if (next.source?.kind != PlaybackKind.liveTv) return;
+      ref.invalidate(liveChannelProvider);
+    });
+  }
+
   @override
   void dispose() {
     _dismissTimer?.cancel();
@@ -258,12 +283,12 @@ class _PlayerSurfaceState extends ConsumerState<PlayerSurface> {
       return _OfflineSlate(channel: widget.channel);
     }
 
+    _refreshOnPlaybackFailure();
+
     final state = ref.watch(playbackControllerProvider);
     final controller = ref.read(playbackControllerProvider.notifier);
     final isThisSource = state.source?.id == 'live';
-    final video = controller.videoController;
-    final showVideo =
-        isThisSource && video != null && video.value.isInitialized;
+    final surface = isThisSource ? controller.buildVideoSurface() : null;
 
     return GestureDetector(
       onTap: _toggleChrome,
@@ -272,16 +297,8 @@ class _PlayerSurfaceState extends ConsumerState<PlayerSurface> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (showVideo)
-              FittedBox(
-                fit: BoxFit.contain,
-                child: SizedBox(
-                  width: video.value.size.width,
-                  height: video.value.size.height,
-                  child: VideoPlayer(video),
-                ),
-              ),
-            if (!showVideo)
+            ?surface,
+            if (surface == null)
               Center(
                 child: isThisSource && state.isBuffering
                     ? const CircularProgressIndicator(color: Colors.white)

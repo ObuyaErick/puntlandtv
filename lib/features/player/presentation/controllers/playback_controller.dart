@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart' as ja;
-import 'package:video_player/video_player.dart';
+import 'package:material_ui/material_ui.dart' show BoxFit, Widget;
 
+import '../../../../core/playback/video_engine.dart';
+import '../../../../core/playback/video_engine_factory.dart';
 import '../../domain/entities/playback_source.dart';
 
 /// Everything the UI needs to render any playback surface.
@@ -18,6 +20,7 @@ class PlaybackState {
     this.audioOnly = false,
     this.position = Duration.zero,
     this.duration,
+    this.qualityLabel,
     this.errorCode,
     this.volume = 1,
   });
@@ -36,6 +39,17 @@ class PlaybackState {
 
   final Duration position;
   final Duration? duration;
+
+  /// The rung actually being received, as `720p`, or null before the first
+  /// frame.
+  ///
+  /// Measured from the stream, not read from the API: with adaptive HLS the
+  /// player picks the rendition and re-picks it as the connection changes, so
+  /// the backend cannot know. Null when there is nothing to report, which is
+  /// the case the chrome has to handle by showing nothing rather than a
+  /// reassuring guess.
+  final String? qualityLabel;
+
   final String? errorCode;
   final double volume;
 
@@ -50,6 +64,7 @@ class PlaybackState {
     bool? audioOnly,
     Duration? position,
     Duration? duration,
+    String? qualityLabel,
     String? errorCode,
     double? volume,
     bool clearSource = false,
@@ -62,6 +77,7 @@ class PlaybackState {
     audioOnly: audioOnly ?? this.audioOnly,
     position: position ?? this.position,
     duration: duration ?? this.duration,
+    qualityLabel: qualityLabel ?? this.qualityLabel,
     errorCode: clearError ? null : (errorCode ?? this.errorCode),
     volume: volume ?? this.volume,
   );
@@ -79,14 +95,22 @@ class PlaybackState {
 ///    rather than tearing it down. The video surface moves; the stream does
 ///    not restart.
 ///
-/// The platform players are deliberately behind this class. Swapping
-/// `video_player` for `media_kit` is a change to this file only, because no
-/// widget anywhere imports either package.
+/// The platform players are deliberately behind this class. Swapping the video
+/// plugin is a change to `core/playback/` only, because no widget anywhere
+/// imports one — this class hands out a built surface rather than a controller,
+/// which is what makes that true rather than merely intended.
 class PlaybackController extends Notifier<PlaybackState> {
-  VideoPlayerController? _video;
+  /// Created once and reused across sources, not per `play()`.
+  ///
+  /// The web engine registers a platform view factory in its constructor and
+  /// Flutter web offers no way to unregister one, so an engine per source
+  /// would leak a dead entry on every channel change. `load()` is the thing
+  /// that swaps streams.
+  VideoEngine? _engine;
+  StreamSubscription<VideoEngineState>? _engineSub;
+
   ja.AudioPlayer? _audio;
   StreamSubscription<dynamic>? _audioSub;
-  Timer? _ticker;
 
   @override
   PlaybackState build() {
@@ -94,8 +118,16 @@ class PlaybackController extends Notifier<PlaybackState> {
     return const PlaybackState();
   }
 
-  /// Video surface for the current source, or null when audio-only or idle.
-  VideoPlayerController? get videoController => state.audioOnly ? null : _video;
+  /// The video surface for the current source, or null when there is nothing
+  /// to draw — audio-only, idle, or still opening the stream.
+  ///
+  /// [fit] is the caller's choice because the two mounts want different
+  /// things: the full player letterboxes, and the mini-player's thumbnail
+  /// fills and crops.
+  Widget? buildVideoSurface({BoxFit fit = BoxFit.contain}) {
+    if (state.audioOnly) return null;
+    return _engine?.buildSurface(fit: fit);
+  }
 
   Future<void> play(PlaybackSource source) async {
     if (state.source == source && state.isPlaying) {
@@ -127,18 +159,36 @@ class PlaybackController extends Notifier<PlaybackState> {
   }
 
   Future<void> _startVideo(PlaybackSource source) async {
-    final controller = VideoPlayerController.networkUrl(Uri.parse(source.url));
-    _video = controller;
-    await controller.initialize();
-    await controller.setVolume(state.volume);
-    await controller.play();
+    final engine = _engine ??= createVideoEngine();
 
-    controller.addListener(_onVideoTick);
+    // Subscribed before loading, so the first frame's metadata is not missed.
+    // Re-subscribed per source because `_stopPlatformPlayers` cancels it — the
+    // engine outlives a source, the subscription does not.
+    await _engineSub?.cancel();
+    _engineSub = engine.states.listen(_onEngineState);
+
+    await engine.load(source.url, live: source.isLive, volume: state.volume);
+    _onEngineState(engine.state);
+  }
+
+  /// Mirrors the engine's state onto the app's.
+  ///
+  /// Two things are translated rather than copied. A live source has no
+  /// duration, however much the engine thinks it knows — a scrub bar on a
+  /// broadcast is a control that cannot be honoured. And an error is passed
+  /// through as it arrives: the live page watches for `PLAYBACK_FAILED` on a
+  /// live source and re-asks the API whether the channel is still up, which is
+  /// how a dropped signal becomes a slate rather than a frozen frame.
+  void _onEngineState(VideoEngineState engineState) {
+    final isLive = state.source?.isLive ?? false;
     state = state.copyWith(
-      isPlaying: true,
-      isBuffering: false,
-      duration: source.isLive ? null : controller.value.duration,
-      clearError: true,
+      isPlaying: engineState.isPlaying,
+      isBuffering: engineState.isBuffering,
+      position: engineState.position,
+      duration: isLive ? null : engineState.duration,
+      qualityLabel: engineState.qualityLabel,
+      errorCode: engineState.errorCode,
+      clearError: engineState.errorCode == null,
     );
   }
 
@@ -161,25 +211,14 @@ class PlaybackController extends Notifier<PlaybackState> {
     state = state.copyWith(isBuffering: false, clearError: true);
   }
 
-  void _onVideoTick() {
-    final v = _video?.value;
-    if (v == null) return;
-    state = state.copyWith(
-      isPlaying: v.isPlaying,
-      isBuffering: v.isBuffering,
-      position: v.position,
-      duration: state.source?.isLive ?? false ? null : v.duration,
-    );
-  }
-
   Future<void> togglePlayPause() async {
     if (!state.hasSource) return;
     if (state.isPlaying) {
-      await _video?.pause();
+      await _engine?.pause();
       await _audio?.pause();
       state = state.copyWith(isPlaying: false);
     } else {
-      await _video?.play();
+      await _engine?.play();
       await _audio?.play();
       state = state.copyWith(isPlaying: true);
     }
@@ -187,12 +226,12 @@ class PlaybackController extends Notifier<PlaybackState> {
 
   Future<void> seek(Duration to) async {
     if (state.source?.isLive ?? true) return;
-    await _video?.seekTo(to);
+    await _engine?.seek(to);
     state = state.copyWith(position: to);
   }
 
   Future<void> setVolume(double value) async {
-    await _video?.setVolume(value);
+    await _engine?.setVolume(value);
     await _audio?.setVolume(value);
     state = state.copyWith(volume: value);
   }
@@ -201,10 +240,11 @@ class PlaybackController extends Notifier<PlaybackState> {
 
   /// Drops the video track and keeps the audio, for users on metered data.
   ///
-  /// The MVP keeps the same stream running and simply stops rendering the
-  /// surface, so the toggle is instant. Requesting an audio-only rendition
-  /// from the CDN — the change that would actually save bytes — needs a
-  /// separate manifest from the backend and is tracked for Phase 2.
+  /// Still only stops *rendering* the surface, so the toggle is instant and
+  /// saves no bytes. Requesting an audio-only rendition is the change that
+  /// would, and it needs a separate manifest — which needs the transcode
+  /// ladder, because MediaMTX remuxes rather than transcodes and there is
+  /// exactly one rung to ask for. Tracked with the ladder, not before it.
   void toggleAudioOnly() => state = state.copyWith(audioOnly: !state.audioOnly);
 
   void expand() => state = state.copyWith(isExpanded: true);
@@ -216,14 +256,15 @@ class PlaybackController extends Notifier<PlaybackState> {
     state = const PlaybackState();
   }
 
+  /// Stops what is playing without discarding the engine.
+  ///
+  /// The engine is kept: it holds a platform view registration on web that
+  /// cannot be undone, and `load()` is what actually swaps streams. Only
+  /// `_disposeAll`, at the end of the provider's life, tears it down.
   Future<void> _stopPlatformPlayers() async {
-    _ticker?.cancel();
-    _ticker = null;
-
-    _video?.removeListener(_onVideoTick);
-    await _video?.pause();
-    await _video?.dispose();
-    _video = null;
+    await _engineSub?.cancel();
+    _engineSub = null;
+    await _engine?.pause();
 
     await _audioSub?.cancel();
     _audioSub = null;
@@ -233,9 +274,9 @@ class PlaybackController extends Notifier<PlaybackState> {
   }
 
   void _disposeAll() {
-    _ticker?.cancel();
-    _video?.removeListener(_onVideoTick);
-    _video?.dispose();
+    _engineSub?.cancel();
+    _engine?.dispose();
+    _engine = null;
     _audioSub?.cancel();
     _audio?.dispose();
   }

@@ -213,6 +213,19 @@ abstract interface class PuntlandAdminApi {
 
   Future<BroadcastControlDto> saveBroadcastControl(BroadcastControlDto value);
 
+  /// Mints an ingest credential for an encoder.
+  ///
+  /// The returned [IngestKeyDto.secret] is populated on this call and on no
+  /// other — the server keeps only a scrypt hash, so there is nothing to read
+  /// back later. The console has to show it once and say so.
+  Future<IngestKeyDto> createIngestKey({required String label});
+
+  /// Revokes one, answering with the credentials that remain.
+  ///
+  /// The remaining list rather than nothing, so the screen re-renders from the
+  /// server's account of things instead of removing a row locally and hoping.
+  Future<List<IngestKeyDto>> revokeIngestKey(String id);
+
   Future<DayScheduleDto> fetchSchedule(DateTime day);
 
   Future<DayScheduleDto> saveSchedule(DayScheduleDto schedule);

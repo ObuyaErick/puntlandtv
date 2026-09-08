@@ -488,31 +488,57 @@ class FixtureAdminApi implements PuntlandAdminApi {
     uptime: const Duration(hours: 2, minutes: 4),
     concurrentViewers: 4182,
     radioListeners: 1904,
+    // One rung, which is what the packager actually publishes: MediaMTX
+    // remuxes rather than transcodes, so viewers receive whatever the studio
+    // sends and there is nothing to choose between. This used to be a
+    // three-rung 1080/720/240 ladder against `cdn.pltv.so` — a shape the
+    // backend never had, which made the fixtures a demo of a product rather
+    // than of this one.
+    //
+    // `protected` comes from the server, and with one rung that rung is it:
+    // the console cannot offer to disable the only stream there is.
     renditions: const [
       RenditionConfigDto(
-        rung: '1080p',
-        url: 'https://cdn.pltv.so/live/1080/index.m3u8',
-        bitrateKbps: 4500,
+        rung: 'source',
+        url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+        bitrateKbps: 2600,
         healthy: true,
         enabled: true,
-      ),
-      RenditionConfigDto(
-        rung: '720p',
-        url: 'https://cdn.pltv.so/live/720/index.m3u8',
-        bitrateKbps: 2200,
-        healthy: true,
-        enabled: true,
-      ),
-      RenditionConfigDto(
-        rung: '240p',
-        url: 'https://cdn.pltv.so/live/240/index.m3u8',
-        bitrateKbps: 420,
-        healthy: true,
-        enabled: true,
+        isProtected: true,
       ),
     ],
-    // Seeded with only Somali, so the off-air toggle starts blocked and the
-    // screen has to explain why.
+    // A real HLS stream, so the preview in a fixture run plays actual video
+    // rather than showing a placeholder — the same URL the reader app's
+    // fixtures use.
+    ingest: IngestStatusDto(
+      isPublishing: true,
+      protocol: 'rtmp',
+      publisher: '10.14.2.31:51884',
+      videoLabel: '720p H264',
+      rtmpUrl: 'rtmp://puntland-ingest.tenslet.com:1937',
+      srtUrl: 'srt://puntland-ingest.tenslet.com:8891',
+    ),
+    ingestKeys: [
+      IngestKeyDto(
+        id: 'key-studio',
+        label: 'Studio OBS',
+        username: 'studio-obs',
+        createdAt: DateTime(2026, 8, 30, 9, 12),
+        lastUsedAt: DateTime(2026, 9, 7, 18, 56),
+      ),
+      // Never used, which is the state the screen has to call out: a studio
+      // still configured with the key this one was meant to replace.
+      IngestKeyDto(
+        id: 'key-backup',
+        label: 'Backup encoder',
+        username: 'backup-encoder',
+        createdAt: DateTime(2026, 9, 6, 14, 2),
+      ),
+    ],
+    // Seeded with only Somali, so the on-air toggle starts blocked and the
+    // screen has to explain why. More relevant now, not less: the slate gates
+    // going on air as well as off, because a dropped signal shows it with
+    // nobody watching.
     slate: const {
       'so': SlateMessageDto(
         title: 'Baahinta ma socoto hadda',
@@ -573,6 +599,45 @@ class FixtureAdminApi implements PuntlandAdminApi {
   @override
   Future<BroadcastControlDto> saveBroadcastControl(BroadcastControlDto value) =>
       _respond(() => _broadcast = value);
+
+  @override
+  Future<IngestKeyDto> createIngestKey({required String label}) => _respond(() {
+    // A secret in the response and nowhere else, exactly as the real endpoint
+    // behaves — a fixture that let it be read back twice would let the console
+    // ship a screen that reads it back twice.
+    final key = IngestKeyDto(
+      id: newId(),
+      label: label,
+      username: label
+          .toLowerCase()
+          .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+          .replaceAll(RegExp(r'^-+|-+$'), ''),
+      createdAt: DateTime.now(),
+      secret: 'fixture-${newId()}',
+    );
+    _broadcast = _broadcast.copyWith(
+      ingestKeys: [
+        ..._broadcast.ingestKeys,
+        IngestKeyDto(
+          id: key.id,
+          label: key.label,
+          username: key.username,
+          createdAt: key.createdAt,
+        ),
+      ],
+    );
+    return key;
+  });
+
+  @override
+  Future<List<IngestKeyDto>> revokeIngestKey(String id) => _respond(() {
+    _broadcast = _broadcast.copyWith(
+      ingestKeys: _broadcast.ingestKeys
+          .where((key) => key.id != id)
+          .toList(growable: false),
+    );
+    return _broadcast.ingestKeys;
+  });
 
   @override
   Future<DayScheduleDto> fetchSchedule(DateTime day) =>

@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:video_player/video_player.dart';
 
 import '../../../../core/l10n/l10n.dart';
 import '../../../../core/responsive/window_size.dart';
@@ -35,7 +34,9 @@ class MiniPlayer extends ConsumerWidget {
     final source = state.source;
     if (source == null) return const SizedBox.shrink();
 
-    final video = controller.videoController;
+    // Cover, not contain: the 96dp dock is not 16:9, and letterboxing a
+    // thumbnail that small leaves almost nothing of the picture.
+    final surface = controller.buildVideoSurface(fit: BoxFit.cover);
 
     return Semantics(
       container: true,
@@ -56,28 +57,20 @@ class MiniPlayer extends ConsumerWidget {
                 SizedBox(
                   width: 96,
                   height: height,
-                  child: video != null && video.value.isInitialized
-                      ? FittedBox(
-                          fit: BoxFit.cover,
-                          clipBehavior: Clip.hardEdge,
-                          child: SizedBox(
-                            width: video.value.size.width,
-                            height: video.value.size.height,
-                            child: VideoPlayer(video),
-                          ),
-                        )
-                      : ColoredBox(
-                          color: DarkTokens.surfaceRaised,
-                          child: source.artworkUrl != null
-                              ? RemoteImage(url: source.artworkUrl)
-                              : Icon(
-                                  source.isAudioOnly
-                                      ? Icons.radio_rounded
-                                      : Icons.live_tv_rounded,
-                                  color: context.colors.onPlayerSurfaceVariant,
-                                  size: 22,
-                                ),
-                        ),
+                  child:
+                      surface ??
+                      ColoredBox(
+                        color: DarkTokens.surfaceRaised,
+                        child: source.artworkUrl != null
+                            ? RemoteImage(url: source.artworkUrl)
+                            : Icon(
+                                source.isAudioOnly
+                                    ? Icons.radio_rounded
+                                    : Icons.live_tv_rounded,
+                                color: context.colors.onPlayerSurfaceVariant,
+                                size: 22,
+                              ),
+                      ),
                 ),
                 const SizedBox(width: Spacing.cardInternal),
                 Expanded(

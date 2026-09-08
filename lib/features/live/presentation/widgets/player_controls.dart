@@ -25,7 +25,7 @@ class PlayerControls extends StatelessWidget {
     required this.onFullscreen,
     this.onCollapse,
     this.clockLabel,
-    this.quality = 'HD',
+    this.quality,
   });
 
   final PlaybackState state;
@@ -37,7 +37,16 @@ class PlayerControls extends StatelessWidget {
   /// Wall-clock time shown beside the LIVE label, e.g. `21:04`.
   final String? clockLabel;
 
-  final String quality;
+  /// Overrides the rung label. Tests and goldens set it so a pixel comparison
+  /// does not depend on what a real decoder reported.
+  ///
+  /// Left null in the app: the label comes from
+  /// [PlaybackState.qualityLabel], measured from the stream. It used to be a
+  /// hard-coded `HD`, which was a reassuring word rather than a fact — it read
+  /// the same whether the viewer had 1080p or the 240p rung the ladder exists
+  /// to provide. When there is nothing measured yet the chip is not shown at
+  /// all, because a blank chip says less than no chip.
+  final String? quality;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +72,7 @@ class PlayerControls extends StatelessWidget {
               child: _TransportStrip(
                 state: state,
                 compact: compact,
-                quality: quality,
+                quality: quality ?? state.qualityLabel,
                 clockLabel: clockLabel,
                 onPlayPause: onPlayPause,
                 onMute: onMute,
@@ -160,7 +169,7 @@ class _TransportStrip extends StatelessWidget {
 
   final PlaybackState state;
   final bool compact;
-  final String quality;
+  final String? quality;
   final String? clockLabel;
   final VoidCallback onPlayPause;
   final VoidCallback onMute;
@@ -209,8 +218,8 @@ class _TransportStrip extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              if (!compact) ...[
-                _QualityChip(label: quality),
+              if (!compact && quality != null) ...[
+                _QualityChip(label: quality!),
                 const SizedBox(width: 16),
                 _OverlayIconButton(
                   icon: state.isMuted
@@ -269,11 +278,16 @@ class _TransportStrip extends StatelessWidget {
                 onMute();
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.hd_rounded),
-              title: Text(quality),
-              onTap: () => Navigator.of(sheetContext).pop(),
-            ),
+            // Reports the rung, and does not pretend to change it. With
+            // adaptive HLS the player picks the rendition from the bandwidth
+            // it measures; a menu offering a choice it cannot honour is worse
+            // than no menu. Omitted entirely until something is measured.
+            if (quality != null)
+              ListTile(
+                leading: const Icon(Icons.hd_rounded),
+                title: Text(quality!),
+                enabled: false,
+              ),
           ],
         ),
       ),

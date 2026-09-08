@@ -1346,7 +1346,9 @@
   "@categoryArticleCount": {
     "description": "Article count on a category card, where no column header names the number.",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "colArticles": "ARTICLES",
@@ -2607,59 +2609,165 @@
   },
   "imageFromComputer": "From this computer",
   "@imageFromComputer": {
-      "description": "Body editor image dialog: opens the operating system's file picker."
+    "description": "Body editor image dialog: opens the operating system's file picker."
   },
   "imageFromLibrary": "From the media library",
   "@imageFromLibrary": {
-      "description": "Body editor image dialog: opens the media library grid."
+    "description": "Body editor image dialog: opens the media library grid."
   },
   "imageOrPasteUrl": "Or paste a URL",
   "@imageOrPasteUrl": {
-      "description": "Body editor image dialog: the divider above the URL field."
+    "description": "Body editor image dialog: the divider above the URL field."
   },
   "uploadingImage": "Uploading image…",
   "@uploadingImage": {
-      "description": "Shown while a pasted or picked image is on its way to the media library."
+    "description": "Shown while a pasted or picked image is on its way to the media library."
   },
   "imageUploadFailed": "That image could not be uploaded",
   "@imageUploadFailed": {
-      "description": "The upload of a pasted or picked image failed. Nothing was added to the story."
+    "description": "The upload of a pasted or picked image failed. Nothing was added to the story."
   },
   "imageTooLarge": "That image is too large. The limit is {limit}.",
   "@imageTooLarge": {
-      "description": "A pasted or picked image was refused before it was uploaded.",
-      "placeholders": {
-          "limit": {
-              "type": "String"
-          }
+    "description": "A pasted or picked image was refused before it was uploaded.",
+    "placeholders": {
+      "limit": {
+        "type": "String"
       }
+    }
   },
   "imageNotSupported": "That file is not an image this console accepts",
   "@imageNotSupported": {
-      "description": "Pasted bytes were not PNG, JPEG, GIF or WebP."
+    "description": "Pasted bytes were not PNG, JPEG, GIF or WebP."
   },
   "pastedAsFormatted": "Pasted as formatted text",
   "@pastedAsFormatted": {
-      "description": "Plain text was recognised as markdown and converted. Offered with an undo."
+    "description": "Plain text was recognised as markdown and converted. Offered with an undo."
   },
   "pastedImageAdded": "Image added. It still needs alt text.",
   "@pastedImageAdded": {
-      "description": "A pasted image reached the media library undescribed."
+    "description": "A pasted image reached the media library undescribed."
   },
   "undo": "Undo",
   "@undo": {
-      "description": "Reverses the change a toast is reporting."
+    "description": "Reverses the change a toast is reporting."
   },
   "describeImage": "Describe it",
   "@describeImage": {
-      "description": "Opens the media panel where an image's alt text is written."
+    "description": "Opens the media panel where an image's alt text is written."
   },
   "autosave": "Autosave",
   "@autosave": {
-      "description": "Editor menu switch: whether the editor writes on its own while you type."
+    "description": "Editor menu switch: whether the editor writes on its own while you type."
   },
   "autosaveOff": "Autosave off",
   "@autosaveOff": {
-      "description": "Shown beside the save state when the editor is not writing on its own."
+    "description": "Shown beside the save state when the editor is not writing on its own."
+  },
+  "sectionIngest": "INGEST",
+  "@sectionIngest": {
+    "description": "Live control section. Uppercase."
+  },
+  "ingestPublishing": "Signal arriving",
+  "@ingestPublishing": {
+    "description": "Ingest state: the encoder is sending."
+  },
+  "ingestIdle": "No signal",
+  "@ingestIdle": {
+    "description": "Ingest state: nothing is arriving."
+  },
+  "ingestArmedNoSignal": "On air, but nothing is arriving — readers see the slate",
+  "@ingestArmedNoSignal": {
+    "description": "Warning when the operator has armed the channel and the studio is not pushing."
+  },
+  "ingestSignalNotOnAir": "Signal arriving, but the channel is off air",
+  "@ingestSignalNotOnAir": {
+    "description": "Note when the studio is pushing and the operator has not armed the channel."
+  },
+  "ingestProtocolLabel": "Transport",
+  "@ingestProtocolLabel": {
+    "description": "Whether the feed arrived over RTMP or SRT."
+  },
+  "ingestPublisherLabel": "Publisher",
+  "@ingestPublisherLabel": {
+    "description": "The encoder's network address."
+  },
+  "ingestSourceLabel": "Source",
+  "@ingestSourceLabel": {
+    "description": "What the encoder is actually sending, e.g. 720p H264."
+  },
+  "ingestServerLabel": "Server",
+  "@ingestServerLabel": {
+    "description": "The ingest URL an encoder is pointed at."
+  },
+  "ingestStreamKeyLabel": "Stream key",
+  "@ingestStreamKeyLabel": {
+    "description": "What goes in OBS's Stream Key field."
+  },
+  "sectionIngestKeys": "INGEST KEYS",
+  "@sectionIngestKeys": {
+    "description": "Live control section. Uppercase."
+  },
+  "ingestKeyNeverUsed": "Never used",
+  "@ingestKeyNeverUsed": {
+    "description": "A credential no encoder has authenticated with yet."
+  },
+  "ingestKeyLastUsed": "Last used {when}",
+  "@ingestKeyLastUsed": {
+    "description": "When an encoder last authenticated with a credential.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "newIngestKey": "New key",
+  "@newIngestKey": {
+    "description": "Button: mint an ingest credential."
+  },
+  "newIngestKeyTitle": "New ingest key",
+  "@newIngestKeyTitle": {
+    "description": "Dialog title for minting a credential."
+  },
+  "ingestKeyLabelHint": "Which encoder is this for?",
+  "@ingestKeyLabelHint": {
+    "description": "Hint for the credential's label field."
+  },
+  "revokeIngestKey": "Revoke",
+  "@revokeIngestKey": {
+    "description": "Button: revoke an ingest credential."
+  },
+  "revokeIngestKeyConfirm": "Revoke {label}? Any encoder using it stops publishing immediately.",
+  "@revokeIngestKeyConfirm": {
+    "description": "Confirmation before revoking a credential.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "ingestSecretShownOnce": "Copy this now — it is not stored and will not be shown again",
+  "@ingestSecretShownOnce": {
+    "description": "Warning shown with a freshly minted secret."
+  },
+  "copyToClipboard": "Copy",
+  "@copyToClipboard": {
+    "description": "Button: copy a value to the clipboard."
+  },
+  "copiedToClipboard": "Copied",
+  "@copiedToClipboard": {
+    "description": "Toast after copying a value."
+  },
+  "noIngestKeys": "No ingest keys. The studio cannot publish until one is minted.",
+  "@noIngestKeys": {
+    "description": "Empty state for the ingest credential list."
+  },
+  "previewUnavailable": "Preview appears when a signal arrives",
+  "@previewUnavailable": {
+    "description": "Placeholder in the stream preview while nothing is being published."
+  },
+  "noRenditions": "No renditions yet. Rungs appear once the ladder is published.",
+  "@noRenditions": {
+    "description": "Empty state for the renditions table when the ladder has no rungs."
   }
 }

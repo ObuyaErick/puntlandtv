@@ -31,6 +31,26 @@
 
   <title>puntland</title>
   <link rel="manifest" href="manifest.json">
+
+  <!--
+    hls.js — live TV playback on the web.
+
+    On web, `video_player` is a plain <video> element, and only Safari can play
+    an .m3u8 from one. Chrome and Firefox need the manifest parsed and the
+    segments fed to the element in JavaScript. Both the reader app and the
+    console ship web builds, so without this the live channel simply does not
+    play for most of the desktop audience or for any console operator.
+
+    Loaded here rather than bundled because it is a browser-only dependency
+    that the mobile builds must not carry, and `lib/core/playback/
+    web_hls_video_engine.dart` reads it off the global as `Hls`. That engine
+    checks the global exists and reports PLAYBACK_FAILED rather than spinning
+    forever if this tag is ever blocked or removed.
+
+    Pinned to an exact version: a player that silently changes version between
+    deploys is not something to discover during a broadcast.
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
 </head>
 <body>
   <!--

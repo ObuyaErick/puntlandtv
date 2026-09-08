@@ -1969,4 +1969,85 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get autosaveOff => 'Autosave off';
+
+  @override
+  String get sectionIngest => 'INGEST';
+
+  @override
+  String get ingestPublishing => 'Signal arriving';
+
+  @override
+  String get ingestIdle => 'No signal';
+
+  @override
+  String get ingestArmedNoSignal =>
+      'On air, but nothing is arriving — readers see the slate';
+
+  @override
+  String get ingestSignalNotOnAir =>
+      'Signal arriving, but the channel is off air';
+
+  @override
+  String get ingestProtocolLabel => 'Transport';
+
+  @override
+  String get ingestPublisherLabel => 'Publisher';
+
+  @override
+  String get ingestSourceLabel => 'Source';
+
+  @override
+  String get ingestServerLabel => 'Server';
+
+  @override
+  String get ingestStreamKeyLabel => 'Stream key';
+
+  @override
+  String get sectionIngestKeys => 'INGEST KEYS';
+
+  @override
+  String get ingestKeyNeverUsed => 'Never used';
+
+  @override
+  String ingestKeyLastUsed(String when) {
+    return 'Last used $when';
+  }
+
+  @override
+  String get newIngestKey => 'New key';
+
+  @override
+  String get newIngestKeyTitle => 'New ingest key';
+
+  @override
+  String get ingestKeyLabelHint => 'Which encoder is this for?';
+
+  @override
+  String get revokeIngestKey => 'Revoke';
+
+  @override
+  String revokeIngestKeyConfirm(String label) {
+    return 'Revoke $label? Any encoder using it stops publishing immediately.';
+  }
+
+  @override
+  String get ingestSecretShownOnce =>
+      'Copy this now — it is not stored and will not be shown again';
+
+  @override
+  String get copyToClipboard => 'Copy';
+
+  @override
+  String get copiedToClipboard => 'Copied';
+
+  @override
+  String get noIngestKeys =>
+      'No ingest keys. The studio cannot publish until one is minted.';
+
+  @override
+  String get previewUnavailable => 'Preview appears when a signal arrives';
+
+  @override
+  String get noRenditions =>
+      'No renditions yet. Rungs appear once the ladder is published.';
 }

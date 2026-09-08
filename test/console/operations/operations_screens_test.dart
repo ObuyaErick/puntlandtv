@@ -163,25 +163,80 @@ void main() {
       expect(find.textContaining('Both locales are required'), findsWidgets);
     });
 
-    testWidgets('the 240p rendition switch is not operable', (tester) async {
+    /// The fixture ships one rung, `source`, because that is what the
+    /// packager publishes: MediaMTX remuxes rather than transcodes, so viewers
+    /// receive whatever the studio sends. That one rung is therefore the
+    /// lowest, and the server flags it protected.
+    ///
+    /// This used to assert against `rendition-240p` and `rendition-1080p`
+    /// from a three-rung fixture the backend never had. The rung name is not
+    /// the point — the point is that the console cannot offer to turn off the
+    /// only stream there is.
+    testWidgets('the protected rendition switch is not operable', (
+      tester,
+    ) async {
       await pumpScreen(tester, const LiveControlPage());
 
-      // Addressed by key: five switches share this screen, and finding them
-      // by type or order asserts the wrong control the moment the layout
-      // changes — which it just did.
+      // Addressed by key: several switches share this screen, and finding
+      // them by type or order asserts the wrong control the moment the layout
+      // changes.
       final protected = tester.widget<Switch>(
-        find.byKey(const Key('rendition-240p')),
+        find.byKey(const Key('rendition-source')),
       );
       expect(
         protected.onChanged,
         isNull,
-        reason: '240p is the rung most of the audience receives',
+        reason: 'it is the only rung, so it is the one the audience receives',
       );
+    });
 
-      final optional = tester.widget<Switch>(
-        find.byKey(const Key('rendition-1080p')),
+    /// The ingest panel is the answer to an operator's first question about a
+    /// live channel — what is actually arriving — which this screen could not
+    /// answer at all before there was a packager behind it.
+    testWidgets('reports what the packager is receiving', (tester) async {
+      await pumpScreen(tester, const LiveControlPage());
+
+      // The fixture publishes over RTMP at 720p.
+      expect(find.text('RTMP'), findsOneWidget);
+      expect(find.text('720p H264'), findsOneWidget);
+      expect(find.textContaining('rtmp://'), findsWidgets);
+    });
+
+    /// Never-used is the fastest way to spot a studio still configured with
+    /// the credential a newer one was minted to replace.
+    testWidgets('lists ingest credentials and flags an unused one', (
+      tester,
+    ) async {
+      await pumpScreen(tester, const LiveControlPage());
+
+      expect(find.text('studio-obs'), findsOneWidget);
+      expect(find.text('backup-encoder'), findsOneWidget);
+      expect(find.text('Never used'), findsOneWidget);
+    });
+
+    /// The secret exists in the mint response and nowhere else — the server
+    /// keeps a scrypt hash — so the screen has to show it once and say so.
+    testWidgets('shows a freshly minted secret once, with the warning', (
+      tester,
+    ) async {
+      await pumpScreen(tester, const LiveControlPage());
+
+      expect(find.byKey(const Key('minted-ingest-secret')), findsNothing);
+
+      await tester.tap(find.byKey(const Key('new-ingest-key')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).last, 'Outside broadcast');
+      await tester.tap(find.text('New key').last);
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('minted-ingest-secret')), findsOneWidget);
+      expect(find.textContaining('not be shown again'), findsOneWidget);
+      // The whole Stream Key field, assembled: an operator copying two halves
+      // into someone else's OBS over the phone is how a broadcast starts late.
+      expect(
+        find.textContaining('main?user=outside-broadcast'),
+        findsOneWidget,
       );
-      expect(optional.onChanged, isNotNull);
     });
   });
 
