@@ -190,6 +190,38 @@ void main() {
       );
     });
 
+    /// A rung's health dot is the packager's opinion of it. Playing the rung
+    /// is the only check that does not take that opinion on trust, and the
+    /// player has to go away again when the row closes: left mounted, every
+    /// rung an operator had ever opened would go on pulling segments.
+    testWidgets('a rung plays while expanded and stops when collapsed', (
+      tester,
+    ) async {
+      await pumpScreen(tester, const LiveControlPage());
+
+      // The ladder sits below the fold on this page, and a row cannot be
+      // tapped where it cannot be hit-tested.
+      final row = find.text('source');
+      await tester.ensureVisible(row);
+      await tester.pump();
+
+      // The preview's own controls, which exist only while it is mounted.
+      final muteButton = find.byIcon(Icons.volume_off_rounded);
+      expect(muteButton, findsNothing);
+
+      await tester.tap(row);
+      await tester.pump();
+      expect(muteButton, findsOneWidget);
+
+      await tester.tap(row);
+      await tester.pump();
+      expect(
+        muteButton,
+        findsNothing,
+        reason: 'a collapsed rung must not still be pulling the stream',
+      );
+    });
+
     /// The ingest panel is the answer to an operator's first question about a
     /// live channel — what is actually arriving — which this screen could not
     /// answer at all before there was a packager behind it.

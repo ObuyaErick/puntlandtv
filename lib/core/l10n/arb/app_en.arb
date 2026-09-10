@@ -428,6 +428,10 @@
   "@a11yMute": {
     "description": "Screen-reader label for the mute control."
   },
+  "a11yUnmute": "Unmute",
+  "@a11yUnmute": {
+    "description": "Screen-reader label for the control that turns sound back on."
+  },
   "a11yFullscreen": "Full screen",
   "@a11yFullscreen": {
     "description": "Screen-reader label for the fullscreen control."
@@ -1220,6 +1224,14 @@
   "liveControlTitle": "Live control",
   "@liveControlTitle": {
     "description": "Console screen heading."
+  },
+  "refreshBroadcastState": "Refresh broadcast state",
+  "@refreshBroadcastState": {
+    "description": "Tooltip on the live control header button that re-reads the channel state from the server."
+  },
+  "broadcastStateRefreshed": "Broadcast state refreshed",
+  "@broadcastStateRefreshed": {
+    "description": "Toast after a manual refresh of live control returns."
   },
   "tvOnAir": "TV ON AIR",
   "@tvOnAir": {
@@ -2773,5 +2785,9 @@
   "noRenditions": "No renditions yet. Rungs appear once the ladder is published.",
   "@noRenditions": {
     "description": "Empty state for the renditions table when the ladder has no rungs."
+  },
+  "renditionPreviewFailed": "This rung would not play. The packager may not be publishing it.",
+  "@renditionPreviewFailed": {
+    "description": "Shown in an expanded rendition's preview when the manifest cannot be played."
   }
 }

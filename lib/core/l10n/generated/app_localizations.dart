@@ -649,6 +649,12 @@ abstract class AppL10n {
   /// **'Mute'**
   String get a11yMute;
 
+  /// Screen-reader label for the control that turns sound back on.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get a11yUnmute;
+
   /// Screen-reader label for the fullscreen control.
   ///
   /// In en, this message translates to:
@@ -1614,6 +1620,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Live control'**
   String get liveControlTitle;
+
+  /// Tooltip on the live control header button that re-reads the channel state from the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh broadcast state'**
+  String get refreshBroadcastState;
+
+  /// Toast after a manual refresh of live control returns.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast state refreshed'**
+  String get broadcastStateRefreshed;
 
   /// Badge when the channel is transmitting. Uppercase.
   ///
@@ -3450,6 +3468,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'No renditions yet. Rungs appear once the ladder is published.'**
   String get noRenditions;
+
+  /// Shown in an expanded rendition's preview when the manifest cannot be played.
+  ///
+  /// In en, this message translates to:
+  /// **'This rung would not play. The packager may not be publishing it.'**
+  String get renditionPreviewFailed;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

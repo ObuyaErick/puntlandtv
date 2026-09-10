@@ -360,6 +360,9 @@ class AppL10nSo extends AppL10n {
   String get a11yMute => 'Aamusi';
 
   @override
+  String get a11yUnmute => 'Cod fur';
+
+  @override
   String get a11yFullscreen => 'Shaashad buuxda';
 
   @override
@@ -928,6 +931,13 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get liveControlTitle => 'Maamulka tooska';
+
+  @override
+  String get refreshBroadcastState => 'Cusboonaysii xaaladda baahinta';
+
+  @override
+  String get broadcastStateRefreshed =>
+      'Xaaladda baahinta waa la cusboonaysiiyay';
 
   @override
   String get tvOnAir => 'TV WAA BAAHINAYAA';
@@ -2068,4 +2078,8 @@ class AppL10nSo extends AppL10n {
   @override
   String get noRenditions =>
       'Weli qeexid ma jirto. Heerarku waxay soo muuqdaan marka jaranjarada la daabaco.';
+
+  @override
+  String get renditionPreviewFailed =>
+      'Heerkan ma ciyaari karo. Waxaa laga yaabaa in aan la baahinayn.';
 }

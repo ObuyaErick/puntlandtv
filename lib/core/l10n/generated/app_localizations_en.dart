@@ -357,6 +357,9 @@ class AppL10nEn extends AppL10n {
   String get a11yMute => 'Mute';
 
   @override
+  String get a11yUnmute => 'Unmute';
+
+  @override
   String get a11yFullscreen => 'Full screen';
 
   @override
@@ -922,6 +925,12 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get liveControlTitle => 'Live control';
+
+  @override
+  String get refreshBroadcastState => 'Refresh broadcast state';
+
+  @override
+  String get broadcastStateRefreshed => 'Broadcast state refreshed';
 
   @override
   String get tvOnAir => 'TV ON AIR';
@@ -2053,4 +2062,8 @@ class AppL10nEn extends AppL10n {
   @override
   String get noRenditions =>
       'No renditions yet. Rungs appear once the ladder is published.';
+
+  @override
+  String get renditionPreviewFailed =>
+      'This rung would not play. The packager may not be publishing it.';
 }

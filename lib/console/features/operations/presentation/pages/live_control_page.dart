@@ -55,6 +55,7 @@ class LiveControlPage extends ConsumerWidget {
             StatusBadge(
               kind: control.value!.tvOnAir ? BadgeKind.live : BadgeKind.failed,
             ),
+          const _RefreshAction(),
         ],
         child: control.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -67,6 +68,76 @@ class LiveControlPage extends ConsumerWidget {
           data: (data) => _ControlBody(control: data),
         ),
       ),
+    );
+  }
+}
+
+/// Re-reads the channel state on demand.
+///
+/// The screen fetches once and then only re-reads after a write of its own, so
+/// anything that moves elsewhere — the encoder reconnecting, another operator
+/// pulling a rung, the signal dropping — sits stale on the screen until
+/// somebody navigates away and back. This is that, without the round trip.
+///
+/// It stays in the header through every state, error included: the reading
+/// most worth taking again is the one that failed to arrive.
+class _RefreshAction extends ConsumerStatefulWidget {
+  const _RefreshAction();
+
+  @override
+  ConsumerState<_RefreshAction> createState() => _RefreshActionState();
+}
+
+class _RefreshActionState extends ConsumerState<_RefreshAction> {
+  bool _busy = false;
+
+  Future<void> _refresh() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      // Invalidate then await the new read rather than `refresh`: the body
+      // keeps rendering the last good state while this is in flight, so the
+      // screen does not blank out to a spinner on every press.
+      ref.invalidate(broadcastControlProvider);
+      await ref.read(broadcastControlProvider.future);
+      if (mounted) {
+        showConsoleToast(
+          context,
+          message: context.l10n.broadcastStateRefreshed,
+        );
+      }
+    } on Object {
+      // Reported in place of the body by the provider's own error branch.
+      // Swallowed here so a failed refresh leaves the button usable rather
+      // than throwing out of a button callback.
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: context.l10n.refreshBroadcastState,
+      iconSize: 18,
+      // Matched to the badge beside it so the header line does not grow a
+      // taller row for one button.
+      constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+      onPressed: _busy ? null : _refresh,
+      icon: _busy
+          // The same footprint as the glyph, so the header does not shift
+          // under the pointer mid-refresh.
+          ? const SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: DarkTokens.onSurfaceVariant,
+              ),
+            )
+          : const Icon(
+              Icons.refresh_rounded,
+              color: DarkTokens.onSurfaceVariant,
+            ),
     );
   }
 }
@@ -1217,19 +1288,57 @@ class _DarkSectionLabel extends StatelessWidget {
   }
 }
 
-class _RenditionsTable extends StatelessWidget {
+/// The rendition ladder, one expandable row per rung.
+///
+/// Expanding a rung mounts a player on that rung's own manifest. It is the
+/// only way from this console to answer "is this rung actually going out":
+/// the health dot is the packager's opinion of the rung, and a rung can be
+/// reported healthy and still hand a player a manifest it cannot open.
+///
+/// Exactly one rung plays at a time, and collapsing unmounts it. Every open
+/// preview is a live pull — several at once would have the console competing
+/// with the audience for the same egress, and on web each one holds a video
+/// element and an hls.js instance that keeps fetching segments until it is
+/// destroyed.
+class _RenditionsTable extends StatefulWidget {
   const _RenditionsTable({required this.control, required this.onToggle});
 
   final BroadcastControlDto control;
   final void Function(String rung, bool enabled) onToggle;
 
   @override
+  State<_RenditionsTable> createState() => _RenditionsTableState();
+}
+
+class _RenditionsTableState extends State<_RenditionsTable> {
+  /// The rung whose preview is mounted, or null when every row is closed.
+  String? _expandedRung;
+
+  @override
+  void didUpdateWidget(_RenditionsTable old) {
+    super.didUpdateWidget(old);
+    // The ladder is polled and a rung can leave it. Keeping the name of a row
+    // that no longer exists would show nothing while the table was expanded,
+    // and would spring back open if that rung ever returned.
+    final gone = !widget.control.renditions.any(
+      (rendition) => rendition.rung == _expandedRung,
+    );
+    if (_expandedRung != null && gone) _expandedRung = null;
+  }
+
+  void _toggleExpanded(String rung) {
+    setState(() => _expandedRung = _expandedRung == rung ? null : rung);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final control = widget.control;
 
     final columns = [
-      // Wide enough for the rung plus the KEY badge on the protected row.
-      ConsoleColumn(label: l10n.colRung, width: 150),
+      // Wide enough for the disclosure arrow, the rung, and the KEY badge on
+      // the protected row.
+      ConsoleColumn(label: l10n.colRung, width: 170),
       // The manifest URL is what an operator copies into a player to check a
       // rung by hand, so it earns a column rather than a detail panel.
       ConsoleColumn(label: l10n.colUrl, flex: 1),
@@ -1265,10 +1374,16 @@ class _RenditionsTable extends StatelessWidget {
           return Column(
             children: [
               for (final rendition in control.renditions)
-                _RenditionCard(
+                _ExpandableRung(
                   rendition: rendition,
+                  expanded: _expandedRung == rendition.rung,
                   last: rendition.rung == last.rung,
-                  onToggle: onToggle,
+                  onTap: () => _toggleExpanded(rendition.rung),
+                  child: _RenditionCard(
+                    rendition: rendition,
+                    expanded: _expandedRung == rendition.rung,
+                    onToggle: widget.onToggle,
+                  ),
                 ),
             ],
           );
@@ -1309,110 +1424,86 @@ class _RenditionsTable extends StatelessWidget {
               ),
             ),
             for (final rendition in control.renditions)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.listRhythm,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  // No divider under the last row: it would sit on top of the
-                  // card's own border and read as a doubled line.
-                  border: rendition.rung == last.rung
-                      ? null
-                      : const Border(
-                          bottom: BorderSide(color: DarkTokens.outline),
-                        ),
-                ),
-                child: _DarkRow(
-                  columns: columns,
-                  cells: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            rendition.rung,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.text.label.copyWith(
-                              color: Colors.white,
+              _ExpandableRung(
+                rendition: rendition,
+                expanded: _expandedRung == rendition.rung,
+                last: rendition.rung == last.rung,
+                onTap: () => _toggleExpanded(rendition.rung),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.listRhythm,
+                    vertical: 6,
+                  ),
+                  child: _DarkRow(
+                    columns: columns,
+                    cells: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _ExpandChevron(
+                            expanded: _expandedRung == rendition.rung,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              rendition.rung,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: context.text.label.copyWith(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
+                          if (rendition.isProtected) ...[
+                            const SizedBox(width: Spacing.chip),
+                            const _KeyRungBadge(),
+                          ],
+                        ],
+                      ),
+                      Text(
+                        rendition.url,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.text.meta.copyWith(
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                          color: DarkTokens.onSurfaceVariant,
                         ),
-                        if (rendition.isProtected) ...[
-                          const SizedBox(width: Spacing.chip),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: DarkTokens.accent,
-                              borderRadius: BorderRadius.circular(3),
-                            ),
+                      ),
+                      Text(
+                        rendition.bitrateLabel,
+                        style: context.text.meta.copyWith(
+                          color: DarkTokens.onSurface,
+                        ),
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _HealthDot(healthy: rendition.healthy),
+                          const SizedBox(width: 7),
+                          Flexible(
                             child: Text(
-                              l10n.keyRung,
-                              style: context.text.overline.copyWith(
-                                fontSize: 9,
-                                color: const Color(0xFF04220F),
+                              rendition.healthy ? l10n.healthy : l10n.degraded,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: context.text.meta.copyWith(
+                                color: DarkTokens.onSurfaceVariant,
                               ),
                             ),
                           ),
                         ],
-                      ],
-                    ),
-                    Text(
-                      rendition.url,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.text.meta.copyWith(
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                        color: DarkTokens.onSurfaceVariant,
                       ),
-                    ),
-                    Text(
-                      rendition.bitrateLabel,
-                      style: context.text.meta.copyWith(
-                        color: DarkTokens.onSurface,
+                      Switch(
+                        key: Key('rendition-${rendition.rung}'),
+                        value: rendition.enabled,
+                        onChanged: rendition.isProtected
+                            ? null
+                            : (value) => widget.onToggle(rendition.rung, value),
+                        activeThumbColor: const Color(0xFF04220F),
+                        activeTrackColor: DarkTokens.accent,
+                        inactiveTrackColor: DarkTokens.surfaceRaised,
                       ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 7,
-                          height: 7,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: rendition.healthy
-                                ? DarkTokens.accent
-                                : DarkTokens.error,
-                          ),
-                        ),
-                        const SizedBox(width: 7),
-                        Flexible(
-                          child: Text(
-                            rendition.healthy ? l10n.healthy : l10n.degraded,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.text.meta.copyWith(
-                              color: DarkTokens.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Switch(
-                      key: Key('rendition-${rendition.rung}'),
-                      value: rendition.enabled,
-                      onChanged: rendition.isProtected
-                          ? null
-                          : (value) => onToggle(rendition.rung, value),
-                      activeThumbColor: const Color(0xFF04220F),
-                      activeTrackColor: DarkTokens.accent,
-                      inactiveTrackColor: DarkTokens.surfaceRaised,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -1422,37 +1513,114 @@ class _RenditionsTable extends StatelessWidget {
   }
 }
 
+/// One rung's row: its summary, and — while open — a player on its manifest.
+///
+/// The summary is whatever the width called for, so the disclosure behaviour
+/// is written once for both layouts.
+class _ExpandableRung extends StatelessWidget {
+  const _ExpandableRung({
+    required this.rendition,
+    required this.expanded,
+    required this.last,
+    required this.onTap,
+    required this.child,
+  });
+
+  final RenditionConfigDto rendition;
+  final bool expanded;
+
+  /// No divider under the last row: it would sit on top of the card's own
+  /// border and read as a doubled line.
+  final bool last;
+
+  final VoidCallback onTap;
+
+  /// The collapsed summary — a table row at width, a block below it.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        // The open row drops to the page colour, so the preview reads as a
+        // drawer pulled out of the table rather than as another row.
+        color: expanded ? DarkTokens.background : null,
+        border: last
+            ? null
+            : const Border(bottom: BorderSide(color: DarkTokens.outline)),
+      ),
+      child: Column(
+        children: [
+          // A transparent Material so the row's ink lands on the row itself
+          // rather than on whatever is painted behind the card.
+          Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              onTap: onTap,
+              child: child,
+            ),
+          ),
+          // Mounted only while open, and keyed by rung so switching rows
+          // builds a new state rather than re-pointing the old one.
+          if (expanded)
+            _RenditionPreview(
+              key: ValueKey(rendition.rung),
+              url: rendition.url,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The disclosure arrow, pointing down while its rung is playing.
+class _ExpandChevron extends StatelessWidget {
+  const _ExpandChevron({required this.expanded});
+
+  final bool expanded;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedRotation(
+      turns: expanded ? 0.25 : 0,
+      duration: Durations.short3,
+      child: Icon(
+        Icons.chevron_right_rounded,
+        size: 18,
+        color: expanded ? DarkTokens.accent : DarkTokens.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
 /// One rung as a block, for widths where the table cannot hold five columns.
 class _RenditionCard extends StatelessWidget {
   const _RenditionCard({
     required this.rendition,
-    required this.last,
+    required this.expanded,
     required this.onToggle,
   });
 
   final RenditionConfigDto rendition;
-  final bool last;
+  final bool expanded;
   final void Function(String rung, bool enabled) onToggle;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Container(
+    return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: Spacing.listRhythm,
         vertical: Spacing.cardInternal,
-      ),
-      decoration: BoxDecoration(
-        border: last
-            ? null
-            : const Border(bottom: BorderSide(color: DarkTokens.outline)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
+              _ExpandChevron(expanded: expanded),
+              const SizedBox(width: 4),
               Expanded(
                 child: Wrap(
                   spacing: Spacing.chip,
@@ -1510,6 +1678,245 @@ class _RenditionCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// A live pull on one rung's manifest, mounted only while its row is open.
+///
+/// Muted at load, and stated at load time rather than after: a browser
+/// refuses to autoplay audible video without a gesture, so a preview that
+/// asks to be silent afterwards never starts at all. The unmute button is
+/// that gesture, and it is here because "does this rung carry audio" is half
+/// of what an operator opens a rung to find out.
+class _RenditionPreview extends StatefulWidget {
+  const _RenditionPreview({required this.url, super.key});
+
+  final String url;
+
+  /// Wide enough to see a rung's detail, narrow enough that the table under a
+  /// 1900dp window does not turn into a video wall.
+  static const maxWidth = 480.0;
+
+  @override
+  State<_RenditionPreview> createState() => _RenditionPreviewState();
+}
+
+class _RenditionPreviewState extends State<_RenditionPreview> {
+  late VideoEngine _engine;
+  StreamSubscription<VideoEngineState>? _sub;
+  var _muted = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _open();
+  }
+
+  @override
+  void didUpdateWidget(_RenditionPreview old) {
+    super.didUpdateWidget(old);
+    // The ladder is polled, and a rung can be re-pointed at a new manifest
+    // underneath an open preview.
+    if (old.url != widget.url) {
+      _close();
+      _open();
+    }
+  }
+
+  void _open() {
+    final engine = _engine = createVideoEngine();
+    _sub = engine.states.listen((_) {
+      if (mounted) setState(() {});
+    });
+    engine.load(widget.url, live: true, volume: _muted ? 0 : 1);
+  }
+
+  void _close() {
+    _sub?.cancel();
+    _sub = null;
+    _engine.dispose();
+  }
+
+  @override
+  void dispose() {
+    // Disposed rather than paused, which is the point of closing the row: a
+    // paused engine on web keeps its element and goes on filling its buffer.
+    _close();
+    super.dispose();
+  }
+
+  void _toggleMute() {
+    setState(() => _muted = !_muted);
+    _engine.setVolume(_muted ? 0 : 1);
+  }
+
+  void _retry() {
+    setState(() {
+      _close();
+      _open();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final state = _engine.state;
+    final failed = state.errorCode != null;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        Spacing.listRhythm,
+        0,
+        Spacing.listRhythm,
+        Spacing.cardInternal,
+      ),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: _RenditionPreview.maxWidth,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(Radii.button),
+                child: ColoredBox(
+                  color: const Color(0xFF04101F),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: _surface(context, state: state, failed: failed),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Material(
+                type: MaterialType.transparency,
+                child: Row(
+                  children: [
+                    _PreviewControl(
+                      icon: state.isPlaying
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
+                      label: state.isPlaying ? l10n.a11yPause : l10n.a11yPlay,
+                      onPressed: failed || !state.isInitialized
+                          ? null
+                          : () => state.isPlaying
+                                ? _engine.pause()
+                                : _engine.play(),
+                    ),
+                    _PreviewControl(
+                      icon: _muted
+                          ? Icons.volume_off_rounded
+                          : Icons.volume_up_rounded,
+                      label: _muted ? l10n.a11yUnmute : l10n.a11yMute,
+                      onPressed: failed ? null : _toggleMute,
+                    ),
+                    const Spacer(),
+                    // What the engine is actually decoding, which is the
+                    // check: a rung labelled 720p that arrives at 360p is a
+                    // packager problem the ladder itself will not report.
+                    if (state.qualityLabel != null)
+                      Text(
+                        state.qualityLabel!,
+                        style: context.text.meta.copyWith(
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                          color: DarkTokens.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _surface(
+    BuildContext context, {
+    required VideoEngineState state,
+    required bool failed,
+  }) {
+    final l10n = context.l10n;
+
+    if (failed) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(Spacing.cardInternal),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.renditionPreviewFailed,
+                textAlign: TextAlign.center,
+                style: context.text.meta.copyWith(
+                  color: DarkTokens.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Material(
+                type: MaterialType.transparency,
+                child: TextButton(
+                  onPressed: _retry,
+                  style: TextButton.styleFrom(
+                    foregroundColor: DarkTokens.accent,
+                  ),
+                  child: Text(l10n.retry),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: _engine.buildSurface() ?? const SizedBox.shrink(),
+        ),
+        if (!state.isInitialized || state.isBuffering)
+          const Center(
+            child: SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: DarkTokens.onSurfaceVariant,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// A control under the preview: small, unfilled, and dark-surface coloured.
+class _PreviewControl extends StatelessWidget {
+  const _PreviewControl({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 18),
+      tooltip: label,
+      padding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+      color: DarkTokens.onSurface,
+      disabledColor: DarkTokens.outline,
     );
   }
 }

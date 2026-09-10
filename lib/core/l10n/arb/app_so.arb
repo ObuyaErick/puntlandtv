@@ -92,6 +92,7 @@
   "a11yCollapsePlayer": "Yaree daawadaha",
   "a11yClosePlayer": "Jooji oo xir daawadaha",
   "a11yMute": "Aamusi",
+  "a11yUnmute": "Cod fur",
   "a11yFullscreen": "Shaashad buuxda",
   "a11yBookmarkAdd": "Kaydi maqaalka",
   "a11yBookmarkRemove": "Ka saar kaydka",
@@ -253,6 +254,8 @@
   "sendNow": "Hadda dir",
   "pushSent": "Digniinta waxaa loo diray {count} qalab",
   "liveControlTitle": "Maamulka tooska",
+  "refreshBroadcastState": "Cusboonaysii xaaladda baahinta",
+  "broadcastStateRefreshed": "Xaaladda baahinta waa la cusboonaysiiyay",
   "tvOnAir": "TV WAA BAAHINAYAA",
   "tvOffAir": "TV MA BAAHINAYO",
   "sectionTvChannel": "KANAALKA TV",
@@ -558,5 +561,6 @@
   "copiedToClipboard": "La koobiyeeyay",
   "noIngestKeys": "Furayaal soo-gelin ma jiraan. Istuudiyaha wax ma baahin karo ilaa mid la sameeyo.",
   "previewUnavailable": "Muuqaalka wuu soo baxayaa marka calaamad timaado",
-  "noRenditions": "Weli qeexid ma jirto. Heerarku waxay soo muuqdaan marka jaranjarada la daabaco."
+  "noRenditions": "Weli qeexid ma jirto. Heerarku waxay soo muuqdaan marka jaranjarada la daabaco.",
+  "renditionPreviewFailed": "Heerkan ma ciyaari karo. Waxaa laga yaabaa in aan la baahinayn."
 }
