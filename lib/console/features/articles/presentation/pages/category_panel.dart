@@ -31,6 +31,72 @@ Future<void> showCategoryPanel(
   if ((viewArticles ?? false) && context.mounted) context.openArticles();
 }
 
+/// Asks before deleting [category], then deletes it and says how it went.
+///
+/// Shared by the panel's Delete button and the table row's quick action, so
+/// the question and the refusal read the same from either. [onConfirmed] fires
+/// once the answer is yes, before the write, so the caller can show itself
+/// busy. Returns whether the category is gone.
+Future<bool> confirmDeleteCategory(
+  BuildContext context,
+  WidgetRef ref,
+  CategoryConfigDto category, {
+  VoidCallback? onConfirmed,
+}) async {
+  final l10n = context.l10n;
+  final name = category.nameFor(context.languageCode);
+
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l10n.deleteCategoryTitle(name)),
+      content: Text(l10n.deleteCategoryBody(category.slug)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(backgroundColor: context.scheme.error),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l10n.delete),
+        ),
+      ],
+      constraints: const BoxConstraints(maxWidth: 400),
+    ),
+  );
+  if (confirmed != true || !context.mounted) return false;
+
+  onConfirmed?.call();
+  try {
+    await ref.read(categoryActionsProvider.notifier).delete(category.slug);
+    if (context.mounted) {
+      showConsoleToast(
+        context,
+        message: l10n.categoryDeleted(name),
+        kind: ToastKind.success,
+      );
+    }
+    return true;
+  } on Failure catch (failure) {
+    // The count on screen was stale: someone filed an article here since the
+    // list loaded. Refetch so the disabled state catches up.
+    if (failure.code == CategoryFailureCode.inUse) {
+      ref.invalidate(categoryConfigProvider);
+    }
+    if (context.mounted) {
+      showConsoleToast(
+        context,
+        message: failure.code == CategoryFailureCode.inUse
+            ? l10n.categoryInUseRefusal
+            : l10n.errorCodeLine(failure.code),
+        kind: ToastKind.error,
+      );
+    }
+    return false;
+  }
+}
+
 /// Creates a category, or renames and deletes one.
 ///
 /// The one form carries the page's lesson in both modes. Creating, the slug is
@@ -146,56 +212,14 @@ class _CategoryPanelState extends ConsumerState<CategoryPanel> {
   }
 
   Future<void> _delete() async {
-    final category = widget.category!;
-    final l10n = context.l10n;
-    final name = category.nameFor(context.languageCode);
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteCategoryTitle(name)),
-        content: Text(l10n.deleteCategoryBody(category.slug)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: context.scheme.error,
-            ),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-
-    setState(() => _busy = true);
     try {
-      await ref.read(categoryActionsProvider.notifier).delete(category.slug);
-      if (!mounted) return;
-      Navigator.of(context).maybePop();
-      showConsoleToast(
+      final deleted = await confirmDeleteCategory(
         context,
-        message: l10n.categoryDeleted(name),
-        kind: ToastKind.success,
+        ref,
+        widget.category!,
+        onConfirmed: () => setState(() => _busy = true),
       );
-    } on Failure catch (failure) {
-      if (!mounted) return;
-      // The count on screen was stale: someone filed an article here since
-      // the list loaded. Refetch so the panel's disabled state catches up.
-      if (failure.code == CategoryFailureCode.inUse) {
-        ref.invalidate(categoryConfigProvider);
-      }
-      showConsoleToast(
-        context,
-        message: failure.code == CategoryFailureCode.inUse
-            ? l10n.categoryInUseRefusal
-            : l10n.errorCodeLine(failure.code),
-        kind: ToastKind.error,
-      );
+      if (deleted && mounted) Navigator.of(context).maybePop();
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -228,7 +252,6 @@ class _CategoryPanelState extends ConsumerState<CategoryPanel> {
           OutlinedButton(
             onPressed: !_busy && category.canDelete ? _delete : null,
             style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, 40),
               side: BorderSide(color: context.colors.outline),
               foregroundColor: context.scheme.error,
             ),

@@ -43,7 +43,6 @@ class CategoriesPage extends ConsumerWidget {
           onPressed: context.openArticles,
           icon: const Icon(Icons.arrow_back_rounded, size: 18),
           style: OutlinedButton.styleFrom(
-            minimumSize: const Size(0, 40),
             side: BorderSide(color: context.colors.outline),
             foregroundColor: context.scheme.onSurface,
           ),
@@ -92,9 +91,12 @@ class _CategoryTable extends StatelessWidget {
       ConsoleColumn(label: l10n.colName, flex: 3),
       ConsoleColumn(label: l10n.colArticles, width: 90, alignEnd: true),
       ConsoleColumn(label: l10n.colInApp, width: 110),
+      // Unlabelled: the icons say what they do, and their tooltips say it in
+      // words.
+      const ConsoleColumn(label: '', width: 88, alignEnd: true),
     ];
 
-    // Four columns need ~700dp before the NAME column is squeezed into
+    // Four columns and the actions need ~800dp before the NAME column is squeezed into
     // something unreadable. Below that each row becomes a card, the same
     // trade the article list makes.
     return WindowSizeScope(
@@ -165,6 +167,7 @@ class _CategoryTable extends StatelessWidget {
                               label: '${category.articleCount}',
                             ),
                             _VisibilityCell(category: category),
+                            _CategoryRowActions(category: category),
                           ],
                         ),
                       Padding(
@@ -225,6 +228,8 @@ class _CategoryCard extends StatelessWidget {
                   ),
                   const SizedBox(width: Spacing.cardInternal),
                   _VisibilityCell(category: category),
+                  const SizedBox(width: Spacing.chip),
+                  _CategoryRowActions(category: category),
                 ],
               ),
               const SizedBox(height: Spacing.chip),
@@ -305,6 +310,93 @@ class _ArticleCountLink extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Edit and delete, one click each from the row rather than behind a menu.
+///
+/// Edit opens the same panel the row's own tap does; it is here so the way to
+/// change a category is visible without knowing the row is clickable. Delete
+/// always asks first, and a category with articles filed in it keeps the
+/// button but disables it, the tooltip saying why — the same answer the panel
+/// gives.
+class _CategoryRowActions extends ConsumerStatefulWidget {
+  const _CategoryRowActions({required this.category});
+
+  final CategoryConfigDto category;
+
+  @override
+  ConsumerState<_CategoryRowActions> createState() =>
+      _CategoryRowActionsState();
+}
+
+class _CategoryRowActionsState extends ConsumerState<_CategoryRowActions> {
+  var _busy = false;
+
+  Future<void> _delete() async {
+    try {
+      await confirmDeleteCategory(
+        context,
+        ref,
+        widget.category,
+        onConfirmed: () => setState(() => _busy = true),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final category = widget.category;
+    const constraints = BoxConstraints.tightFor(width: 40, height: 40);
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          onPressed: _busy
+              ? null
+              : () => showCategoryPanel(context, category: category),
+          tooltip: l10n.editCategory,
+          constraints: constraints,
+          icon: Icon(
+            Icons.edit_outlined,
+            size: 18,
+            color: context.scheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(width: Spacing.chip),
+        if (_busy)
+          const SizedBox.square(
+            dimension: 40,
+            child: Center(
+              child: SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          )
+        else
+          // Tooltip outside the button: a disabled IconButton drops its own,
+          // and the disabled state is exactly when the reason matters.
+          Tooltip(
+            message: category.canDelete
+                ? l10n.delete
+                : l10n.deleteCategoryBlocked(category.articleCount),
+            child: IconButton(
+              onPressed: category.canDelete ? _delete : null,
+              constraints: constraints,
+              icon: const Icon(Icons.delete_outline_rounded, size: 18),
+              color: context.scheme.error,
+              disabledColor: context.scheme.onSurfaceVariant.withValues(
+                alpha: 0.38,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -146,7 +146,7 @@ class ConsoleTableRow extends StatelessWidget {
               right: BorderSide(color: context.colors.outline),
               bottom: isLast
                   ? BorderSide.none
-                  : BorderSide(color: context.colors.outlineSubtle),
+                  : BorderSide(color: context.colors.outline),
             ),
           ),
           child: Row(

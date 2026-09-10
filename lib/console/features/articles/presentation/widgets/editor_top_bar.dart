@@ -101,9 +101,7 @@ class EditorTopBar extends StatelessWidget {
                   child: Text(l10n.saveDraft),
                 ),
               ],
-              // Always present, unlike the two buttons above it: the autosave
-              // switch has no inline home on a wide header, and a toggle you
-              // can only reach by narrowing the window is not a toggle.
+              const SizedBox(width: Spacing.cardInternal),
               _Overflow(
                 compact: !roomy,
                 autosaveEnabled: autosaveEnabled,
@@ -111,6 +109,7 @@ class EditorTopBar extends StatelessWidget {
                 onPreview: () => _preview(context),
                 onSaveDraft: () => editor.saveDraft(),
               ),
+              const SizedBox(width: Spacing.cardInternal),
               if (canPublish)
                 _PublishButton(
                   blocker: blocker,
@@ -440,8 +439,8 @@ class _Overflow extends StatelessWidget {
             controller.isOpen ? controller.close() : controller.open(),
         tooltip: l10n.rowActions,
         constraints: const BoxConstraints.tightFor(
-          width: kMinTapTarget,
-          height: kMinTapTarget,
+          width: 40,
+          height: 40,
         ),
         icon: const Icon(Icons.more_vert_rounded, size: 20),
       ),

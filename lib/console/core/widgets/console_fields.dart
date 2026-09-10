@@ -86,12 +86,11 @@ class ConsoleTextField extends StatelessWidget {
             enabledBorder: border(
               hasError ? context.scheme.error : colors.outline,
             ),
-            // 2px, always visible on keyboard focus — staff live on the
-            // keyboard in this product.
             focusedBorder: border(
               hasError ? context.scheme.error : colors.link,
               2,
             ),
+            disabledBorder: border(colors.outlineSubtle),
             errorBorder: border(context.scheme.error),
             focusedErrorBorder: border(context.scheme.error, 2),
           ),

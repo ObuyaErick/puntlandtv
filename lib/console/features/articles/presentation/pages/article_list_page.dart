@@ -56,7 +56,6 @@ class ArticleListPage extends ConsumerWidget {
             onPressed: context.openCategories,
             icon: const Icon(Icons.sell_outlined, size: 18),
             style: OutlinedButton.styleFrom(
-              minimumSize: const Size(0, 40),
               side: BorderSide(color: context.colors.outline),
               foregroundColor: context.scheme.onSurface,
             ),
@@ -537,10 +536,7 @@ class _ArticleBody extends ConsumerWidget {
                         : _gap,
                     cells: [
                       _HeadlineCell(article: article, locale: locale),
-                      // The localised display name, not the slug: the slug is
-                      // an identifier for deep links, and showing it here made
-                      // the newsroom read machine keys instead of category
-                      // names.
+
                       Text(
                         categoryNames[article.categorySlug] ??
                             article.categorySlug,

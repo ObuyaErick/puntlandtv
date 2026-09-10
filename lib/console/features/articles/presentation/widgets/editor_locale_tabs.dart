@@ -73,7 +73,7 @@ class EditorLocaleTabs extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: editor.toggleSideBySide,
                 style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 34),
+                  minimumSize: const Size(0, 40),
                   side: BorderSide(
                     color: editor.sideBySide
                         ? context.colors.link
