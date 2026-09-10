@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../../core/domain/parity.dart';
 import '../../../../../core/error/failure.dart';
 import '../../../../../core/l10n/app_date_format.dart';
 import '../../../../../core/l10n/l10n.dart';
@@ -13,7 +14,7 @@ import '../../../../core/admin_api/puntland_admin_api.dart';
 import '../../../../app/console_navigation.dart';
 import '../../../../core/localised.dart';
 import '../../../../core/providers/console_providers.dart';
-import '../../../operations/presentation/pages/categories_page.dart';
+import '../controllers/category_controller.dart';
 import '../../../../core/widgets/console_page.dart';
 import '../../../../core/widgets/console_table.dart';
 import '../../../../core/widgets/console_toast.dart';
@@ -39,6 +40,7 @@ class ArticleListPage extends ConsumerWidget {
     final articles = ref.watch(articleListProvider);
     final counts = ref.watch(articleCountsProvider).value;
     final canPublish = user?.can(Capability.publishArticles) ?? false;
+    final canManageCategories = user?.can(Capability.manageTaxonomy) ?? false;
 
     return ConsolePage(
       title: canPublish ? l10n.articlesTitle : l10n.myArticlesTitle,
@@ -46,14 +48,32 @@ class ArticleListPage extends ConsumerWidget {
           ? null
           : l10n.itemCount(articles.value!.length),
       actions: [
+        // The taxonomy is managed from here rather than from a rail entry of
+        // its own: categories exist to file stories, and "we need a section
+        // for this" comes up while looking at the stories.
+        if (canManageCategories)
+          OutlinedButton.icon(
+            onPressed: context.openCategories,
+            icon: const Icon(Icons.sell_outlined, size: 18),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 40),
+              side: BorderSide(color: context.colors.outline),
+              foregroundColor: context.scheme.onSurface,
+            ),
+            label: Text(l10n.categoriesTitle),
+          ),
         FilledButton.icon(
-          onPressed: () => _startDraft(context, ref),
+          onPressed: () => startDraft(context, ref, open: context.openArticle),
           icon: const Icon(Icons.add_rounded, size: 18),
           label: Text(canPublish ? l10n.newArticle : l10n.newDraft),
         ),
       ],
       notice: canPublish ? null : ConsoleNotice(message: l10n.journalistNotice),
-      filters: _FilterRow(counts: counts, canPublish: canPublish),
+      filters: _FilterRow(
+        counts: counts,
+        canPublish: canPublish,
+        canManageCategories: canManageCategories,
+      ),
       child: articles.when(
         loading: () => const _ListSkeleton(),
         error: (error, _) => ErrorView(
@@ -90,13 +110,21 @@ class ArticleListPage extends ConsumerWidget {
   }
 }
 
-/// Starts a draft and opens it.
+/// Starts a draft and opens it with [open].
 ///
 /// The category is the first one configured rather than a choice made up
 /// front: the story does not have a section yet, the publishing panel is where
 /// that decision belongs, and a modal asking for one before a headline exists
 /// is a question asked at the wrong moment.
-Future<void> _startDraft(BuildContext context, WidgetRef ref) async {
+///
+/// [open] is the caller's because how the editor is reached depends on where
+/// the draft was started — pushed over this list, or gone to from the
+/// overview.
+Future<void> startDraft(
+  BuildContext context,
+  WidgetRef ref, {
+  required void Function(String id) open,
+}) async {
   final categories = ref.read(categoryConfigProvider).value ?? const [];
   final messenger = context;
 
@@ -108,7 +136,7 @@ Future<void> _startDraft(BuildContext context, WidgetRef ref) async {
           sourceLocale: 'so',
         );
     if (!messenger.mounted) return;
-    messenger.openArticle(created.id);
+    open(created.id);
   } on Failure {
     if (!messenger.mounted) return;
     showConsoleToast(
@@ -120,10 +148,15 @@ Future<void> _startDraft(BuildContext context, WidgetRef ref) async {
 }
 
 class _FilterRow extends ConsumerWidget {
-  const _FilterRow({required this.counts, required this.canPublish});
+  const _FilterRow({
+    required this.counts,
+    required this.canPublish,
+    required this.canManageCategories,
+  });
 
   final ArticleCounts? counts;
   final bool canPublish;
+  final bool canManageCategories;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -210,6 +243,11 @@ class _FilterRow extends ConsumerWidget {
                         (category.slug, category.nameFor(locale)),
                     ],
                     onSelected: controller.setCategory,
+                    // The list of categories is where someone notices the
+                    // one that is missing or misnamed.
+                    footer: canManageCategories
+                        ? (l10n.manageCategories, context.openCategories)
+                        : null,
                   ),
                 ),
                 const SizedBox(width: Spacing.chip),
@@ -295,12 +333,17 @@ class _FilterSelect<T> extends StatelessWidget {
     required this.options,
     required this.onSelected,
     this.active = false,
+    this.footer,
   });
 
   final String label;
   final T value;
   final List<(T, String)> options;
   final ValueChanged<T> onSelected;
+
+  /// An action below the options, set apart by a divider: a way out of the
+  /// menu rather than a value, so it never reaches [onSelected].
+  final (String, VoidCallback)? footer;
 
   /// Whether this filter is narrowing anything. Outlined when it is not,
   /// tinted when it is — one glance says which of three filters is on.
@@ -310,15 +353,18 @@ class _FilterSelect<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return PopupMenuButton<T>(
-      initialValue: value,
-      onSelected: onSelected,
+    // Each value travels boxed in a one-field record. The menu reports a null
+    // result as "dismissed", and every filter's "All" *is* null — unboxed,
+    // choosing it closed the menu and changed nothing.
+    return PopupMenuButton<(T,)>(
+      initialValue: (value,),
+      onSelected: (choice) => onSelected(choice.$1),
       tooltip: label,
       position: PopupMenuPosition.under,
       itemBuilder: (context) => [
         for (final (optionValue, optionLabel) in options)
           PopupMenuItem(
-            value: optionValue,
+            value: (optionValue,),
             child: Row(
               children: [
                 Expanded(child: Text(optionLabel)),
@@ -329,6 +375,29 @@ class _FilterSelect<T> extends StatelessWidget {
               ],
             ),
           ),
+        if (footer case (final footerLabel, final onFooter)) ...[
+          const PopupMenuDivider(),
+          // No value: it closes the menu as a dismissal, never a selection.
+          PopupMenuItem<(T,)>(
+            onTap: onFooter,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.sell_outlined,
+                  size: 18,
+                  color: context.scheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: Spacing.cardInternal),
+                Expanded(
+                  child: Text(
+                    footerLabel,
+                    style: TextStyle(color: colors.linkText),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
       child: Container(
         height: 40,
@@ -455,6 +524,8 @@ class _ArticleBody extends ConsumerWidget {
                   return ConsoleTableRow(
                     columns: columns,
                     selected: checked,
+                    parity: Parity.of(index),
+                    isLast: index == rows.length - 1,
                     onTap: () => context.openArticle(article.id),
                     leading: canPublish
                         ? Checkbox(
@@ -785,7 +856,8 @@ class _ListSkeleton extends ConsumerWidget {
 
     return ListView(
       children: [
-        for (var i = 0; i < 8; i++) ConsoleTableRowSkeleton(columns: columns),
+        for (var i = 0; i < 8; i++)
+          ConsoleTableRowSkeleton(columns: columns, parity: Parity.of(i)),
       ],
     );
   }

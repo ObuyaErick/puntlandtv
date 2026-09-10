@@ -97,6 +97,13 @@ class ArticleFilter extends _$ArticleFilter {
   );
 
   void clear() => state = const ArticleQuery();
+
+  /// Everything filed under [slug], and nothing else narrowing it.
+  ///
+  /// For arriving from the categories screen, which promised "44 articles":
+  /// keeping a leftover Drafts chip or author filter would show a fraction of
+  /// them and make the count look wrong.
+  void onlyCategory(String slug) => state = ArticleQuery(categorySlug: slug);
 }
 
 /// Staff as bylines, for the author filter.

@@ -520,10 +520,6 @@
   "@navMedia": {
     "description": "Console navigation: media library."
   },
-  "navCategories": "Categories",
-  "@navCategories": {
-    "description": "Console navigation: taxonomy."
-  },
   "navUsers": "Users & roles",
   "@navUsers": {
     "description": "Console navigation: staff accounts."
@@ -1341,6 +1337,18 @@
   "newCategory": "New category",
   "@newCategory": {
     "description": "Creates a category."
+  },
+  "manageCategories": "Manage categories",
+  "@manageCategories": {
+    "description": "Opens the categories screen from the foot of the article list's category filter."
+  },
+  "backToArticles": "All articles",
+  "@backToArticles": {
+    "description": "Returns from the categories screen to the article list."
+  },
+  "viewCategoryArticles": "View articles",
+  "@viewCategoryArticles": {
+    "description": "Opens the article list filtered to one category."
   },
   "slugPermanentNote": "The slug is permanent — it is baked into app deep links and push topics. Display names are per-locale and safe to change at any time.",
   "@slugPermanentNote": {
@@ -2789,5 +2797,125 @@
   "renditionPreviewFailed": "This rung would not play. The packager may not be publishing it.",
   "@renditionPreviewFailed": {
     "description": "Shown in an expanded rendition's preview when the manifest cannot be played."
+  },
+  "editCategory": "Edit category",
+  "@editCategory": {
+    "description": "Heading of the side panel that edits an existing category."
+  },
+  "createCategory": "Create category",
+  "@createCategory": {
+    "description": "Submit button of the new-category panel."
+  },
+  "fieldSlug": "Slug",
+  "@fieldSlug": {
+    "description": "Label of the category slug field."
+  },
+  "slugHint": "e.g. local-news",
+  "@slugHint": {
+    "description": "Placeholder in the category slug field. Keep the example slug in lower-case Latin letters and hyphens."
+  },
+  "slugFormatError": "Use lower-case letters, digits and single hyphens — like local-news.",
+  "@slugFormatError": {
+    "description": "Shown under the slug field when it does not match the slug rule."
+  },
+  "slugTakenError": "Another category already uses this slug.",
+  "@slugTakenError": {
+    "description": "Shown under the slug field when the slug is not unique."
+  },
+  "slugChooseCarefully": "Choose carefully: the slug can't be changed once the category exists.",
+  "@slugChooseCarefully": {
+    "description": "Note under the slug field when creating a category."
+  },
+  "slugLocked": "Permanent — it is in app links and push topics.",
+  "@slugLocked": {
+    "description": "Note under the read-only slug field when editing a category."
+  },
+  "sectionDisplayNames": "DISPLAY NAMES",
+  "@sectionDisplayNames": {
+    "description": "Section heading above a category's per-language names. Uppercase."
+  },
+  "categoryNameIn": "Name in {language}",
+  "@categoryNameIn": {
+    "description": "Label of a category name field for one language.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryHiddenIn": "Hidden from the {language} tab bar until it has a name.",
+  "@categoryHiddenIn": {
+    "description": "Shown under an empty category name field.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryNeedsName": "Give it a name in at least one language.",
+  "@categoryNeedsName": {
+    "description": "Shown when a new category has no names at all."
+  },
+  "categoryHiddenEverywhere": "With no names it is hidden from every tab bar. Its articles are not moved.",
+  "@categoryHiddenEverywhere": {
+    "description": "Warning when every name of an existing category has been cleared."
+  },
+  "categoryCreated": "Created “{name}”",
+  "@categoryCreated": {
+    "description": "Toast after creating a category.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categorySaved": "Saved “{name}”",
+  "@categorySaved": {
+    "description": "Toast after renaming a category.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryDeleted": "Deleted “{name}”",
+  "@categoryDeleted": {
+    "description": "Toast after deleting a category.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCategoryTitle": "Delete “{name}”?",
+  "@deleteCategoryTitle": {
+    "description": "Heading of the delete-category confirmation.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCategoryBody": "The slug {slug} is removed for good. App links and push topics that use it will stop working. This cannot be undone.",
+  "@deleteCategoryBody": {
+    "description": "Body of the delete-category confirmation.",
+    "placeholders": {
+      "slug": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCategoryBlocked": "{count, plural, =1{1 article is filed here.} other{{count} articles are filed here.}} Move them to another category first, or clear its names to hide it from the app.",
+  "@deleteCategoryBlocked": {
+    "description": "Why a category with articles cannot be deleted, and what to do instead.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryInUseRefusal": "Articles are still filed in this category, so it can't be deleted.",
+  "@categoryInUseRefusal": {
+    "description": "Toast when the server refuses to delete a category that has articles."
   }
 }

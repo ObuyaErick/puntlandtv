@@ -85,12 +85,9 @@ List<ConsoleDestination> consoleDestinations({int articleBadge = 0}) => [
     label: (l) => l.navMedia,
     requires: Capability.manageLibrary,
   ),
-  ConsoleDestination(
-    route: ConsoleRoutes.categories,
-    icon: Icons.sell_outlined,
-    label: (l) => l.navCategories,
-    requires: Capability.manageTaxonomy,
-  ),
+  // No Categories entry: the taxonomy exists to file articles, so it is a
+  // screen inside Articles (`/articles/categories`) rather than a destination
+  // three rows away from the stories it organises.
   ConsoleDestination(
     route: ConsoleRoutes.users,
     icon: Icons.group_outlined,
@@ -109,7 +106,7 @@ List<ConsoleDestination> consoleDestinations({int articleBadge = 0}) => [
 /// compact and medium.
 ///
 /// The console's rail is the 236dp expanded variant rather than the app's 80dp
-/// collapsed one — ten destinations with names like "Live control" are not
+/// collapsed one — nine destinations with names like "Live control" are not
 /// legible as 9px labels under an icon, and this product has the width for it.
 class ConsoleShell extends ConsumerWidget {
   const ConsoleShell({
@@ -152,7 +149,7 @@ class ConsoleShell extends ConsumerWidget {
             body: Row(
               children: [
                 railWith(onNavigate),
-                VerticalDivider(width: 1, color: context.colors.outline),
+                // VerticalDivider(width: 1, color: context.colors.outline),
                 Expanded(child: child),
               ],
             ),

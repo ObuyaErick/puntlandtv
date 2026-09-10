@@ -1199,9 +1199,7 @@ class _RenditionsTableState extends State<_RenditionsTable> {
         padding: const EdgeInsets.all(Spacing.listRhythm),
         child: Text(
           l10n.noRenditions,
-          style: context.text.meta.copyWith(
-            color: DarkTokens.onSurfaceVariant,
-          ),
+          style: context.text.meta.copyWith(color: DarkTokens.onSurfaceVariant),
         ),
       );
     }
@@ -1398,10 +1396,7 @@ class _ExpandableRung extends StatelessWidget {
           // rather than on whatever is painted behind the card.
           Material(
             type: MaterialType.transparency,
-            child: InkWell(
-              onTap: onTap,
-              child: child,
-            ),
+            child: InkWell(onTap: onTap, child: child),
           ),
           // Mounted only while open, and keyed by rung so switching rows
           // builds a new state rather than re-pointing the old one.

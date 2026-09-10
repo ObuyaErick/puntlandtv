@@ -232,9 +232,19 @@ abstract interface class PuntlandAdminApi {
 
   Future<List<CategoryConfigDto>> fetchCategories();
 
+  /// Replaces the taxonomy: creates unknown slugs, renames and re-orders known
+  /// ones. Never deletes — a row missing from the list is left alone, so a
+  /// stale list cannot remove a category by omission. That is [deleteCategory].
   Future<List<CategoryConfigDto>> saveCategories(
     List<CategoryConfigDto> categories,
   );
+
+  /// Deletes an empty category and answers with the remaining list.
+  ///
+  /// Throws `Failure` with [CategoryFailureCode.inUse] while any article is
+  /// filed in it — the count the console shows can be stale, so the boundary
+  /// holds the rule rather than trusting the disabled button.
+  Future<List<CategoryConfigDto>> deleteCategory(String slug);
 
   /// How many devices an alert would reach, split by language preference.
   Future<PushReachDto> fetchPushReach(Set<String> topics);

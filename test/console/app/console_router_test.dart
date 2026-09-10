@@ -5,7 +5,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:puntland/console/app/console_router.dart';
 import 'package:puntland/console/app/console_routes.dart';
 import 'package:puntland/console/core/admin_api/fixture_admin_api.dart';
+import 'package:puntland/console/core/admin_api/puntland_admin_api.dart';
 import 'package:puntland/console/core/providers/console_providers.dart';
+import 'package:puntland/console/features/articles/presentation/controllers/article_list_controller.dart';
+import 'package:puntland/console/features/articles/presentation/pages/article_editor_page.dart';
+import 'package:puntland/console/features/articles/presentation/pages/article_list_page.dart';
+import 'package:puntland/console/features/articles/presentation/pages/categories_page.dart';
 import 'package:puntland/console/features/auth/domain/entities/console_user.dart';
 import 'package:puntland/console/features/auth/presentation/pages/sign_in_page.dart';
 import 'package:puntland/console/features/programs/presentation/pages/episode_list_page.dart';
@@ -196,6 +201,104 @@ void main() {
         '/programs/dood-furan',
         reason: 'each branch keeps its own navigator, as the app shell does',
       );
+    });
+  });
+
+  group('categories', () {
+    testWidgets('live inside Articles rather than on the rail', (tester) async {
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.editor)),
+        at: ConsoleRoutes.categories,
+      );
+
+      expect(location(), '/articles/categories');
+      expect(find.byType(CategoriesPage), findsOneWidget);
+      expect(
+        find.byType(ArticleEditorPage),
+        findsNothing,
+        reason: 'the literal segment must win over the article `:id`',
+      );
+      expect(
+        ConsoleRoutes.branchOf(location()),
+        ConsoleRoutes.branches.indexOf(ConsoleRoutes.articles),
+        reason: 'the rail stays on Articles while the taxonomy is open',
+      );
+    });
+
+    testWidgets('are refused to a role that cannot manage them', (
+      tester,
+    ) async {
+      // A Journalist may open Articles, so the branch alone would let them
+      // through — the screen's own capability is what stops them.
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.journalist)),
+        at: ConsoleRoutes.categories,
+      );
+
+      expect(location(), ConsoleRoutes.overview);
+      expect(find.byType(CategoriesPage), findsNothing);
+    });
+
+    testWidgets('are reached from the article list, and left for it', (
+      tester,
+    ) async {
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.editor)),
+        at: ConsoleRoutes.articles,
+      );
+
+      await tester.tap(find.text('Categories'));
+      await tester.pumpAndSettle();
+      expect(location(), ConsoleRoutes.categories);
+
+      await tester.tap(find.text('All articles'));
+      await tester.pumpAndSettle();
+      expect(location(), ConsoleRoutes.articles);
+      expect(find.byType(ArticleListPage), findsOneWidget);
+    });
+
+    testWidgets('a count opens exactly the articles it counts', (tester) async {
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.editor)),
+        at: ConsoleRoutes.articles,
+      );
+      // A leftover narrowing filter would show a fraction of the 44.
+      container
+          .read(articleFilterProvider.notifier)
+          .select(ArticleStatusFilter.draft);
+      await tester.tap(find.text('Categories'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('44'));
+      await tester.pumpAndSettle();
+
+      expect(location(), ConsoleRoutes.articles);
+      final query = container.read(articleFilterProvider);
+      expect(query.categorySlug, 'sport');
+      expect(query.status, ArticleStatusFilter.all);
+    });
+
+    testWidgets('the editor panel leads to the category\'s articles', (
+      tester,
+    ) async {
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.editor)),
+        at: ConsoleRoutes.categories,
+      );
+
+      await tester.tap(find.text('sport'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('View articles'));
+      await tester.pumpAndSettle();
+
+      expect(location(), ConsoleRoutes.articles);
+      expect(find.byType(CategoriesPage), findsNothing);
+      expect(container.read(articleFilterProvider).categorySlug, 'sport');
     });
   });
 }

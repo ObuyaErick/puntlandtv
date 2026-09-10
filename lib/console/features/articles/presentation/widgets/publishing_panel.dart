@@ -5,7 +5,7 @@ import '../../../../../core/l10n/app_date_format.dart';
 import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
-import '../../../operations/presentation/pages/categories_page.dart';
+import '../controllers/category_controller.dart';
 import '../controllers/article_editor_controller.dart';
 
 /// Category, read time, schedule and the breaking-news switch.

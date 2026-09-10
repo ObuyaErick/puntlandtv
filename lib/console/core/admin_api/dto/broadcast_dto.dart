@@ -407,10 +407,19 @@ class CategoryConfigDto {
   /// state until someone translates it.
   bool isVisibleIn(String locale) => (names[locale] ?? '').trim().isNotEmpty;
 
-  List<String> get untranslatedLocales => [
-    'so',
-    'en',
-  ].where((locale) => !isVisibleIn(locale)).toList(growable: false);
+  List<String> get untranslatedLocales =>
+      locales.where((locale) => !isVisibleIn(locale)).toList(growable: false);
+
+  /// The locales a category is named in, in the order the editor shows them.
+  static const locales = ['so', 'en'];
+
+  /// Lower-case, hyphenated, no leading/trailing hyphen — the same rule the
+  /// backend enforces, checked here so the form can say so while typing.
+  static final slugPattern = RegExp(r'^[a-z0-9]+(?:-[a-z0-9]+)*$');
+
+  /// Only an empty category can go. One with articles filed in it would take
+  /// their share links with it — see [CategoryFailureCode.inUse].
+  bool get canDelete => articleCount == 0;
 
   CategoryConfigDto copyWith({Map<String, String>? names, int? order}) =>
       CategoryConfigDto(
@@ -426,4 +435,10 @@ class CategoryConfigDto {
     'article_count': articleCount,
     'order': order,
   };
+}
+
+/// Refusal codes for category writes.
+abstract final class CategoryFailureCode {
+  /// Deletion attempted on a category that still has articles filed in it.
+  static const inUse = 'CATEGORY_IN_USE';
 }

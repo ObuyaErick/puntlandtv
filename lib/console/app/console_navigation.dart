@@ -29,6 +29,24 @@ extension ConsoleNavigation on BuildContext {
   /// `go` would rebuild the branch and drop both.
   void openArticle(String id) => push<void>(ConsoleRoutes.article(id));
 
+  /// A story started from outside the article list — the overview's "New
+  /// article".
+  ///
+  /// `go`, not `push` as in [openArticle]: the editor lives in the Articles
+  /// branch, and `go` switches to it with the list beneath the editor, so
+  /// closing the story lands on the list rather than back on a branch the
+  /// editor does not belong to.
+  void openNewArticle(String id) => go(ConsoleRoutes.article(id));
+
+  /// The categories articles are filed under.
+  ///
+  /// `go`, as with a programme's episodes: it is a child of the Articles
+  /// branch, so the list stays beneath it and the rail stays on Articles.
+  void openCategories() => go(ConsoleRoutes.categories);
+
+  /// Live control.
+  void openLiveControl() => go(ConsoleRoutes.live);
+
   /// One programme's episodes.
   void openProgram(String id) => go(ConsoleRoutes.program(id));
 }

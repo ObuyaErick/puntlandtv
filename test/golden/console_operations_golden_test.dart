@@ -8,7 +8,7 @@ import 'package:puntland/console/core/providers/console_providers.dart';
 import 'package:puntland/console/features/auth/domain/entities/console_user.dart';
 import 'package:puntland/console/core/admin_api/dto/push_dto.dart';
 import 'package:puntland/console/features/operations/presentation/controllers/push_controller.dart';
-import 'package:puntland/console/features/operations/presentation/pages/categories_page.dart';
+import 'package:puntland/console/features/articles/presentation/pages/categories_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/live_control_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/push_composer_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/schedule_page.dart';

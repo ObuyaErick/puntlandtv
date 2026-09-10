@@ -108,6 +108,36 @@ void main() {
       );
     });
 
+    testWidgets('an editor manages categories from the list', (tester) async {
+      await pumpList(tester, role: ConsoleRole.editor, userId: 'u-editor');
+
+      expect(find.text('Categories'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('filter-category')));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Manage categories'),
+        findsOneWidget,
+        reason: 'the category list is where a missing one is noticed',
+      );
+    });
+
+    testWidgets('a journalist is offered no way into the taxonomy', (
+      tester,
+    ) async {
+      await pumpList(
+        tester,
+        role: ConsoleRole.journalist,
+        userId: 'u-journalist',
+      );
+
+      expect(find.text('Categories'), findsNothing);
+
+      await tester.tap(find.byKey(const Key('filter-category')));
+      await tester.pumpAndSettle();
+      expect(find.text('Manage categories'), findsNothing);
+    });
+
     testWidgets('a journalist gets no bulk checkboxes', (tester) async {
       await pumpList(
         tester,
@@ -228,6 +258,28 @@ void main() {
       final after = rowsOf(tester);
       expect(after, isNotEmpty);
       expect(after.every((a) => a.categorySlug == 'sport'), isTrue);
+    });
+
+    testWidgets('choosing All widens a filter again', (tester) async {
+      // "All" is the null option, and the menu reports a null result as a
+      // dismissal — unboxed, this tap closed the menu and changed nothing.
+      await pumpList(tester, role: ConsoleRole.editor, userId: 'u-editor');
+
+      await choose(tester, 'filter-category', 'Sport');
+      expect(rowsOf(tester).every((a) => a.categorySlug == 'sport'), isTrue);
+
+      await choose(tester, 'filter-category', 'All');
+
+      expect(
+        ProviderScope.containerOf(tester.element(find.byType(ArticleListPage)))
+            .read(articleFilterProvider)
+            .categorySlug,
+        isNull,
+      );
+      expect(
+        rowsOf(tester).map((a) => a.categorySlug).toSet().length,
+        greaterThan(1),
+      );
     });
 
     testWidgets('picking a language keeps only articles written in it', (

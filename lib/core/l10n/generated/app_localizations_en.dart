@@ -429,9 +429,6 @@ class AppL10nEn extends AppL10n {
   String get navMedia => 'Media';
 
   @override
-  String get navCategories => 'Categories';
-
-  @override
   String get navUsers => 'Users & roles';
 
   @override
@@ -1004,6 +1001,15 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get newCategory => 'New category';
+
+  @override
+  String get manageCategories => 'Manage categories';
+
+  @override
+  String get backToArticles => 'Back to articles';
+
+  @override
+  String get viewCategoryArticles => 'View articles';
 
   @override
   String get slugPermanentNote =>
@@ -1775,9 +1781,6 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
-  String get backToArticles => 'Back to articles';
-
-  @override
   String get badgeBehind => 'BEHIND';
 
   @override
@@ -2066,4 +2069,90 @@ class AppL10nEn extends AppL10n {
   @override
   String get renditionPreviewFailed =>
       'This rung would not play. The packager may not be publishing it.';
+
+  @override
+  String get editCategory => 'Edit category';
+
+  @override
+  String get createCategory => 'Create category';
+
+  @override
+  String get fieldSlug => 'Slug';
+
+  @override
+  String get slugHint => 'e.g. local-news';
+
+  @override
+  String get slugFormatError =>
+      'Use lower-case letters, digits and single hyphens — like local-news.';
+
+  @override
+  String get slugTakenError => 'Another category already uses this slug.';
+
+  @override
+  String get slugChooseCarefully =>
+      'Choose carefully: the slug can\'t be changed once the category exists.';
+
+  @override
+  String get slugLocked => 'Permanent — it is in app links and push topics.';
+
+  @override
+  String get sectionDisplayNames => 'DISPLAY NAMES';
+
+  @override
+  String categoryNameIn(String language) {
+    return 'Name in $language';
+  }
+
+  @override
+  String categoryHiddenIn(String language) {
+    return 'Hidden from the $language tab bar until it has a name.';
+  }
+
+  @override
+  String get categoryNeedsName => 'Give it a name in at least one language.';
+
+  @override
+  String get categoryHiddenEverywhere =>
+      'With no names it is hidden from every tab bar. Its articles are not moved.';
+
+  @override
+  String categoryCreated(String name) {
+    return 'Created “$name”';
+  }
+
+  @override
+  String categorySaved(String name) {
+    return 'Saved “$name”';
+  }
+
+  @override
+  String categoryDeleted(String name) {
+    return 'Deleted “$name”';
+  }
+
+  @override
+  String deleteCategoryTitle(String name) {
+    return 'Delete “$name”?';
+  }
+
+  @override
+  String deleteCategoryBody(String slug) {
+    return 'The slug $slug is removed for good. App links and push topics that use it will stop working. This cannot be undone.';
+  }
+
+  @override
+  String deleteCategoryBlocked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count articles are filed here.',
+      one: '1 article is filed here.',
+    );
+    return '$_temp0 Move them to another category first, or clear its names to hide it from the app.';
+  }
+
+  @override
+  String get categoryInUseRefusal =>
+      'Articles are still filed in this category, so it can\'t be deleted.';
 }

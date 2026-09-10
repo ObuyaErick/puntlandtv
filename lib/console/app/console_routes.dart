@@ -16,7 +16,6 @@ abstract final class ConsoleRoutes {
   static const schedule = '/schedule';
   static const push = '/push';
   static const media = '/media';
-  static const categories = '/categories';
   static const users = '/users';
   static const config = '/config';
 
@@ -29,7 +28,6 @@ abstract final class ConsoleRoutes {
     schedule,
     push,
     media,
-    categories,
     users,
     config,
   ];
@@ -44,9 +42,23 @@ abstract final class ConsoleRoutes {
   /// a reload in the middle of writing has to come back to the same story.
   static String article(String id) => '$articles/$id';
 
+  /// The taxonomy articles are filed under.
+  ///
+  /// A screen inside Articles rather than a branch of its own: categories
+  /// exist to organise stories, and managing them is a step in the newsroom's
+  /// flow — "this needs a section we do not have yet" — not a separate
+  /// destination. Keeping it in the branch keeps the rail on Articles while it
+  /// is open.
+  static const categories = '$articles/$categoriesPattern';
+
   /// Path pattern fragments used when registering the child routes.
   static const programPattern = ':id';
   static const articlePattern = ':id';
+
+  /// A literal segment, so it has to be registered ahead of [articlePattern] —
+  /// the router matches in order, and `:id` would otherwise take it as an
+  /// article called "categories".
+  static const categoriesPattern = 'categories';
 
   /// The branch a location belongs to, or -1 for a location outside the shell.
   ///

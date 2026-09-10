@@ -9,6 +9,7 @@ import '../../../../../core/responsive/window_size.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../../core/widgets/feedback_views.dart';
+import '../../../../app/console_navigation.dart';
 import '../../../../core/admin_api/dto/admin_article_dto.dart';
 import '../../../../core/admin_api/dto/newsroom_summary_dto.dart';
 import '../../../../core/admin_api/dto/push_dto.dart';
@@ -16,6 +17,7 @@ import '../../../../core/providers/console_providers.dart';
 import '../../../../core/widgets/console_page.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../../articles/presentation/controllers/article_list_controller.dart';
+import '../../../articles/presentation/pages/article_list_page.dart';
 import '../../../auth/domain/entities/console_user.dart';
 import '../../../operations/presentation/controllers/broadcast_control_provider.dart';
 import '../../../operations/presentation/controllers/push_controller.dart';
@@ -42,6 +44,11 @@ class OverviewPage extends ConsumerWidget {
     // reading `DateTime.now()` here would shift the golden every minute.
     final now = ref.watch(consoleClockProvider)();
 
+    // Same rules as the article list's button: Operations cannot write, and a
+    // Journalist's story starts as a draft rather than an article.
+    final canWrite = ref.watch(canProvider(Capability.writeOwnArticles));
+    final canPublish = ref.watch(canProvider(Capability.publishArticles));
+
     return ConsolePage(
       title: l10n.overviewTitle,
       inlineSubtitle: true,
@@ -54,11 +61,13 @@ class OverviewPage extends ConsumerWidget {
           icon: const Icon(Icons.notifications_none_rounded, size: 17),
           label: Text(l10n.newAlert),
         ),
-        FilledButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text(l10n.newArticle),
-        ),
+        if (canWrite)
+          FilledButton.icon(
+            onPressed: () =>
+                startDraft(context, ref, open: context.openNewArticle),
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: Text(canPublish ? l10n.newArticle : l10n.newDraft),
+          ),
       ],
       child: summary.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -100,6 +109,7 @@ class _OverviewBody extends ConsumerWidget {
       streamUrl: control != null && control.isLiveToReaders
           ? control.previewUrl
           : null,
+      onOpenLiveControl: canWatch ? context.openLiveControl : null,
     );
     final published = StatCard(
       label: l10n.publishedToday,

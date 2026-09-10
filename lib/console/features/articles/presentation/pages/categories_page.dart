@@ -1,21 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../../core/domain/parity.dart';
 import '../../../../../core/error/failure.dart';
 import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/responsive/window_size.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../../core/widgets/feedback_views.dart';
+import '../../../../app/console_navigation.dart';
 import '../../../../core/admin_api/dto/broadcast_dto.dart';
 import '../../../../core/localised.dart';
-import '../../../../core/providers/console_providers.dart';
 import '../../../../core/widgets/console_page.dart';
 import '../../../../core/widgets/console_table.dart';
-
-final categoryConfigProvider = FutureProvider<List<CategoryConfigDto>>(
-  (ref) => ref.watch(adminApiProvider).fetchCategories(),
-);
+import '../controllers/article_list_controller.dart';
+import '../controllers/category_controller.dart';
+import 'category_panel.dart';
 
 /// Taxonomy management.
 ///
@@ -24,6 +24,10 @@ final categoryConfigProvider = FutureProvider<List<CategoryConfigDto>>(
 /// breaks every alert already sent — while **display names are per-locale and
 /// free to change**. The table shows both, side by side, so nobody has to be
 /// told twice.
+///
+/// Lives inside Articles (`/articles/categories`), reached from the article
+/// list, because a category only means anything as the place stories are
+/// filed: each count here leads back to those stories.
 class CategoriesPage extends ConsumerWidget {
   const CategoriesPage({super.key});
 
@@ -35,8 +39,22 @@ class CategoriesPage extends ConsumerWidget {
     return ConsolePage(
       title: l10n.categoriesTitle,
       actions: [
+        OutlinedButton.icon(
+          onPressed: context.openArticles,
+          icon: const Icon(Icons.arrow_back_rounded, size: 18),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(0, 40),
+            side: BorderSide(color: context.colors.outline),
+            foregroundColor: context.scheme.onSurface,
+          ),
+          label: Text(l10n.backToArticles),
+        ),
         FilledButton.icon(
-          onPressed: () {},
+          // Waits for the list: the form checks a new slug against it, and a
+          // uniqueness check against nothing would pass every duplicate.
+          onPressed: categories.hasValue
+              ? () => showCategoryPanel(context)
+              : null,
           icon: const Icon(Icons.add_rounded, size: 18),
           label: Text(l10n.newCategory),
         ),
@@ -114,55 +132,54 @@ class _CategoryTable extends StatelessWidget {
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: context.scheme.surface,
-              borderRadius: Radii.cardBorder,
-              border: Border.all(color: context.colors.outline),
+              // color: context.scheme.surface,
+              // borderRadius: Radii.cardBorder,
+              // border: Border.all(color: context.colors.outline),
             ),
-            child: ClipRRect(
-              borderRadius: Radii.cardBorder,
-              child: Column(
-                children: [
-                  ConsoleTableHeader(columns: columns),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        for (final category in rows)
-                          ConsoleTableRow(
-                            columns: columns,
-                            onTap: () {},
-                            cells: [
-                              // Monospace-ish weight to signal "identifier,
-                              // not prose".
-                              Text(
-                                category.slug,
-                                style: context.text.label.copyWith(
-                                  color: context.scheme.primary,
-                                ),
+            child: Column(
+              children: [
+                ConsoleTableHeader(columns: columns),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      // No `isLast`: the note below follows the rows, and
+                      // the divider is what separates them from it.
+                      for (final (index, category) in rows.indexed)
+                        ConsoleTableRow(
+                          columns: columns,
+                          onTap: () =>
+                              showCategoryPanel(context, category: category),
+                          parity: Parity.of(index),
+                          cells: [
+                            // Monospace-ish weight to signal "identifier,
+                            // not prose".
+                            Text(
+                              category.slug,
+                              style: context.text.label.copyWith(
+                                color: context.scheme.primary,
                               ),
-                              _NameCell(category: category, locale: locale),
-                              Text(
-                                '${category.articleCount}',
-                                style: context.text.meta.copyWith(
-                                  color: context.scheme.onSurface,
-                                ),
-                              ),
-                              _VisibilityCell(category: category),
-                            ],
-                          ),
-                        Padding(
-                          padding: const EdgeInsets.all(Spacing.gutter),
-                          child: Text(
-                            l10n.untranslatedHiddenNote,
-                            style: context.text.meta.copyWith(
-                              color: context.scheme.onSurfaceVariant,
                             ),
+                            _NameCell(category: category, locale: locale),
+                            _ArticleCountLink(
+                              category: category,
+                              label: '${category.articleCount}',
+                            ),
+                            _VisibilityCell(category: category),
+                          ],
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(Spacing.gutter),
+                        child: Text(
+                          l10n.untranslatedHiddenNote,
+                          style: context.text.meta.copyWith(
+                            color: context.scheme.onSurfaceVariant,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
@@ -189,7 +206,7 @@ class _CategoryCard extends StatelessWidget {
       color: context.scheme.surface,
       borderRadius: Radii.cardBorder,
       child: InkWell(
-        onTap: () {},
+        onTap: () => showCategoryPanel(context, category: category),
         borderRadius: Radii.cardBorder,
         child: Container(
           padding: const EdgeInsets.all(Spacing.listRhythm),
@@ -226,15 +243,65 @@ class _CategoryCard extends StatelessWidget {
                   const SizedBox(width: Spacing.cardInternal),
                   // The count carries its own noun here: there is no column
                   // header above a card to say what the number counts.
-                  Text(
-                    l10n.categoryArticleCount(category.articleCount),
-                    style: context.text.meta.copyWith(
-                      color: context.scheme.onSurfaceVariant,
-                    ),
+                  _ArticleCountLink(
+                    category: category,
+                    label: l10n.categoryArticleCount(category.articleCount),
                   ),
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A category's article count, and the way to those articles.
+///
+/// The count is the question an editor brings to this screen — what is filed
+/// here? — so it answers it: tapping opens the article list narrowed to this
+/// category. Its own tap target inside the row, whose tap opens the editor.
+/// Zero stays plain text; there is nothing to open.
+class _ArticleCountLink extends ConsumerWidget {
+  const _ArticleCountLink({required this.category, required this.label});
+
+  final CategoryConfigDto category;
+  final String label;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (category.articleCount == 0) {
+      return Text(
+        label,
+        style: context.text.meta.copyWith(
+          color: context.scheme.onSurfaceVariant,
+        ),
+      );
+    }
+
+    return Tooltip(
+      message: context.l10n.viewCategoryArticles,
+      child: Semantics(
+        link: true,
+        child: InkWell(
+          onTap: () {
+            ref
+                .read(articleFilterProvider.notifier)
+                .onlyCategory(category.slug);
+            context.openArticles();
+          },
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: Text(
+              label,
+              style: context.text.meta.copyWith(
+                color: context.colors.linkText,
+                decoration: TextDecoration.underline,
+                decorationColor: context.colors.linkText,
+              ),
+            ),
           ),
         ),
       ),

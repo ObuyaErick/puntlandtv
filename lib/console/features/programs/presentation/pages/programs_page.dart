@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../../core/domain/parity.dart';
 import '../../../../../core/error/failure.dart';
 import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/responsive/window_size.dart';
@@ -130,6 +131,8 @@ class _ProgramTable extends ConsumerWidget {
                         return ConsoleTableRow(
                           columns: columns,
                           onTap: open,
+                          parity: Parity.of(index),
+                          isLast: index == rows.length - 1,
                           cells: [
                             _ProgramCell(program: program, locale: locale),
                             Text(
@@ -336,7 +339,8 @@ class _ProgramSkeleton extends StatelessWidget {
 
     return ListView(
       children: [
-        for (var i = 0; i < 6; i++) ConsoleTableRowSkeleton(columns: columns),
+        for (var i = 0; i < 6; i++)
+          ConsoleTableRowSkeleton(columns: columns, parity: Parity.of(i)),
       ],
     );
   }

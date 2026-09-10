@@ -10,10 +10,10 @@ import '../features/administration/presentation/pages/app_config_page.dart';
 import '../features/administration/presentation/pages/users_page.dart';
 import '../features/articles/presentation/pages/article_editor_page.dart';
 import '../features/articles/presentation/pages/article_list_page.dart';
+import '../features/articles/presentation/pages/categories_page.dart';
 import '../features/auth/domain/entities/console_user.dart';
 import '../features/auth/presentation/pages/sign_in_page.dart';
 import '../features/media/presentation/pages/media_library_page.dart';
-import '../features/operations/presentation/pages/categories_page.dart';
 import '../features/operations/presentation/pages/live_control_page.dart';
 import '../features/operations/presentation/pages/push_composer_page.dart';
 import '../features/operations/presentation/pages/schedule_page.dart';
@@ -79,6 +79,12 @@ final consoleRouterProvider = Provider<GoRouter>((ref) {
             ConsoleRoutes.articles,
             const ArticleListPage(),
             routes: [
+              // First, because `:id` below matches any segment and the router
+              // takes the first route that fits.
+              GoRoute(
+                path: ConsoleRoutes.categoriesPattern,
+                builder: (_, _) => const CategoriesPage(),
+              ),
               // Inside the branch, so the rail keeps Articles selected while a
               // story is open and back returns to the list rather than to
               // whichever section was visited before it.
@@ -107,7 +113,6 @@ final consoleRouterProvider = Provider<GoRouter>((ref) {
           _branch(ConsoleRoutes.schedule, const SchedulePage()),
           _branch(ConsoleRoutes.push, const PushComposerPage()),
           _branch(ConsoleRoutes.media, const MediaLibraryPage()),
-          _branch(ConsoleRoutes.categories, const CategoriesPage()),
           _branch(ConsoleRoutes.users, const UsersPage()),
           _branch(ConsoleRoutes.config, const AppConfigPage()),
         ],
@@ -159,8 +164,21 @@ String? _guard(Ref ref, GoRouterState state) {
   final required = consoleDestinations()[index].requires;
   if (required != null && !user.can(required)) return ConsoleRoutes.overview;
 
+  // A screen inside a branch can ask more than the branch does. Without this a
+  // Journalist, who may open Articles, could type their way into the taxonomy.
+  for (final MapEntry(key: route, value: capability)
+      in _screenRequirements.entries) {
+    final inside = location == route || location.startsWith('$route/');
+    if (inside && !user.can(capability)) return ConsoleRoutes.overview;
+  }
+
   return null;
 }
+
+/// Screens nested in a branch that need a capability the branch does not.
+const _screenRequirements = {
+  ConsoleRoutes.categories: Capability.manageTaxonomy,
+};
 
 /// Bridges the auth state into something [GoRouter] can listen to.
 class _AuthRefresh extends ChangeNotifier {

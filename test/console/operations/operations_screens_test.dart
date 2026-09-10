@@ -5,7 +5,6 @@ import 'package:puntland/console/core/admin_api/fixture_admin_api.dart';
 import 'package:puntland/console/core/providers/console_providers.dart';
 import 'package:puntland/console/features/auth/domain/entities/console_user.dart';
 import 'package:puntland/console/features/operations/presentation/controllers/push_controller.dart';
-import 'package:puntland/console/features/operations/presentation/pages/categories_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/live_control_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/push_composer_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/schedule_page.dart';
@@ -355,21 +354,6 @@ void main() {
             .onPressed,
         isNotNull,
       );
-    });
-  });
-
-  group('categories', () {
-    testWidgets('an untranslated category is marked and shown hidden', (
-      tester,
-    ) async {
-      await pumpScreen(tester, const CategoriesPage(), role: ConsoleRole.admin);
-
-      // The name falls back to the other language and the gap is stated in
-      // words, rather than a "Not translated" placeholder where a name should
-      // be.
-      expect(find.text('Waxbarasho'), findsOneWidget);
-      expect(find.textContaining('No English translation'), findsOneWidget);
-      expect(find.textContaining('slug is permanent'), findsOneWidget);
     });
   });
 }

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../../core/domain/parity.dart';
 import '../../../../../core/error/failure.dart';
 import '../../../../../core/l10n/app_date_format.dart';
 import '../../../../../core/l10n/l10n.dart';
@@ -146,6 +147,8 @@ class _EpisodeTable extends ConsumerWidget {
 
                         return ConsoleTableRow(
                           columns: columns,
+                          parity: Parity.of(index),
+                          isLast: index == rows.length - 1,
                           cells: [
                             _EpisodeCell(episode: episode, locale: locale),
                             _SourceCell(episode: episode),
@@ -388,7 +391,8 @@ class _EpisodeSkeleton extends StatelessWidget {
 
     return ListView(
       children: [
-        for (var i = 0; i < 6; i++) ConsoleTableRowSkeleton(columns: columns),
+        for (var i = 0; i < 6; i++)
+          ConsoleTableRowSkeleton(columns: columns, parity: Parity.of(i)),
       ],
     );
   }

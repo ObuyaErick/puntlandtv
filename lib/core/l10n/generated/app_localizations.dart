@@ -787,12 +787,6 @@ abstract class AppL10n {
   /// **'Media'**
   String get navMedia;
 
-  /// Console navigation: taxonomy.
-  ///
-  /// In en, this message translates to:
-  /// **'Categories'**
-  String get navCategories;
-
   /// Console navigation: staff accounts.
   ///
   /// In en, this message translates to:
@@ -1764,6 +1758,24 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'New category'**
   String get newCategory;
+
+  /// Opens the categories screen from the foot of the article list's category filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage categories'**
+  String get manageCategories;
+
+  /// Tooltip on the editor's back button.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to articles'**
+  String get backToArticles;
+
+  /// Opens the article list filtered to one category.
+  ///
+  /// In en, this message translates to:
+  /// **'View articles'**
+  String get viewCategoryArticles;
 
   /// Explains the slug versus name distinction.
   ///
@@ -2953,12 +2965,6 @@ abstract class AppL10n {
   /// **'article #{id}'**
   String articleRef(String id);
 
-  /// Tooltip on the editor's back button.
-  ///
-  /// In en, this message translates to:
-  /// **'Back to articles'**
-  String get backToArticles;
-
   /// Locale tab badge: this translation is older than the source. Uppercase.
   ///
   /// In en, this message translates to:
@@ -3474,6 +3480,126 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'This rung would not play. The packager may not be publishing it.'**
   String get renditionPreviewFailed;
+
+  /// Heading of the side panel that edits an existing category.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get editCategory;
+
+  /// Submit button of the new-category panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Create category'**
+  String get createCategory;
+
+  /// Label of the category slug field.
+  ///
+  /// In en, this message translates to:
+  /// **'Slug'**
+  String get fieldSlug;
+
+  /// Placeholder in the category slug field. Keep the example slug in lower-case Latin letters and hyphens.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. local-news'**
+  String get slugHint;
+
+  /// Shown under the slug field when it does not match the slug rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Use lower-case letters, digits and single hyphens — like local-news.'**
+  String get slugFormatError;
+
+  /// Shown under the slug field when the slug is not unique.
+  ///
+  /// In en, this message translates to:
+  /// **'Another category already uses this slug.'**
+  String get slugTakenError;
+
+  /// Note under the slug field when creating a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose carefully: the slug can\'t be changed once the category exists.'**
+  String get slugChooseCarefully;
+
+  /// Note under the read-only slug field when editing a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent — it is in app links and push topics.'**
+  String get slugLocked;
+
+  /// Section heading above a category's per-language names. Uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'DISPLAY NAMES'**
+  String get sectionDisplayNames;
+
+  /// Label of a category name field for one language.
+  ///
+  /// In en, this message translates to:
+  /// **'Name in {language}'**
+  String categoryNameIn(String language);
+
+  /// Shown under an empty category name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden from the {language} tab bar until it has a name.'**
+  String categoryHiddenIn(String language);
+
+  /// Shown when a new category has no names at all.
+  ///
+  /// In en, this message translates to:
+  /// **'Give it a name in at least one language.'**
+  String get categoryNeedsName;
+
+  /// Warning when every name of an existing category has been cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'With no names it is hidden from every tab bar. Its articles are not moved.'**
+  String get categoryHiddenEverywhere;
+
+  /// Toast after creating a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Created “{name}”'**
+  String categoryCreated(String name);
+
+  /// Toast after renaming a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved “{name}”'**
+  String categorySaved(String name);
+
+  /// Toast after deleting a category.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted “{name}”'**
+  String categoryDeleted(String name);
+
+  /// Heading of the delete-category confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{name}”?'**
+  String deleteCategoryTitle(String name);
+
+  /// Body of the delete-category confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'The slug {slug} is removed for good. App links and push topics that use it will stop working. This cannot be undone.'**
+  String deleteCategoryBody(String slug);
+
+  /// Why a category with articles cannot be deleted, and what to do instead.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 article is filed here.} other{{count} articles are filed here.}} Move them to another category first, or clear its names to hide it from the app.'**
+  String deleteCategoryBlocked(int count);
+
+  /// Toast when the server refuses to delete a category that has articles.
+  ///
+  /// In en, this message translates to:
+  /// **'Articles are still filed in this category, so it can\'t be deleted.'**
+  String get categoryInUseRefusal;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

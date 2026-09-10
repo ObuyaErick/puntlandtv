@@ -547,7 +547,8 @@ class FixtureAdminApi implements PuntlandAdminApi {
         label: 'Backup encoder',
         username: 'backup-encoder',
         createdAt: DateTime(2026, 9, 6, 14, 2),
-        rtmpPublishUrl: '$_rtmpBase/main?user=backup-encoder&pass=$_fixtureToken',
+        rtmpPublishUrl:
+            '$_rtmpBase/main?user=backup-encoder&pass=$_fixtureToken',
         srtPublishUrl:
             '$_srtBase?streamid=publish:main:backup-encoder:$_fixtureToken',
         streamKey: 'main?user=backup-encoder&pass=$_fixtureToken',
@@ -667,7 +668,42 @@ class FixtureAdminApi implements PuntlandAdminApi {
   @override
   Future<List<CategoryConfigDto>> saveCategories(
     List<CategoryConfigDto> categories,
-  ) => _respond(() => _categories = categories);
+  ) => _respond(() {
+    // Upsert by slug, never delete — the real endpoint's contract. The count
+    // stays the fixture's own: it is a fact about articles, not a setting the
+    // console sends.
+    final bySlug = {for (final row in _categories) row.slug: row};
+    for (final input in categories) {
+      bySlug[input.slug] = CategoryConfigDto(
+        slug: input.slug,
+        names: {
+          for (final MapEntry(:key, :value) in input.names.entries)
+            if (value.trim().isNotEmpty) key: value.trim(),
+        },
+        articleCount: bySlug[input.slug]?.articleCount ?? 0,
+        order: input.order,
+      );
+    }
+    return _categories = bySlug.values.toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
+  });
+
+  @override
+  Future<List<CategoryConfigDto>> deleteCategory(String slug) => _respond(() {
+    final row = _categories.where((c) => c.slug == slug).firstOrNull;
+    if (row == null) {
+      throw const Failure(kind: FailureKind.notFound, code: 'HTTP_404');
+    }
+    if (!row.canDelete) {
+      throw const Failure(
+        kind: FailureKind.unknown,
+        code: CategoryFailureCode.inUse,
+      );
+    }
+    return _categories = _categories
+        .where((c) => c.slug != slug)
+        .toList(growable: false);
+  });
 
   @override
   Future<PushReachDto> fetchPushReach(Set<String> topics) => _respond(() {

@@ -433,9 +433,6 @@ class AppL10nSo extends AppL10n {
   String get navMedia => 'Warbaahinta';
 
   @override
-  String get navCategories => 'Qaybaha';
-
-  @override
   String get navUsers => 'Isticmaalayaasha';
 
   @override
@@ -1011,6 +1008,15 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get newCategory => 'Qayb cusub';
+
+  @override
+  String get manageCategories => 'Maamul qaybaha';
+
+  @override
+  String get backToArticles => 'Ku noqo maqaallada';
+
+  @override
+  String get viewCategoryArticles => 'Eeg maqaallada';
 
   @override
   String get slugPermanentNote =>
@@ -1788,9 +1794,6 @@ class AppL10nSo extends AppL10n {
   }
 
   @override
-  String get backToArticles => 'Ku noqo maqaallada';
-
-  @override
   String get badgeBehind => 'DAAHAY';
 
   @override
@@ -2082,4 +2085,91 @@ class AppL10nSo extends AppL10n {
   @override
   String get renditionPreviewFailed =>
       'Heerkan ma ciyaari karo. Waxaa laga yaabaa in aan la baahinayn.';
+
+  @override
+  String get editCategory => 'Wax ka beddel qaybta';
+
+  @override
+  String get createCategory => 'Samee qaybta';
+
+  @override
+  String get fieldSlug => 'Slug';
+
+  @override
+  String get slugHint => 'tusaale: war-deegaan';
+
+  @override
+  String get slugFormatError =>
+      'Isticmaal xarfo yaryar, tirooyin iyo xariijin keliya — sida war-deegaan.';
+
+  @override
+  String get slugTakenError => 'Qayb kale ayaa horey u isticmaashay slug-kan.';
+
+  @override
+  String get slugChooseCarefully =>
+      'Si taxaddar leh u dooro: slug-ga lama beddeli karo marka qaybta la sameeyo.';
+
+  @override
+  String get slugLocked =>
+      'Waa joogto — wuxuu ku jiraa xiriirada abka iyo mawduucyada digniinaha.';
+
+  @override
+  String get sectionDisplayNames => 'MAGACYADA';
+
+  @override
+  String categoryNameIn(String language) {
+    return 'Magaca — $language';
+  }
+
+  @override
+  String categoryHiddenIn(String language) {
+    return 'Waa laga qarinayaa liiska $language ilaa magac la siiyo.';
+  }
+
+  @override
+  String get categoryNeedsName => 'Sii magac ugu yaraan hal luqad.';
+
+  @override
+  String get categoryHiddenEverywhere =>
+      'Magac la\'aan, waa laga qarinayaa liis kasta. Maqaalladeeda lama raro.';
+
+  @override
+  String categoryCreated(String name) {
+    return '“$name” waa la sameeyay';
+  }
+
+  @override
+  String categorySaved(String name) {
+    return '“$name” waa la kaydiyay';
+  }
+
+  @override
+  String categoryDeleted(String name) {
+    return '“$name” waa la tirtiray';
+  }
+
+  @override
+  String deleteCategoryTitle(String name) {
+    return 'Ma tirtirtaa “$name”?';
+  }
+
+  @override
+  String deleteCategoryBody(String slug) {
+    return 'Slug-ga $slug si joogto ah ayaa loo tirtirayaa. Xiriirada abka iyo mawduucyada digniinaha ee isticmaala ma shaqeyn doonaan. Tan dib looma celin karo.';
+  }
+
+  @override
+  String deleteCategoryBlocked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count maqaal ayaa ku jira.',
+      one: '1 maqaal ayaa ku jira.',
+    );
+    return '$_temp0 Marka hore u wareeji qayb kale, ama tirtir magacyadeeda si looga qariyo abka.';
+  }
+
+  @override
+  String get categoryInUseRefusal =>
+      'Maqaallo ayaa weli ku jira qaybtan, sidaas darteed lama tirtiri karo.';
 }

@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../../core/domain/parity.dart';
 import '../../../core/responsive/adaptive_layout.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/theme/tokens.dart';
@@ -37,7 +38,13 @@ class ConsoleTableHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: Spacing.listRhythm),
       height: 40,
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: context.colors.outline)),
+        color: context.scheme.surface,
+        border: Border(
+          top: BorderSide(color: context.colors.outline),
+          left: BorderSide(color: context.colors.outline),
+          right: BorderSide(color: context.colors.outline),
+          bottom: BorderSide(color: context.colors.outline),
+        ),
       ),
       child: Row(
         children: [
@@ -82,6 +89,8 @@ class ConsoleTableRow extends StatelessWidget {
     this.onTap,
     this.selected = false,
     this.leading,
+    this.isLast = false,
+    this.parity = Parity.even,
   });
 
   final List<ConsoleColumn> columns;
@@ -90,6 +99,14 @@ class ConsoleTableRow extends StatelessWidget {
   final bool selected;
   final Widget? leading;
 
+  /// Drops the bottom divider: the card the table sits in draws that edge, and
+  /// a divider on top of it reads as a doubled border.
+  final bool isLast;
+
+  /// Odd rows are striped, so an eye tracking a row across six columns does
+  /// not slip onto the one below.
+  final Parity parity;
+
   @override
   Widget build(BuildContext context) {
     assert(
@@ -97,39 +114,61 @@ class ConsoleTableRow extends StatelessWidget {
       'a row must supply exactly one cell per column',
     );
 
-    return PointerAffordance(
-      onTap: onTap,
-      selected: selected,
-      child: Container(
-        constraints: const BoxConstraints(minHeight: kMinTapTarget),
-        padding: const EdgeInsets.symmetric(
-          horizontal: Spacing.listRhythm,
-          vertical: 10,
-        ),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: context.colors.outlineSubtle),
+    // Half a step towards the hover tint rather than the tint itself, so
+    // hovering an odd row still visibly changes it.
+    final stripe = switch (parity) {
+      Parity.even => context.scheme.surface,
+      Parity.odd => Color.lerp(
+        context.scheme.surface,
+        context.scheme.surfaceContainerLow,
+        0.5,
+      )!,
+    };
+
+    // The fill sits beneath the affordance rather than inside it: painted on
+    // the row itself, it covered the hover, selected and focus states the
+    // affordance draws behind its child.
+    return ColoredBox(
+      color: stripe,
+      child: PointerAffordance(
+        onTap: onTap,
+        selected: selected,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: kMinTapTarget),
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.listRhythm,
+            vertical: 10,
           ),
-        ),
-        child: Row(
-          children: [
-            if (leading != null) ...[
-              leading!,
-              const SizedBox(width: Spacing.cardInternal),
-            ],
-            for (var i = 0; i < columns.length; i++) ...[
-              _sized(
-                columns[i],
-                Align(
-                  alignment: columns[i].alignEnd
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: cells[i],
+          decoration: BoxDecoration(
+            // borderRadius: Radii.cardBorder,
+            border: Border(
+              left: BorderSide(color: context.colors.outline),
+              right: BorderSide(color: context.colors.outline),
+              bottom: isLast
+                  ? BorderSide.none
+                  : BorderSide(color: context.colors.outlineSubtle),
+            ),
+          ),
+          child: Row(
+            children: [
+              if (leading != null) ...[
+                leading!,
+                const SizedBox(width: Spacing.cardInternal),
+              ],
+              for (var i = 0; i < columns.length; i++) ...[
+                _sized(
+                  columns[i],
+                  Align(
+                    alignment: columns[i].alignEnd
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    child: cells[i],
+                  ),
                 ),
-              ),
-              const SizedBox(width: Spacing.cardInternal),
+                const SizedBox(width: Spacing.cardInternal),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -139,14 +178,23 @@ class ConsoleTableRow extends StatelessWidget {
 /// Loading placeholder shaped like a row, so the table does not jump when data
 /// lands.
 class ConsoleTableRowSkeleton extends StatelessWidget {
-  const ConsoleTableRowSkeleton({super.key, required this.columns});
+  const ConsoleTableRowSkeleton({
+    super.key,
+    required this.columns,
+    this.parity = Parity.even,
+  });
 
   final List<ConsoleColumn> columns;
+
+  /// Striped like the rows it stands in for, for the same reason it is shaped
+  /// like them.
+  final Parity parity;
 
   @override
   Widget build(BuildContext context) {
     return ConsoleTableRow(
       columns: columns,
+      parity: parity,
       cells: [
         for (var i = 0; i < columns.length; i++)
           Container(

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../../core/domain/parity.dart';
 import '../../../../../core/error/failure.dart';
 import '../../../../../core/l10n/app_date_format.dart';
 import '../../../../../core/l10n/l10n.dart';
@@ -124,6 +125,8 @@ class _StaffBody extends ConsumerWidget {
                               return ConsoleTableRow(
                                 columns: columns,
                                 onTap: open,
+                                parity: Parity.of(index),
+                                isLast: index == directory.members.length - 1,
                                 cells: [
                                   _PersonCell(member: member),
                                   Text(
@@ -432,7 +435,8 @@ class _StaffSkeleton extends StatelessWidget {
 
     return ListView(
       children: [
-        for (var i = 0; i < 7; i++) ConsoleTableRowSkeleton(columns: columns),
+        for (var i = 0; i < 7; i++)
+          ConsoleTableRowSkeleton(columns: columns, parity: Parity.of(i)),
       ],
     );
   }

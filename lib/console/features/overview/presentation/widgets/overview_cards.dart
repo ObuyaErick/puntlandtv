@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:puntland/console/app/console_navigation.dart';
 
 import '../../../../../core/l10n/app_number_format.dart';
 import '../../../../../core/l10n/l10n.dart';
@@ -17,9 +16,14 @@ class OnAirCard extends StatelessWidget {
     required this.onAir,
     required this.stacked,
     this.streamUrl,
+    this.onOpenLiveControl,
   });
 
   final OnAirDto onAir;
+
+  /// Opens live control. Null hides the button: a role that cannot manage the
+  /// broadcast would only be bounced back here by the router.
+  final VoidCallback? onOpenLiveControl;
 
   /// The playlist the preview plays, when the channel is reaching readers and
   /// this user may read the broadcast state. Null keeps the static thumbnail.
@@ -133,10 +137,11 @@ class OnAirCard extends StatelessWidget {
                     spacing: Spacing.chip,
                     runSpacing: Spacing.chip,
                     children: [
-                      _DarkButton(
-                        label: l10n.openLiveControl,
-                        
-                      ),
+                      if (onOpenLiveControl != null)
+                        _DarkButton(
+                          label: l10n.openLiveControl,
+                          onTap: onOpenLiveControl,
+                        ),
                       _DarkButton(
                         label: onAir.radioOnAir
                             ? l10n.radioOnAir

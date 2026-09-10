@@ -435,6 +435,15 @@ class HttpAdminApi implements PuntlandAdminApi {
   );
 
   @override
+  Future<List<CategoryConfigDto>> deleteCategory(String slug) => _sendList(
+    // DELETE, but it answers with the remaining list rather than 204 — the
+    // same shape as revoking an ingest key, for the same reason.
+    'DELETE',
+    '/v1/admin/categories/${Uri.encodeComponent(slug)}',
+    CategoryConfigDto.fromJson,
+  );
+
+  @override
   Future<PushReachDto> fetchPushReach(Set<String> topics) => _get(
     '/v1/admin/push/reach',
     PushReachDto.fromJson,
