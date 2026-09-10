@@ -16,6 +16,8 @@ import '../../../../core/providers/console_providers.dart';
 import '../../../../core/widgets/console_page.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../../articles/presentation/controllers/article_list_controller.dart';
+import '../../../auth/domain/entities/console_user.dart';
+import '../../../operations/presentation/controllers/broadcast_control_provider.dart';
 import '../../../operations/presentation/controllers/push_controller.dart';
 import '../widgets/overview_cards.dart';
 
@@ -84,10 +86,20 @@ class _OverviewBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
+    // The newsroom summary carries no playlist, so the preview reads the
+    // broadcast state live control reads — and only for a role allowed to,
+    // rather than sending a request the admin API would refuse. Everyone else
+    // keeps the static thumbnail, as does anyone while it loads or if it fails.
+    final canWatch = ref.watch(canProvider(Capability.manageBroadcast));
+    final control = canWatch ? ref.watch(broadcastControlProvider).value : null;
+
     final size = context.windowSize;
     final onAir = OnAirCard(
       onAir: summary.onAir,
       stacked: !size.isAtLeastMedium,
+      streamUrl: control != null && control.isLiveToReaders
+          ? control.previewUrl
+          : null,
     );
     final published = StatCard(
       label: l10n.publishedToday,

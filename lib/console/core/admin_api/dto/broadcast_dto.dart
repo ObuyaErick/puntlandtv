@@ -275,6 +275,20 @@ class BroadcastControlDto {
   /// about; not worth calling anyone about if the operator meant it.
   bool get isArmedWithoutSignal => tvOnAir && !ingest.isPublishing;
 
+  /// The playlist a console preview plays.
+  ///
+  /// The highest-bitrate rung that is enabled and healthy — the same choice
+  /// `GET /v1/live` makes for a reader, so the operator is watching what the
+  /// audience is watching rather than a stream picked by different rules.
+  String? get previewUrl {
+    final playable =
+        renditions
+            .where((rendition) => rendition.enabled && rendition.healthy)
+            .toList(growable: false)
+          ..sort((a, b) => b.bitrateKbps.compareTo(a.bitrateKbps));
+    return playable.isEmpty ? null : playable.first.url;
+  }
+
   List<String> get incompleteSlateLocales => requiredSlateLocales
       .where((locale) => !(slate[locale]?.isComplete ?? false))
       .toList(growable: false);

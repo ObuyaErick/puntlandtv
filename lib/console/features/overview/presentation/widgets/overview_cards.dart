@@ -1,18 +1,29 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:puntland/console/app/console_navigation.dart';
 
 import '../../../../../core/l10n/app_number_format.dart';
 import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../core/admin_api/dto/newsroom_summary_dto.dart';
+import '../../../operations/presentation/widgets/stream_preview.dart';
 
 /// Broadcast health. Navy card, radius 12, padding 22, gap 18 — per the
 /// artboard, the one dark card on a light page, because it is the thing an
 /// operator looks at first.
 class OnAirCard extends StatelessWidget {
-  const OnAirCard({super.key, required this.onAir, required this.stacked});
+  const OnAirCard({
+    super.key,
+    required this.onAir,
+    required this.stacked,
+    this.streamUrl,
+  });
 
   final OnAirDto onAir;
+
+  /// The playlist the preview plays, when the channel is reaching readers and
+  /// this user may read the broadcast state. Null keeps the static thumbnail.
+  final String? streamUrl;
 
   /// Preview above the text rather than beside it.
   ///
@@ -62,21 +73,37 @@ class OnAirCard extends StatelessWidget {
           // which is narrower than the buttons in it.
           Builder(
             builder: (context) {
-              final preview = Container(
-                width: stacked ? double.infinity : 150,
-                height: 86,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF04101F),
-                  borderRadius: BorderRadius.circular(Radii.button),
-                ),
-                child: const Center(
-                  child: Icon(
-                    Icons.videocam_outlined,
-                    size: 22,
-                    color: DarkTokens.onSurfaceVariant,
+              final Widget preview;
+              if (streamUrl == null) {
+                preview = Container(
+                  width: stacked ? double.infinity : 150,
+                  height: 86,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF04101F),
+                    borderRadius: BorderRadius.circular(Radii.button),
                   ),
-                ),
-              );
+                  child: const Center(
+                    child: Icon(
+                      Icons.videocam_outlined,
+                      size: 22,
+                      color: DarkTokens.onSurfaceVariant,
+                    ),
+                  ),
+                );
+              } else {
+                // The LIVE pill in the header already says it, so the
+                // preview does not repeat it in its corner.
+                final player = StreamPreview(
+                  isLive: true,
+                  streamUrl: streamUrl,
+                  showLiveFlag: false,
+                );
+                // Stacked, a full-width 86dp strip would crop a 16:9 picture
+                // to its middle third — fine for a glyph, not for video.
+                preview = stacked
+                    ? AspectRatio(aspectRatio: 16 / 9, child: player)
+                    : SizedBox(width: 150, height: 86, child: player);
+              }
 
               final details = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +133,10 @@ class OnAirCard extends StatelessWidget {
                     spacing: Spacing.chip,
                     runSpacing: Spacing.chip,
                     children: [
-                      _DarkButton(label: l10n.openLiveControl),
+                      _DarkButton(
+                        label: l10n.openLiveControl,
+                        
+                      ),
                       _DarkButton(
                         label: onAir.radioOnAir
                             ? l10n.radioOnAir
@@ -181,15 +211,16 @@ class _LivePill extends StatelessWidget {
 }
 
 class _DarkButton extends StatelessWidget {
-  const _DarkButton({required this.label, this.dot = false});
+  const _DarkButton({required this.label, this.dot = false, this.onTap});
 
   final String label;
   final bool dot;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: () {},
+      onPressed: onTap,
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(0, 32),
         padding: const EdgeInsets.symmetric(horizontal: 12),

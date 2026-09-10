@@ -24,10 +24,8 @@ import '../../../../core/widgets/console_page.dart';
 import '../../../../core/widgets/console_table.dart';
 import '../../../../core/widgets/console_toast.dart';
 import '../../../../core/widgets/status_badge.dart';
-
-final broadcastControlProvider = FutureProvider<BroadcastControlDto>(
-  (ref) => ref.watch(adminApiProvider).fetchBroadcastControl(),
-);
+import '../controllers/broadcast_control_provider.dart';
+import '../widgets/stream_preview.dart';
 
 /// Operations' control surface for the channel.
 ///
@@ -188,171 +186,23 @@ String _protectedRungNote(BuildContext context, BroadcastControlDto control) {
   return context.l10n.protectedRungNote(rung ?? '');
 }
 
-/// The playlist the preview plays.
-///
-/// The highest-bitrate rung that is enabled and healthy — the same choice
-/// `GET /v1/live` makes for a reader, so the operator is watching what the
-/// audience is watching rather than a stream picked by different rules.
-String? _previewUrl(BroadcastControlDto control) {
-  final playable =
-      control.renditions
-          .where((rendition) => rendition.enabled && rendition.healthy)
-          .toList(growable: false)
-        ..sort((a, b) => b.bitrateKbps.compareTo(a.bitrateKbps));
-  return playable.isEmpty ? null : playable.first.url;
-}
-
-/// The stream preview: the actual channel, with its LIVE flag pinned to the
-/// corner.
-///
-/// This was a static box with a `videocam` glyph in it — a picture of a
-/// preview. An operator's first question about a live channel is "what is
-/// going out", and the one screen built to answer it could not.
-///
-/// Plays the same URL a reader gets, so it fails the same way a reader's
-/// player fails. Muted, because the alternative is a newsroom where every open
-/// tab is talking, and because a browser refuses to autoplay audible video
-/// without a gesture anyway.
-class _StreamPreview extends StatefulWidget {
-  const _StreamPreview({required this.isLive, this.streamUrl, this.maxWidth});
-
-  final bool isLive;
-
-  /// The playlist to show. Null, or off air, renders the placeholder.
-  final String? streamUrl;
-
-  /// Caps the preview below its artboard size, keeping the aspect. Stacked on
-  /// a phone the card has less than 212 to give once its padding is paid.
-  final double? maxWidth;
-
-  /// 212×120 on the TV panel, per the artboard.
-  static const width = 212.0;
-  static const height = 120.0;
-
-  @override
-  State<_StreamPreview> createState() => _StreamPreviewState();
-}
-
-class _StreamPreviewState extends State<_StreamPreview> {
-  VideoEngine? _engine;
-  StreamSubscription<VideoEngineState>? _sub;
-  String? _loadedUrl;
-
-  bool get _shouldPlay =>
-      widget.isLive && (widget.streamUrl?.isNotEmpty ?? false);
-
-  @override
-  void initState() {
-    super.initState();
-    _sync();
-  }
-
-  @override
-  void didUpdateWidget(_StreamPreview old) {
-    super.didUpdateWidget(old);
-    _sync();
-  }
-
-  /// Starts, stops, or re-points the preview to match the channel.
-  ///
-  /// Guarded on the URL so the poll-driven rebuilds this screen does every few
-  /// seconds do not restart playback on every tick.
-  void _sync() {
-    if (!_shouldPlay) {
-      if (_loadedUrl != null) {
-        _sub?.cancel();
-        _sub = null;
-        _engine?.dispose();
-        _engine = null;
-        _loadedUrl = null;
-      }
-      return;
-    }
-    if (_loadedUrl == widget.streamUrl) return;
-
-    _loadedUrl = widget.streamUrl;
-    final engine = _engine ??= createVideoEngine();
-
-    // Replaced, not stacked: the engine outlives a URL, so re-listening
-    // without cancelling would leave one live subscription per channel change,
-    // each calling setState on every frame.
-    _sub?.cancel();
-    _sub = engine.states.listen((_) {
-      if (mounted) setState(() {});
-    });
-    // Volume zero, and stated at load time rather than after: an audible
-    // autoplay is refused outright without a user gesture, so a preview that
-    // asks to be silent afterwards never starts at all.
-    engine.load(widget.streamUrl!, live: true, volume: 0);
-  }
-
-  @override
-  void dispose() {
-    _sub?.cancel();
-    _engine?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final w = widget.maxWidth == null
-        ? _StreamPreview.width
-        : math.max(0.0, math.min(_StreamPreview.width, widget.maxWidth!));
-    return SizedBox(
-      width: w,
-      height: w * _StreamPreview.height / _StreamPreview.width,
-      child: _box(context),
-    );
-  }
-
-  Widget _box(BuildContext context) {
-    final surface = _engine?.buildSurface(fit: BoxFit.cover);
-
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(Radii.button),
-            child: ColoredBox(
-              color: const Color(0xFF04101F),
-              child:
-                  surface ??
-                  Center(
-                    child: Icon(
-                      widget.isLive
-                          ? Icons.hourglass_empty_rounded
-                          : Icons.videocam_off_outlined,
-                      size: 26,
-                      color: DarkTokens.onSurfaceVariant,
-                    ),
-                  ),
-            ),
-          ),
-        ),
-        if (widget.isLive)
-          Positioned(
-            left: 8,
-            top: 8,
-            child: Container(
-              height: 22,
-              padding: const EdgeInsets.symmetric(horizontal: 7),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: LightTokens.accent,
-                borderRadius: BorderRadius.circular(3),
-              ),
-              child: Text(
-                context.l10n.live,
-                style: context.text.overline.copyWith(
-                  fontSize: 9.5,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
+/// The TV panel's preview at its artboard size, 212×120, capped by
+/// [maxWidth] and keeping the aspect. Stacked on a phone the card has less
+/// than 212 to give once its padding is paid.
+Widget _tvPreview(BroadcastControlDto control, {double? maxWidth}) {
+  const artboardWidth = 212.0;
+  const artboardHeight = 120.0;
+  final width = maxWidth == null
+      ? artboardWidth
+      : math.max(0.0, math.min(artboardWidth, maxWidth));
+  return SizedBox(
+    width: width,
+    height: width * artboardHeight / artboardWidth,
+    child: StreamPreview(
+      isLive: control.isLiveToReaders,
+      streamUrl: control.previewUrl,
+    ),
+  );
 }
 
 class _ControlBody extends ConsumerWidget {
@@ -521,10 +371,7 @@ class _TvPanel extends StatelessWidget {
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _StreamPreview(
-                  isLive: control.isLiveToReaders,
-                  streamUrl: _previewUrl(control),
-                ),
+                _tvPreview(control),
                 const SizedBox(width: Spacing.gutter),
                 Expanded(child: info),
                 const SizedBox(width: Spacing.gutter),
@@ -541,11 +388,7 @@ class _TvPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                _StreamPreview(
-                  isLive: control.isLiveToReaders,
-                  streamUrl: _previewUrl(control),
-                  maxWidth: contentWidth,
-                ),
+                _tvPreview(control, maxWidth: contentWidth),
                 const SizedBox(height: Spacing.listRhythm),
                 info,
                 const SizedBox(height: Spacing.listRhythm),
