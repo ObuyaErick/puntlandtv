@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puntland/console/core/admin_api/dto/broadcast_dto.dart';
+import 'package:puntland/console/core/admin_api/dto/channel_dto.dart';
 import 'package:puntland/console/core/admin_api/fixture_admin_api.dart';
 import 'package:puntland/console/core/admin_api/dto/push_dto.dart';
 import 'package:puntland/console/core/admin_api/dto/schedule_dto.dart';
@@ -229,9 +230,10 @@ void main() {
       bool tvOnAir = true,
       IngestStatusDto ingest = const IngestStatusDto(isPublishing: true),
     }) => BroadcastControlDto(
+      channelKey: 'main',
       tvOnAir: tvOnAir,
       radioOnAir: true,
-      channelName: 'Puntland TV — main',
+      channelName: 'Puntland TV',
       uptime: const Duration(hours: 2, minutes: 4),
       concurrentViewers: 4182,
       radioListeners: 1904,
@@ -341,6 +343,99 @@ void main() {
 
       final on = off.setRenditionEnabled('1080p', enabled: true);
       expect(on.renditions.first.enabled, isTrue);
+    });
+  });
+
+  group('channels', () {
+    const idle = ChannelDto(
+      key: 'pltv2',
+      name: 'PLTV 2',
+      position: 1,
+      isPublished: true,
+      hasTv: true,
+      hasRadio: false,
+    );
+
+    /// The same rule as a category slug, and for a stronger reason: the key
+    /// is a packager path and a segment of every playlist URL.
+    test('a key is lower-case, digits and single hyphens', () {
+      for (final good in ['main', 'pltv2', 'radio-garowe', 'a1-b2-c3']) {
+        expect(ChannelDto.keyPattern.hasMatch(good), isTrue, reason: good);
+      }
+      for (final bad in [
+        '',
+        'Main',
+        'pltv_2',
+        '-main',
+        'main-',
+        'radio--garowe',
+        'main/2',
+        'main:2',
+      ]) {
+        expect(ChannelDto.keyPattern.hasMatch(bad), isFalse, reason: bad);
+      }
+    });
+
+    /// On air and receiving a signal are separate facts, and either one is
+    /// somebody depending on the channel.
+    test(
+      'only a channel nobody is watching or listening to can be deleted',
+      () {
+        expect(idle.canDelete, isTrue);
+        expect(idle.copyWith(tvOnAir: true).canDelete, isFalse);
+        expect(
+          idle.copyWith(ingestPublishing: true).canDelete,
+          isFalse,
+          reason: 'a studio still pushing to it is using it',
+        );
+        expect(idle.copyWith(radioOnAir: true).canDelete, isFalse);
+      },
+    );
+
+    test('is live to readers only when on air and receiving', () {
+      expect(idle.copyWith(tvOnAir: true).isLiveToReaders, isFalse);
+      expect(
+        idle.copyWith(tvOnAir: true, ingestPublishing: true).isLiveToReaders,
+        isTrue,
+      );
+    });
+
+    /// No radio switch: the stream URL is the switch, so a channel "with
+    /// radio" and nothing to play cannot be expressed.
+    test('has radio exactly when it has a stream URL', () {
+      expect(const ChannelSettingsDto(name: 'X').hasRadio, isFalse);
+      expect(
+        const ChannelSettingsDto(name: 'X', radioStreamUrl: '  ').hasRadio,
+        isFalse,
+      );
+      expect(
+        const ChannelSettingsDto(
+          name: 'X',
+          radioStreamUrl: 'https://radio.pltv.so/live.aac',
+        ).hasRadio,
+        isTrue,
+      );
+    });
+
+    test('a channel with neither television nor radio is empty', () {
+      expect(const ChannelSettingsDto(name: 'X', hasTv: false).isEmpty, isTrue);
+      expect(const ChannelSettingsDto(name: 'X').isEmpty, isFalse);
+    });
+
+    /// A cleared stream URL and a cleared frequency are sent empty — each
+    /// takes something away — while a blank station name is left out rather
+    /// than refused by the server's length rule.
+    test('sends the settings the server reads, and nothing else', () {
+      expect(
+        const ChannelSettingsDto(name: ' PLTV 2 ', isPublished: true).toJson(),
+        {
+          'name': 'PLTV 2',
+          'isPublished': true,
+          'hasTv': true,
+          'radioStreamUrl': '',
+          'radioFrequencyLabel': '',
+        },
+      );
     });
   });
 

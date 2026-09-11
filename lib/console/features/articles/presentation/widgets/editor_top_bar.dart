@@ -438,10 +438,7 @@ class _Overflow extends StatelessWidget {
         onPressed: () =>
             controller.isOpen ? controller.close() : controller.open(),
         tooltip: l10n.rowActions,
-        constraints: const BoxConstraints.tightFor(
-          width: 40,
-          height: 40,
-        ),
+        constraints: const BoxConstraints.tightFor(width: 40, height: 40),
         icon: const Icon(Icons.more_vert_rounded, size: 20),
       ),
     );

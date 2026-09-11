@@ -4,6 +4,7 @@ import '../../features/auth/domain/entities/console_user.dart';
 import 'dto/admin_article_dto.dart';
 import 'dto/admin_program_dto.dart';
 import 'dto/broadcast_dto.dart';
+import 'dto/channel_dto.dart';
 import 'dto/console_config_dto.dart';
 import 'dto/media_dto.dart';
 import 'dto/newsroom_summary_dto.dart';
@@ -207,28 +208,79 @@ abstract interface class PuntlandAdminApi {
   /// that only need a name against an article.
   Future<List<ConsoleUser>> fetchStaff();
 
+  // ---- Channels ----
+  //
+  // Every write answers with the whole list, like the category writes: the
+  // screen re-renders from the server's account of the channels rather than
+  // patching a row locally and hoping the two agree.
+
+  /// Every channel, published or not, in the order readers see them.
+  Future<List<ChannelDto>> fetchChannels();
+
+  /// Creates a channel at the end of the list.
+  ///
+  /// Refuses a key already in use with [ChannelFailureCode.keyTaken], and a
+  /// channel with neither TV nor radio with [ChannelFailureCode.empty].
+  Future<List<ChannelDto>> createChannel({
+    required String key,
+    required ChannelSettingsDto settings,
+  });
+
+  /// Replaces a channel's settings. The key is not among them.
+  ///
+  /// Refuses, with [ChannelFailureCode.onAir], to unpublish a channel or take
+  /// its TV or radio away while that part is on air or receiving a signal.
+  Future<List<ChannelDto>> updateChannel(
+    String key,
+    ChannelSettingsDto settings,
+  );
+
+  /// Puts the channels in [keys] order. [keys] must name every channel once,
+  /// or the server refuses with [ChannelFailureCode.orderMismatch].
+  Future<List<ChannelDto>> reorderChannels(List<String> keys);
+
+  /// Deletes a channel with its slate, renditions, schedule and ingest keys.
+  ///
+  /// Refused while it is on air or receiving a signal
+  /// ([ChannelFailureCode.onAir]), and for the only channel
+  /// ([ChannelFailureCode.last]). The console blocks both too; the boundary
+  /// does not depend on it having done so.
+  Future<List<ChannelDto>> deleteChannel(String key);
+
   // ---- Operations ----
+  //
+  // Everything here is one channel's: each call names it by key, so the
+  // control room for one channel cannot write to another.
 
-  Future<BroadcastControlDto> fetchBroadcastControl();
+  Future<BroadcastControlDto> fetchBroadcastControl(String channelKey);
 
-  Future<BroadcastControlDto> saveBroadcastControl(BroadcastControlDto value);
+  Future<BroadcastControlDto> saveBroadcastControl(
+    String channelKey,
+    BroadcastControlDto value,
+  );
 
-  /// Mints an ingest credential for an encoder.
+  /// Mints an ingest credential for an encoder, valid for [channelKey] only.
   ///
   /// Answers with the same shape every other key has, publish URLs included.
   /// Nothing is shown once: the credential inside those URLs is a token the
   /// server signs from the row, so every read produces it again.
-  Future<IngestKeyDto> createIngestKey({required String label});
+  Future<IngestKeyDto> createIngestKey(
+    String channelKey, {
+    required String label,
+  });
 
-  /// Revokes one, answering with the credentials that remain.
+  /// Revokes one, answering with the channel's credentials that remain.
   ///
   /// The remaining list rather than nothing, so the screen re-renders from the
   /// server's account of things instead of removing a row locally and hoping.
-  Future<List<IngestKeyDto>> revokeIngestKey(String id);
+  Future<List<IngestKeyDto>> revokeIngestKey(String channelKey, String id);
 
-  Future<DayScheduleDto> fetchSchedule(DateTime day);
+  Future<DayScheduleDto> fetchSchedule(String channelKey, DateTime day);
 
-  Future<DayScheduleDto> saveSchedule(DayScheduleDto schedule);
+  Future<DayScheduleDto> saveSchedule(
+    String channelKey,
+    DayScheduleDto schedule,
+  );
 
   Future<List<CategoryConfigDto>> fetchCategories();
 

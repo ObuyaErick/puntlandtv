@@ -13,6 +13,9 @@ import 'package:puntland/console/features/articles/presentation/pages/article_li
 import 'package:puntland/console/features/articles/presentation/pages/categories_page.dart';
 import 'package:puntland/console/features/auth/domain/entities/console_user.dart';
 import 'package:puntland/console/features/auth/presentation/pages/sign_in_page.dart';
+import 'package:puntland/console/features/operations/presentation/pages/channels_page.dart';
+import 'package:puntland/console/features/operations/presentation/pages/live_control_page.dart';
+import 'package:puntland/console/features/operations/presentation/pages/schedule_page.dart';
 import 'package:puntland/console/features/programs/presentation/pages/episode_list_page.dart';
 import 'package:puntland/core/l10n/l10n.dart';
 import 'package:puntland/core/l10n/so_material_localizations.dart';
@@ -201,6 +204,110 @@ void main() {
         '/programs/dood-furan',
         reason: 'each branch keeps its own navigator, as the app shell does',
       );
+    });
+  });
+
+  group('channels', () {
+    testWidgets('live control opens on the channel list', (tester) async {
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.operations)),
+        at: ConsoleRoutes.live,
+      );
+
+      expect(find.byType(ChannelsPage), findsOneWidget);
+      expect(find.byType(LiveControlPage), findsNothing);
+    });
+
+    testWidgets("a row opens that channel's control room", (tester) async {
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.operations)),
+        at: ConsoleRoutes.live,
+        // Tall enough that the second card is built: the list is lazy.
+        size: const Size(1440, 1600),
+      );
+
+      await tester.tap(find.text('PLTV 3'));
+      await tester.pumpAndSettle();
+
+      expect(location(), '/live/pltv3');
+      expect(
+        tester.widget<LiveControlPage>(find.byType(LiveControlPage)).channelKey,
+        'pltv3',
+      );
+      expect(
+        ConsoleRoutes.branchOf(location()),
+        ConsoleRoutes.branches.indexOf(ConsoleRoutes.live),
+        reason: 'the rail stays on Live control inside a channel',
+      );
+    });
+
+    /// A control room is a URL, so "the channel I mean is /live/pltv2" is
+    /// how one operator hands it to another — and the guard applies to it as
+    /// it does to the list.
+    testWidgets('a control room deep-link is guarded like the list', (
+      tester,
+    ) async {
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.journalist)),
+        at: ConsoleRoutes.liveChannel('main'),
+      );
+
+      expect(location(), ConsoleRoutes.overview);
+      expect(find.byType(LiveControlPage), findsNothing);
+    });
+
+    testWidgets('the header switches to another channel, and back to all', (
+      tester,
+    ) async {
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.operations)),
+        at: ConsoleRoutes.liveChannel('pltv2'),
+      );
+
+      await tester.tap(find.byKey(const Key('channel-switcher')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('switch-channel-radio-garowe')));
+      await tester.pumpAndSettle();
+      expect(location(), '/live/radio-garowe');
+
+      await tester.tap(find.byKey(const Key('all-channels')));
+      await tester.pumpAndSettle();
+      expect(location(), ConsoleRoutes.live);
+      expect(find.byType(ChannelsPage), findsOneWidget);
+    });
+
+    testWidgets("a channel's schedule is a URL of its own", (tester) async {
+      await pumpConsole(
+        tester,
+        auth: SignedIn(_user(ConsoleRole.operations)),
+        at: ConsoleRoutes.scheduleFor('pltv2'),
+      );
+
+      expect(
+        tester.widget<SchedulePage>(find.byType(SchedulePage)).channelKey,
+        'pltv2',
+      );
+
+      await tester.tap(find.byKey(const Key('channel-switcher')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('switch-channel-main')));
+      await tester.pumpAndSettle();
+      expect(location(), '/schedule/main');
+    });
+
+    testWidgets("the overview's other channels open their control rooms", (
+      tester,
+    ) async {
+      await pumpConsole(tester, auth: SignedIn(_user(ConsoleRole.operations)));
+
+      await tester.tap(find.byKey(const Key('other-channel-pltv2')));
+      await tester.pumpAndSettle();
+
+      expect(location(), '/live/pltv2');
     });
   });
 

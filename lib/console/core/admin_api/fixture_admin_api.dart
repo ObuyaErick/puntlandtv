@@ -6,6 +6,7 @@ import '../../features/auth/domain/entities/console_user.dart';
 import 'dto/admin_article_dto.dart';
 import 'dto/admin_program_dto.dart';
 import 'dto/broadcast_dto.dart';
+import 'dto/channel_dto.dart';
 import 'dto/console_config_dto.dart';
 import 'dto/media_dto.dart';
 import 'dto/newsroom_summary_dto.dart';
@@ -240,18 +241,12 @@ class FixtureAdminApi implements PuntlandAdminApi {
         .length;
 
     return NewsroomSummaryDto(
-      onAir: OnAirDto(
-        isLive: true,
-        programmeTitle: 'Warbaahinta Fiidka',
-        elapsed: const Duration(hours: 2, minutes: 4),
-        renditions: const [
-          RenditionDto(label: '1080p', healthy: true),
-          RenditionDto(label: '720p', healthy: true),
-          RenditionDto(label: '240p', healthy: true),
-        ],
-        concurrentViewers: 4182,
-        radioOnAir: true,
-      ),
+      // Derived from the channels' own state rather than written out here, so
+      // the overview and live control cannot tell different stories.
+      onAir: [
+        for (final channel in _channelRows())
+          if (channel.hasTv) _onAirFor(channel),
+      ],
       publishedToday: published.length,
       publishedTodayByLocale: {'so': soCount, 'en': enCount},
       awaitingReview: _articles.values
@@ -263,6 +258,26 @@ class FixtureAdminApi implements PuntlandAdminApi {
           'Dood Furan ep. 18 — transcode 240p failed. Retry queued.',
     );
   });
+
+  /// One channel's line on the overview: what is on now from its schedule,
+  /// and its health from its broadcast state.
+  OnAirDto _onAirFor(ChannelDto channel) {
+    final control = _broadcasts[channel.key]!;
+    final nowPlaying = _nowPlaying(channel.key);
+    return OnAirDto(
+      key: channel.key,
+      name: channel.name,
+      isLive: control.isLiveToReaders,
+      programmeTitle: nowPlaying?.title ?? channel.name,
+      elapsed: control.isLiveToReaders ? control.uptime : Duration.zero,
+      renditions: [
+        for (final rendition in control.renditions)
+          RenditionDto(label: rendition.rung, healthy: rendition.healthy),
+      ],
+      concurrentViewers: control.concurrentViewers,
+      radioOnAir: control.radioOnAir,
+    );
+  }
 
   @override
   Future<List<AdminArticleDto>> fetchArticles({
@@ -491,10 +506,179 @@ class FixtureAdminApi implements PuntlandAdminApi {
       'eyJzdWIiOiJmaXh0dXJlIiwiYXVkIjoibWVkaWFtdHgtcHVibGlzaCJ9.'
       'ZmlfeHR1cmUtc2lnbmF0dXJlLW5vdC1hLXJlYWwtb25lLXNvLWl0LXdvbnQ';
 
-  late BroadcastControlDto _broadcast = BroadcastControlDto(
+  /// Publish URLs for one credential on one channel's path, assembled the way
+  /// the server assembles them.
+  static IngestKeyDto _ingestKey({
+    required String channelKey,
+    required String id,
+    required String label,
+    required String username,
+    required DateTime createdAt,
+    DateTime? lastUsedAt,
+  }) => IngestKeyDto(
+    id: id,
+    label: label,
+    username: username,
+    createdAt: createdAt,
+    lastUsedAt: lastUsedAt,
+    rtmpPublishUrl: '$_rtmpBase/$channelKey?user=$username&pass=$_fixtureToken',
+    srtPublishUrl:
+        '$_srtBase?streamid=publish:$channelKey:$username:$_fixtureToken',
+    streamKey: '$channelKey?user=$username&pass=$_fixtureToken',
+  );
+
+  /// The channel list's settings, plus the facts about each channel the list
+  /// describes it with that are not its broadcast state — when it went off
+  /// air, when it was made. What each channel is *doing* lives in
+  /// [_broadcasts] and is stamped onto these rows at read time, so the two can
+  /// never disagree about whether a channel is on air.
+  ///
+  /// The five channels of the channel-list design review, one of every shape
+  /// the list has to draw: the flagship live with TV and radio, a channel on
+  /// air with no signal arriving, one readied but off air, a radio-only
+  /// station, and a hidden one that has never been on air.
+  late List<ChannelDto> _channels = [
+    const ChannelDto(
+      key: 'main',
+      name: 'Puntland TV',
+      position: 0,
+      isPublished: true,
+      hasTv: true,
+      hasRadio: true,
+      radioStreamUrl: 'https://radio.pltv.so/live.aac',
+      radioStationName: 'Radio Puntland',
+      radioFrequencyLabel: '88.5 FM · Garoowe',
+      radioStreamHealthy: true,
+    ),
+    ChannelDto(
+      key: 'pltv3',
+      name: 'PLTV 3',
+      position: 1,
+      isPublished: true,
+      hasTv: true,
+      hasRadio: false,
+      onAirSince: _now.subtract(const Duration(minutes: 12)),
+      lastFrameAt: _now.subtract(const Duration(minutes: 3, seconds: 12)),
+    ),
+    ChannelDto(
+      key: 'pltv2',
+      name: 'PLTV 2',
+      position: 2,
+      isPublished: true,
+      hasTv: true,
+      hasRadio: false,
+      offAirSince: DateTime(_now.year, _now.month, _now.day - 1, 23, 40),
+    ),
+    ChannelDto(
+      key: 'radio-garowe',
+      name: 'Radio Garowe',
+      position: 3,
+      isPublished: true,
+      hasTv: false,
+      hasRadio: true,
+      radioStreamUrl: 'https://radio.pltv.so/garowe.aac',
+      radioStationName: 'Radio Garowe',
+      radioFrequencyLabel: '91.2 FM',
+      radioOnAirSince: _now.subtract(const Duration(hours: 6, minutes: 12)),
+      radioStreamHealthy: true,
+    ),
+    ChannelDto(
+      key: 'sport',
+      name: 'PLTV Sport',
+      position: 4,
+      isPublished: false,
+      hasTv: true,
+      hasRadio: false,
+      createdAt: _now.subtract(const Duration(minutes: 8)),
+      neverOnAir: true,
+    ),
+  ];
+
+  /// Each channel's broadcast state, by key.
+  late final Map<String, BroadcastControlDto> _broadcasts = {
+    'main': _mainBroadcast,
+    // The alarm: the operator has it on air and nothing is arriving, so the
+    // readers still watching are looking at a spinner.
+    'pltv3': _idleBroadcast(
+      'pltv3',
+      tvOnAir: true,
+      concurrentViewers: 37,
+      renditions: const [
+        RenditionConfigDto(
+          rung: 'source',
+          url: 'https://api.pltv.so/hls/pltv3/index.m3u8',
+          bitrateKbps: 2400,
+          healthy: false,
+          enabled: true,
+          isProtected: true,
+        ),
+      ],
+      slate: const {
+        'so': SlateMessageDto(
+          title: 'PLTV 3 ma socoto hadda',
+          detail: 'Waxaan dib u bilaabeynaa dhawaan',
+        ),
+        'en': SlateMessageDto(
+          title: 'PLTV 3 is off air',
+          detail: 'Back shortly',
+        ),
+      },
+    ),
+    'sport': _idleBroadcast('sport'),
+    'pltv2': _idleBroadcast(
+      'pltv2',
+      // Complete in both languages, so its toggle is the one that works.
+      slate: const {
+        'so': SlateMessageDto(
+          title: 'PLTV 2 ma socoto hadda',
+          detail: 'Waxaan dib u bilaabeynaa 20:00',
+        ),
+        'en': SlateMessageDto(
+          title: 'PLTV 2 is off air',
+          detail: 'Back at 20:00',
+        ),
+      },
+    ),
+    'radio-garowe': _idleBroadcast(
+      'radio-garowe',
+      radioOnAir: true,
+      radioListeners: 640,
+    ),
+  };
+
+  /// A channel with nothing arriving: off air, no ladder, no credentials —
+  /// what a channel is the moment it is created.
+  static BroadcastControlDto _idleBroadcast(
+    String key, {
+    bool tvOnAir = false,
+    int concurrentViewers = 0,
+    bool radioOnAir = false,
+    int radioListeners = 0,
+    List<RenditionConfigDto> renditions = const [],
+    Map<String, SlateMessageDto> slate = const {},
+  }) => BroadcastControlDto(
+    channelKey: key,
+    tvOnAir: tvOnAir,
+    radioOnAir: radioOnAir,
+    channelName: key,
+    uptime: Duration.zero,
+    concurrentViewers: concurrentViewers,
+    radioListeners: radioListeners,
+    renditions: renditions,
+    slate: slate,
+    ingest: IngestStatusDto(
+      isPublishing: false,
+      rtmpUrl: _rtmpBase,
+      srtUrl: _srtBase,
+      path: key,
+    ),
+  );
+
+  late final BroadcastControlDto _mainBroadcast = BroadcastControlDto(
+    channelKey: 'main',
     tvOnAir: true,
     radioOnAir: true,
-    channelName: 'Puntland TV — main',
+    channelName: 'Puntland TV',
     uptime: const Duration(hours: 2, minutes: 4),
     concurrentViewers: 4182,
     radioListeners: 1904,
@@ -527,31 +711,25 @@ class FixtureAdminApi implements PuntlandAdminApi {
       videoLabel: '720p H264',
       rtmpUrl: _rtmpBase,
       srtUrl: _srtBase,
+      path: 'main',
     ),
     ingestKeys: [
-      IngestKeyDto(
+      _ingestKey(
+        channelKey: 'main',
         id: 'key-studio',
         label: 'Studio OBS',
         username: 'studio-obs',
         createdAt: DateTime(2026, 8, 30, 9, 12),
         lastUsedAt: DateTime(2026, 9, 7, 18, 56),
-        rtmpPublishUrl: '$_rtmpBase/main?user=studio-obs&pass=$_fixtureToken',
-        srtPublishUrl:
-            '$_srtBase?streamid=publish:main:studio-obs:$_fixtureToken',
-        streamKey: 'main?user=studio-obs&pass=$_fixtureToken',
       ),
       // Never used, which is the state the screen has to call out: a studio
       // still configured with the key this one was meant to replace.
-      IngestKeyDto(
+      _ingestKey(
+        channelKey: 'main',
         id: 'key-backup',
         label: 'Backup encoder',
         username: 'backup-encoder',
         createdAt: DateTime(2026, 9, 6, 14, 2),
-        rtmpPublishUrl:
-            '$_rtmpBase/main?user=backup-encoder&pass=$_fixtureToken',
-        srtPublishUrl:
-            '$_srtBase?streamid=publish:main:backup-encoder:$_fixtureToken',
-        streamKey: 'main?user=backup-encoder&pass=$_fixtureToken',
       ),
     ],
     // Seeded with only Somali, so the on-air toggle starts blocked and the
@@ -607,20 +785,231 @@ class FixtureAdminApi implements PuntlandAdminApi {
     ),
   ];
 
-  late DayScheduleDto _schedule = _seedSchedule();
+  /// Each TV channel's day, by key. The flagship's carries the seeded gap and
+  /// overlap; PLTV 3's is clean. PLTV 2 has nothing programmed, which is what
+  /// its card says.
+  late final Map<String, DayScheduleDto> _schedules = {
+    'main': _seedSchedule(),
+    'pltv3': _seedSecondSchedule(),
+  };
 
   final _pushHistory = <PushHistoryEntryDto>[];
 
-  @override
-  Future<BroadcastControlDto> fetchBroadcastControl() =>
-      _respond(() => _broadcast);
+  // ---- Channels ----
+
+  static Failure _refusal(String code) =>
+      Failure(kind: FailureKind.unknown, code: code);
+
+  ChannelDto _requireChannel(String key) {
+    final channel = _channels.where((c) => c.key == key).firstOrNull;
+    if (channel == null) {
+      throw const Failure(
+        kind: FailureKind.notFound,
+        code: ChannelFailureCode.notFound,
+      );
+    }
+    return channel;
+  }
+
+  /// The list as the server answers it: settings, with each channel's live
+  /// status read from its broadcast state and its now-playing from its
+  /// schedule.
+  List<ChannelDto> _channelRows() => [
+    for (final channel in [
+      ..._channels,
+    ]..sort((a, b) => a.position.compareTo(b.position)))
+      if (_broadcasts[channel.key] case final broadcast?)
+        _row(channel, broadcast),
+  ];
+
+  ChannelDto _row(ChannelDto channel, BroadcastControlDto broadcast) {
+    final live = broadcast.isLiveToReaders;
+    final slot = _nowPlaying(channel.key);
+    return ChannelDto(
+      key: channel.key,
+      name: channel.name,
+      position: channel.position,
+      isPublished: channel.isPublished,
+      hasTv: channel.hasTv,
+      hasRadio: channel.hasRadio,
+      radioStreamUrl: channel.radioStreamUrl,
+      radioStationName: channel.radioStationName,
+      radioFrequencyLabel: channel.radioFrequencyLabel,
+      tvOnAir: broadcast.tvOnAir,
+      radioOnAir: broadcast.radioOnAir,
+      ingestPublishing: broadcast.ingest.isPublishing,
+      concurrentViewers: broadcast.concurrentViewers,
+      radioListeners: broadcast.radioListeners,
+      // Measured from the uptime the broadcast state carries, so the list
+      // and the control room agree about how long the channel has been up.
+      liveSince: live ? _now.subtract(broadcast.uptime) : null,
+      onAirSince: broadcast.tvOnAir ? channel.onAirSince : null,
+      lastFrameAt: broadcast.tvOnAir && !broadcast.ingest.isPublishing
+          ? channel.lastFrameAt
+          : null,
+      offAirSince: broadcast.tvOnAir ? null : channel.offAirSince,
+      radioOnAirSince: broadcast.radioOnAir ? channel.radioOnAirSince : null,
+      createdAt: channel.createdAt,
+      nowPlayingTitle: slot?.title,
+      nowPlayingEndsAt: slot?.endsAt,
+      hasSchedule: channel.hasTv
+          ? (_schedules[channel.key]?.slots.isNotEmpty ?? false)
+          : null,
+      renditions: [
+        for (final rendition in broadcast.renditions)
+          RenditionDto(label: rendition.rung, healthy: rendition.healthy),
+      ],
+      radioStreamHealthy: channel.radioStreamHealthy,
+      neverOnAir: channel.neverOnAir,
+      previewUrl: live ? broadcast.previewUrl : null,
+    );
+  }
+
+  /// What is on [key] at the fixture's clock, from its schedule.
+  ScheduleSlotDto? _nowPlaying(String key) => _schedules[key]?.ordered
+      .where(
+        (slot) => !slot.startsAt.isAfter(_now) && slot.endsAt.isAfter(_now),
+      )
+      .firstOrNull;
+
+  /// One channel's broadcast state with its identity stamped on from the list.
+  BroadcastControlDto _control(String key) {
+    final channel = _requireChannel(key);
+    return _broadcasts[key]!.copyWith(
+      channelName: channel.name,
+      isPublished: channel.isPublished,
+      hasTv: channel.hasTv,
+      hasRadio: channel.hasRadio,
+      radioStationName: channel.radioStationName,
+    );
+  }
 
   @override
-  Future<BroadcastControlDto> saveBroadcastControl(BroadcastControlDto value) =>
-      _respond(() => _broadcast = value);
+  Future<List<ChannelDto>> fetchChannels() => _respond(_channelRows);
 
   @override
-  Future<IngestKeyDto> createIngestKey({required String label}) => _respond(() {
+  Future<List<ChannelDto>> createChannel({
+    required String key,
+    required ChannelSettingsDto settings,
+  }) => _respond(() {
+    // The same refusals the server makes, so the form's handling of them is
+    // exercised by a fixture run rather than discovered against production.
+    if (!ChannelDto.keyPattern.hasMatch(key) ||
+        key.length > ChannelDto.keyMaxLength) {
+      throw const Failure(kind: FailureKind.unknown, code: 'VALIDATION_FAILED');
+    }
+    if (_channels.any((c) => c.key == key)) {
+      throw _refusal(ChannelFailureCode.keyTaken);
+    }
+    if (settings.isEmpty) throw _refusal(ChannelFailureCode.empty);
+
+    _channels = [
+      ..._channels,
+      ChannelDto(
+        key: key,
+        name: settings.name.trim(),
+        position: _channels.length,
+        isPublished: false,
+        hasTv: true,
+        hasRadio: false,
+      ).copyWith(settings: settings),
+    ];
+    _broadcasts[key] = _idleBroadcast(key);
+    return _channelRows();
+  });
+
+  @override
+  Future<List<ChannelDto>> updateChannel(
+    String key,
+    ChannelSettingsDto settings,
+  ) => _respond(() {
+    final channel = _requireChannel(key);
+    final broadcast = _broadcasts[key]!;
+    final tvInUse = broadcast.tvOnAir || broadcast.ingest.isPublishing;
+
+    final unpublishing = !settings.isPublished && channel.isPublished;
+    final droppingTv = !settings.hasTv && channel.hasTv;
+    final droppingRadio = !settings.hasRadio && channel.hasRadio;
+    if ((unpublishing || droppingTv) && tvInUse) {
+      throw _refusal(ChannelFailureCode.onAir);
+    }
+    if ((unpublishing || droppingRadio) && broadcast.radioOnAir) {
+      throw _refusal(ChannelFailureCode.onAir);
+    }
+    if (settings.isEmpty) throw _refusal(ChannelFailureCode.empty);
+
+    _channels = [
+      for (final row in _channels)
+        row.key == key ? row.copyWith(settings: settings) : row,
+    ];
+    // Radio off follows the stream away, as on the server.
+    if (!settings.hasRadio) {
+      _broadcasts[key] = broadcast.copyWith(radioOnAir: false);
+    }
+    return _channelRows();
+  });
+
+  @override
+  Future<List<ChannelDto>> reorderChannels(List<String> keys) => _respond(() {
+    final known = {for (final c in _channels) c.key};
+    final given = keys.toSet();
+    final complete =
+        given.length == keys.length &&
+        given.length == known.length &&
+        given.containsAll(known);
+    if (!complete) throw _refusal(ChannelFailureCode.orderMismatch);
+
+    _channels = [
+      for (final channel in _channels)
+        channel.copyWith(position: keys.indexOf(channel.key)),
+    ];
+    return _channelRows();
+  });
+
+  @override
+  Future<List<ChannelDto>> deleteChannel(String key) => _respond(() {
+    _requireChannel(key);
+    final broadcast = _broadcasts[key]!;
+    if (broadcast.tvOnAir ||
+        broadcast.ingest.isPublishing ||
+        broadcast.radioOnAir) {
+      throw _refusal(ChannelFailureCode.onAir);
+    }
+    if (_channels.length <= 1) throw _refusal(ChannelFailureCode.last);
+
+    final remaining = _channels.where((c) => c.key != key).toList()
+      ..sort((a, b) => a.position.compareTo(b.position));
+    _channels = [
+      for (final (position, channel) in remaining.indexed)
+        channel.copyWith(position: position),
+    ];
+    _broadcasts.remove(key);
+    _schedules.remove(key);
+    return _channelRows();
+  });
+
+  // ---- Operations ----
+
+  @override
+  Future<BroadcastControlDto> fetchBroadcastControl(String channelKey) =>
+      _respond(() => _control(channelKey));
+
+  @override
+  Future<BroadcastControlDto> saveBroadcastControl(
+    String channelKey,
+    BroadcastControlDto value,
+  ) => _respond(() {
+    _requireChannel(channelKey);
+    _broadcasts[channelKey] = value;
+    return _control(channelKey);
+  });
+
+  @override
+  Future<IngestKeyDto> createIngestKey(
+    String channelKey, {
+    required String label,
+  }) => _respond(() {
+    _requireChannel(channelKey);
     // The mint answers with the same shape as every other key, exactly as the
     // real endpoint does: the token in these URLs is derived from the row, so
     // there is nothing shown once for the console to treat differently.
@@ -628,38 +1017,51 @@ class FixtureAdminApi implements PuntlandAdminApi {
         .toLowerCase()
         .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
         .replaceAll(RegExp(r'^-+|-+$'), '');
-    final key = IngestKeyDto(
+    final key = _ingestKey(
+      channelKey: channelKey,
       id: newId(),
       label: label,
       username: username,
       createdAt: DateTime.now(),
-      rtmpPublishUrl: '$_rtmpBase/main?user=$username&pass=$_fixtureToken',
-      srtPublishUrl: '$_srtBase?streamid=publish:main:$username:$_fixtureToken',
-      streamKey: 'main?user=$username&pass=$_fixtureToken',
     );
-    _broadcast = _broadcast.copyWith(
-      ingestKeys: [..._broadcast.ingestKeys, key],
+    final broadcast = _broadcasts[channelKey]!;
+    _broadcasts[channelKey] = broadcast.copyWith(
+      ingestKeys: [...broadcast.ingestKeys, key],
     );
     return key;
   });
 
   @override
-  Future<List<IngestKeyDto>> revokeIngestKey(String id) => _respond(() {
-    _broadcast = _broadcast.copyWith(
-      ingestKeys: _broadcast.ingestKeys
-          .where((key) => key.id != id)
-          .toList(growable: false),
-    );
-    return _broadcast.ingestKeys;
+  Future<List<IngestKeyDto>> revokeIngestKey(String channelKey, String id) =>
+      _respond(() {
+        _requireChannel(channelKey);
+        final broadcast = _broadcasts[channelKey]!;
+        final remaining = broadcast.ingestKeys
+            .where((key) => key.id != id)
+            .toList(growable: false);
+        _broadcasts[channelKey] = broadcast.copyWith(ingestKeys: remaining);
+        return remaining;
+      });
+
+  @override
+  Future<DayScheduleDto> fetchSchedule(String channelKey, DateTime day) =>
+      _respond(() {
+        _requireChannel(channelKey);
+        return _schedules[channelKey] ??
+            DayScheduleDto(
+              day: DateTime(_now.year, _now.month, _now.day),
+              slots: const [],
+            );
+      });
+
+  @override
+  Future<DayScheduleDto> saveSchedule(
+    String channelKey,
+    DayScheduleDto schedule,
+  ) => _respond(() {
+    _requireChannel(channelKey);
+    return _schedules[channelKey] = schedule;
   });
-
-  @override
-  Future<DayScheduleDto> fetchSchedule(DateTime day) =>
-      _respond(() => _schedule);
-
-  @override
-  Future<DayScheduleDto> saveSchedule(DayScheduleDto schedule) =>
-      _respond(() => _schedule = schedule);
 
   @override
   Future<List<CategoryConfigDto>> fetchCategories() =>
@@ -1561,6 +1963,37 @@ class FixtureAdminApi implements PuntlandAdminApi {
         at('s4', 'Warbaahinta Fiidka', 21, 0, 60, genre: 'News', live: true),
         at('s5', 'Dood Furan', 22, 0, 60, genre: 'Debate'),
         at('s6', 'Wararka Habeenkii', 22, 30, 30, genre: 'News'),
+      ],
+    );
+  }
+
+  /// PLTV 2's evening: different programmes over the same hours as the
+  /// flagship, and clean — no gap, no overlap.
+  DayScheduleDto _seedSecondSchedule() {
+    final day = DateTime(_now.year, _now.month, _now.day);
+    ScheduleSlotDto at(
+      String id,
+      String title,
+      int hour,
+      int minute,
+      int minutes, {
+      String? genre,
+      bool live = false,
+    }) => ScheduleSlotDto(
+      id: id,
+      title: title,
+      startsAt: DateTime(day.year, day.month, day.day, hour, minute),
+      duration: Duration(minutes: minutes),
+      genre: genre,
+      isLive: live,
+    );
+
+    return DayScheduleDto(
+      day: day,
+      slots: [
+        at('p1', 'Ciyaaraha Maanta', 19, 0, 60, genre: 'Sport'),
+        at('p2', 'Wararka PLTV 2', 20, 0, 30, genre: 'News', live: true),
+        at('p3', 'Diinta iyo Nolosha', 20, 30, 60, genre: 'Religion'),
       ],
     );
   }

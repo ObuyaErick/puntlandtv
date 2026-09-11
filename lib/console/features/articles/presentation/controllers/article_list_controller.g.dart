@@ -56,7 +56,7 @@ final class ArticleFilterProvider
   }
 }
 
-String _$articleFilterHash() => r'61d1b8ee56d7ff8fe0e0f33b8c78f766e823b9e8';
+String _$articleFilterHash() => r'ccec533448600d7763d4984bdbef7b9162c74b4b';
 
 /// The active filters.
 ///

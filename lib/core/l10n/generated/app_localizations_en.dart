@@ -398,7 +398,7 @@ class AppL10nEn extends AppL10n {
   String get statusTranscoding => 'TRANSCODING';
 
   @override
-  String get consoleTitle => 'Content console';
+  String get consoleTitle => 'Staff console';
 
   @override
   String get consoleSubtitle =>
@@ -429,7 +429,7 @@ class AppL10nEn extends AppL10n {
   String get navMedia => 'Media';
 
   @override
-  String get navUsers => 'Users & roles';
+  String get navUsers => 'Staff';
 
   @override
   String get navAppConfig => 'App config';
@@ -2155,4 +2155,570 @@ class AppL10nEn extends AppL10n {
   @override
   String get categoryInUseRefusal =>
       'Articles are still filed in this category, so it can\'t be deleted.';
+
+  @override
+  String get channelKeyPermanentNote =>
+      'A channel\'s key is permanent — it is the stream path encoders publish to and every viewer\'s player reads from. Its name and what it carries are safe to change.';
+
+  @override
+  String get newChannel => 'New channel';
+
+  @override
+  String get editChannel => 'Edit channel';
+
+  @override
+  String get createChannel => 'Create channel';
+
+  @override
+  String get fieldChannelKey => 'Key';
+
+  @override
+  String get channelKeyHint => 'e.g. pltv2';
+
+  @override
+  String get channelKeyFormatError =>
+      'Use lower-case letters, digits and single hyphens — like pltv2.';
+
+  @override
+  String get channelKeyTakenError => 'Another channel already uses this key.';
+
+  @override
+  String get channelKeyChooseCarefully =>
+      'Choose carefully: the key is the stream path in every encoder\'s publish URL and can\'t be changed once the channel exists.';
+
+  @override
+  String get channelKeyLocked =>
+      'Permanent — it is the stream path in every encoder\'s publish URL.';
+
+  @override
+  String get fieldChannelName => 'Name';
+
+  @override
+  String get channelPublishedLabel => 'Visible in the app';
+
+  @override
+  String get channelPublishedHint =>
+      'Leave off while you set the channel up — readers won\'t see it until this is on.';
+
+  @override
+  String get channelHasTvLabel => 'Television';
+
+  @override
+  String get channelHasTvHint =>
+      'A TV feed the studio publishes to. Off for a radio-only station.';
+
+  @override
+  String get fieldRadioStreamUrl => 'Radio stream URL';
+
+  @override
+  String get radioStreamUrlHint => 'Leave empty for a channel without radio.';
+
+  @override
+  String get fieldRadioStationName => 'Station name';
+
+  @override
+  String get fieldRadioFrequency => 'Frequency';
+
+  @override
+  String get radioFrequencyHint => 'e.g. 88.5 FM · Garoowe';
+
+  @override
+  String get sectionChannelRadio => 'RADIO';
+
+  @override
+  String get channelNeedsSomething =>
+      'A channel needs television, a radio stream, or both.';
+
+  @override
+  String channelCreated(String name) {
+    return 'Created “$name”';
+  }
+
+  @override
+  String channelSaved(String name) {
+    return 'Saved “$name”';
+  }
+
+  @override
+  String channelDeleted(String name) {
+    return 'Deleted “$name”';
+  }
+
+  @override
+  String deleteChannelTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String deleteChannelBody(String key, String path) {
+    return 'The channel and its schedule are removed for everyone. The key $key becomes free again, so any encoder still publishing to $path will stop reaching readers.';
+  }
+
+  @override
+  String get deleteChannelBlockedOnAir =>
+      'Take the channel off air and switch its radio off before deleting it.';
+
+  @override
+  String get deleteChannelBlockedLast => 'The only channel can\'t be deleted.';
+
+  @override
+  String get channelOnAirRefusal =>
+      'The channel is on air or still receiving a signal. Take it off air first.';
+
+  @override
+  String get channelOrderStale =>
+      'The channel list changed while you were looking at it. Try again.';
+
+  @override
+  String get moveChannelUp => 'Move up';
+
+  @override
+  String get moveChannelDown => 'Move down';
+
+  @override
+  String get colKey => 'KEY';
+
+  @override
+  String get colTv => 'TV';
+
+  @override
+  String get colRadio => 'RADIO';
+
+  @override
+  String get colViewers => 'VIEWERS';
+
+  @override
+  String get channelHidden => 'Hidden';
+
+  @override
+  String get channelStateLive => 'Live';
+
+  @override
+  String get channelStateNoSignal => 'No signal';
+
+  @override
+  String get channelStateOffAir => 'Off air';
+
+  @override
+  String get allChannels => 'All channels';
+
+  @override
+  String get switchChannel => 'Switch channel';
+
+  @override
+  String get channelUnpublishedNotice =>
+      'This channel is hidden from the app. Readers won\'t see it until it is published.';
+
+  @override
+  String get noTvChannels => 'No TV channels yet.';
+
+  @override
+  String get noChannels => 'No channels yet';
+
+  @override
+  String get otherChannels => 'OTHER CHANNELS';
+
+  @override
+  String get navShortOverview => 'Home';
+
+  @override
+  String get navShortArticles => 'News';
+
+  @override
+  String get navShortPrograms => 'Programs';
+
+  @override
+  String get navShortLiveControl => 'Live';
+
+  @override
+  String get navShortSchedule => 'Schedule';
+
+  @override
+  String get navShortPush => 'Push';
+
+  @override
+  String get navShortMedia => 'Media';
+
+  @override
+  String get navShortUsers => 'Staff';
+
+  @override
+  String get navShortAppConfig => 'Config';
+
+  @override
+  String get openNavigation => 'Open navigation';
+
+  @override
+  String channelCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count channels',
+      one: '1 channel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get channelOrderNote =>
+      'the order below is the order readers see in the app';
+
+  @override
+  String get channelOrderNoteShort => 'order = reader order';
+
+  @override
+  String get bandChannelsOnAir => 'channels on air';
+
+  @override
+  String get bandTvViewers => 'TV viewers';
+
+  @override
+  String get bandRadioListeners => 'radio listeners';
+
+  @override
+  String get bandListeners => 'listeners';
+
+  @override
+  String alarmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count channels on air with no signal',
+      one: '1 channel on air with no signal',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String alarmBody(String name, String onAirFor, String silentFor) {
+    return '$name has been on air for $onAirFor with nothing arriving from the studio encoder for the last $silentFor. Viewers see a spinner.';
+  }
+
+  @override
+  String alarmBodyNoDuration(String name) {
+    return '$name is on air with nothing arriving from the studio encoder. Viewers see a spinner.';
+  }
+
+  @override
+  String alarmTitleShort(String name) {
+    return '$name — on air, no signal';
+  }
+
+  @override
+  String alarmBodyShort(String duration) {
+    return 'Nothing from the encoder for $duration.';
+  }
+
+  @override
+  String get alarmBodyShortNoDuration =>
+      'Nothing is arriving from the encoder.';
+
+  @override
+  String openNamed(String name) {
+    return 'Open $name';
+  }
+
+  @override
+  String get openShort => 'Open';
+
+  @override
+  String get takeOffAir => 'Take off air';
+
+  @override
+  String channelTakenOffAir(String name) {
+    return '$name is off air';
+  }
+
+  @override
+  String keyNotice(String key, String name) {
+    return 'The $key is permanent — it is the stream path inside every encoder\'s publish URL. The channel $name is safe to change at any time.';
+  }
+
+  @override
+  String keyNoticeShort(String key, String name) {
+    return 'The $key is permanent — it is the stream path in every publish URL. The $name is safe to change.';
+  }
+
+  @override
+  String get keyNoticeKey => 'key';
+
+  @override
+  String get keyNoticeName => 'name';
+
+  @override
+  String get colOrd => 'ORD';
+
+  @override
+  String get colPreview => 'PREVIEW';
+
+  @override
+  String get colChannel => 'CHANNEL';
+
+  @override
+  String get colChannelActions => 'ORDER · EDIT · DELETE';
+
+  @override
+  String get chipTvAndRadio => 'TV + radio';
+
+  @override
+  String get chipTvOnly => 'TV only';
+
+  @override
+  String get chipRadioOnly => 'Radio only';
+
+  @override
+  String get previewNoFrames => 'no frames';
+
+  @override
+  String get previewOffAir => 'off air';
+
+  @override
+  String get previewNotSetUp => 'not set up yet';
+
+  @override
+  String pillLiveFor(String duration) {
+    return 'Live · $duration';
+  }
+
+  @override
+  String get pillNoSignal => 'On air · no signal';
+
+  @override
+  String get pillOffAir => 'Off air';
+
+  @override
+  String get pillOnAir => 'On air';
+
+  @override
+  String pillOnAirFor(String duration) {
+    return 'On air · $duration';
+  }
+
+  @override
+  String get watchingWord => 'watching';
+
+  @override
+  String get listeningWord => 'listening';
+
+  @override
+  String get radioOnAirSuffix => 'radio on air';
+
+  @override
+  String ingestNotArriving(String state) {
+    return 'Ingest $state';
+  }
+
+  @override
+  String get ingestNotArrivingState => 'not arriving';
+
+  @override
+  String get watchingASpinner => 'watching a spinner';
+
+  @override
+  String get noSignalExpected => 'No signal expected while off air';
+
+  @override
+  String get neverBeenOnAir => 'Never been on air';
+
+  @override
+  String nowPlayingLine(String title) {
+    return 'Now playing $title';
+  }
+
+  @override
+  String nowPlayingUntil(String title, String time) {
+    return 'Now playing $title · until $time';
+  }
+
+  @override
+  String get renditionsAllHealthy => 'all renditions healthy';
+
+  @override
+  String get renditionsSomeDegraded => 'renditions degraded';
+
+  @override
+  String renditionLabelsHealthy(String labels) {
+    return '$labels all healthy';
+  }
+
+  @override
+  String renditionLabelsDegraded(String labels) {
+    return '$labels degraded';
+  }
+
+  @override
+  String noSignalConsequence(String duration) {
+    return 'Readers see a spinner. Nothing has arrived from the studio encoder for $duration.';
+  }
+
+  @override
+  String get noSignalConsequenceNoDuration =>
+      'Readers see a spinner. Nothing is arriving from the studio encoder.';
+
+  @override
+  String noSignalConsequenceShort(String duration) {
+    return 'Readers see a spinner · no frames for $duration';
+  }
+
+  @override
+  String get noSignalConsequenceShortNoDuration =>
+      'Readers see a spinner · no frames';
+
+  @override
+  String onAirSinceLastFrame(String since, String lastFrame) {
+    return 'On air since $since · last frame $lastFrame';
+  }
+
+  @override
+  String onAirSince(String since) {
+    return 'On air since $since';
+  }
+
+  @override
+  String noSignalCause(String path) {
+    return 'Either the encoder stopped publishing to $path, or the studio uplink dropped.';
+  }
+
+  @override
+  String get openControlRoom => 'Open control room';
+
+  @override
+  String offAirSince(String when) {
+    return 'Off air since $when';
+  }
+
+  @override
+  String get nothingScheduled => 'nothing scheduled';
+
+  @override
+  String get visibleAsOffAir => 'Visible to readers as an off-air channel';
+
+  @override
+  String get radioAudioArriving => 'On air · audio arriving, bitrate stable';
+
+  @override
+  String get radioOnAirLine => 'On air';
+
+  @override
+  String get radioOffAirLine => 'Off air';
+
+  @override
+  String createdAgoHidden(String ago) {
+    return 'Created $ago ago · not visible to readers while hidden';
+  }
+
+  @override
+  String createdAgoShort(String ago) {
+    return 'Created $ago ago · not visible to readers';
+  }
+
+  @override
+  String get hiddenNotVisible => 'Not visible to readers while hidden';
+
+  @override
+  String hiddenNextStep(String path) {
+    return 'Next: point an encoder at $path, then publish';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, String minutes) {
+    return '${hours}h ${minutes}m';
+  }
+
+  @override
+  String durationMinutesSeconds(int minutes, String seconds) {
+    return '${minutes}m ${seconds}s';
+  }
+
+  @override
+  String durationMinutesCompact(int minutes) {
+    return '${minutes}m';
+  }
+
+  @override
+  String ageMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ageHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ageDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String yesterdayAt(String time) {
+    return 'yesterday $time';
+  }
+
+  @override
+  String get noChannelsBody =>
+      'A channel is one stream path readers can tune into — TV, radio, or both. You will pick a permanent key and point the studio encoder at it.';
+
+  @override
+  String get noChannelsFootnote =>
+      'The key is permanent; the name can change later.';
+
+  @override
+  String get addSecondChannel =>
+      'Add a second channel — radio-only stations and test channels can stay hidden until they are ready.';
+
+  @override
+  String get deleteBlockedOnAirTitle => 'Can\'t delete while on air';
+
+  @override
+  String deleteBlockedOnAirBody(String name) {
+    return 'Take $name off air first.';
+  }
+
+  @override
+  String get deleteBlockedSignalTitle =>
+      'Can\'t delete while a signal is arriving';
+
+  @override
+  String get deleteBlockedSignalBody =>
+      'A signal is still arriving from the studio encoder.';
+
+  @override
+  String deleteBlockedRadioBody(String name) {
+    return 'Switch $name\'s radio off first.';
+  }
+
+  @override
+  String get deleteBlockedLastTitle => 'Can\'t delete the last channel';
+
+  @override
+  String get deleteBlockedLastBody =>
+      'Readers would have no channel at all. Create another one first.';
+
+  @override
+  String get cantBeUndone => 'This can\'t be undone.';
+
+  @override
+  String get keepChannel => 'Keep channel';
+
+  @override
+  String get deleteChannelConfirm => 'Delete channel';
 }

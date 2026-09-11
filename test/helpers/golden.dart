@@ -30,6 +30,7 @@ Future<void> loadAppFonts() async {
       'SourceSerif4-Semibold',
       'SourceSerif4-Bold',
     ],
+    'IBMPlexMono': ['IBMPlexMono-Regular', 'IBMPlexMono-Medium'],
   }.entries) {
     final loader = FontLoader(family.key);
     for (final file in family.value) {

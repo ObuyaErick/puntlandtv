@@ -480,7 +480,7 @@
   "@statusTranscoding": {
     "description": "Status badge while an episode encodes. Uppercase."
   },
-  "consoleTitle": "Content console",
+  "consoleTitle": "Staff console",
   "@consoleTitle": {
     "description": "Name of the internal console."
   },
@@ -520,7 +520,7 @@
   "@navMedia": {
     "description": "Console navigation: media library."
   },
-  "navUsers": "Users & roles",
+  "navUsers": "Staff",
   "@navUsers": {
     "description": "Console navigation: staff accounts."
   },
@@ -2917,5 +2917,812 @@
   "categoryInUseRefusal": "Articles are still filed in this category, so it can't be deleted.",
   "@categoryInUseRefusal": {
     "description": "Toast when the server refuses to delete a category that has articles."
+  },
+  "channelKeyPermanentNote": "A channel's key is permanent — it is the stream path encoders publish to and every viewer's player reads from. Its name and what it carries are safe to change.",
+  "@channelKeyPermanentNote": {
+    "description": "Notice at the top of the channel list."
+  },
+  "newChannel": "New channel",
+  "@newChannel": {
+    "description": "Button that opens the new-channel panel."
+  },
+  "editChannel": "Edit channel",
+  "@editChannel": {
+    "description": "Heading of the panel that edits a channel, and the row action that opens it."
+  },
+  "createChannel": "Create channel",
+  "@createChannel": {
+    "description": "Submit button of the new-channel panel."
+  },
+  "fieldChannelKey": "Key",
+  "@fieldChannelKey": {
+    "description": "Label of the channel key field."
+  },
+  "channelKeyHint": "e.g. pltv2",
+  "@channelKeyHint": {
+    "description": "Hint in the channel key field."
+  },
+  "channelKeyFormatError": "Use lower-case letters, digits and single hyphens — like pltv2.",
+  "@channelKeyFormatError": {
+    "description": "Shown while a new channel key breaks the key rule."
+  },
+  "channelKeyTakenError": "Another channel already uses this key.",
+  "@channelKeyTakenError": {
+    "description": "Shown while a new channel key is already in use."
+  },
+  "channelKeyChooseCarefully": "Choose carefully: the key is the stream path in every encoder's publish URL and can't be changed once the channel exists.",
+  "@channelKeyChooseCarefully": {
+    "description": "Under the key field when creating a channel."
+  },
+  "channelKeyLocked": "Permanent — it is the stream path in every encoder's publish URL.",
+  "@channelKeyLocked": {
+    "description": "Under the read-only key field when editing a channel."
+  },
+  "fieldChannelName": "Name",
+  "@fieldChannelName": {
+    "description": "Label of the channel name field."
+  },
+  "channelPublishedLabel": "Visible in the app",
+  "@channelPublishedLabel": {
+    "description": "Switch that publishes a channel to readers."
+  },
+  "channelPublishedHint": "Leave off while you set the channel up — readers won't see it until this is on.",
+  "@channelPublishedHint": {
+    "description": "Explains the publish switch in the channel panel."
+  },
+  "channelHasTvLabel": "Television",
+  "@channelHasTvLabel": {
+    "description": "Switch for whether a channel has a TV feed."
+  },
+  "channelHasTvHint": "A TV feed the studio publishes to. Off for a radio-only station.",
+  "@channelHasTvHint": {
+    "description": "Explains the television switch in the channel panel."
+  },
+  "fieldRadioStreamUrl": "Radio stream URL",
+  "@fieldRadioStreamUrl": {
+    "description": "Label of the radio stream URL field."
+  },
+  "radioStreamUrlHint": "Leave empty for a channel without radio.",
+  "@radioStreamUrlHint": {
+    "description": "Under the radio stream URL field."
+  },
+  "fieldRadioStationName": "Station name",
+  "@fieldRadioStationName": {
+    "description": "Label of the radio station name field."
+  },
+  "fieldRadioFrequency": "Frequency",
+  "@fieldRadioFrequency": {
+    "description": "Label of the radio frequency field."
+  },
+  "radioFrequencyHint": "e.g. 88.5 FM · Garoowe",
+  "@radioFrequencyHint": {
+    "description": "Hint in the radio frequency field."
+  },
+  "sectionChannelRadio": "RADIO",
+  "@sectionChannelRadio": {
+    "description": "Section heading above the radio fields in the channel panel."
+  },
+  "channelNeedsSomething": "A channel needs television, a radio stream, or both.",
+  "@channelNeedsSomething": {
+    "description": "Shown when a channel would have neither a TV feed nor a radio stream."
+  },
+  "channelCreated": "Created “{name}”",
+  "@channelCreated": {
+    "description": "Toast after a channel is created.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "channelSaved": "Saved “{name}”",
+  "@channelSaved": {
+    "description": "Toast after a channel's settings are saved.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "channelDeleted": "Deleted “{name}”",
+  "@channelDeleted": {
+    "description": "Toast after a channel is deleted.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteChannelTitle": "Delete {name}?",
+  "@deleteChannelTitle": {
+    "description": "Heading of the delete-channel confirmation.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteChannelBody": "The channel and its schedule are removed for everyone. The key {key} becomes free again, so any encoder still publishing to {path} will stop reaching readers.",
+  "@deleteChannelBody": {
+    "description": "Body of the delete-channel confirmation. {key} and {path} are rendered in monospace.",
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteChannelBlockedOnAir": "Take the channel off air and switch its radio off before deleting it.",
+  "@deleteChannelBlockedOnAir": {
+    "description": "Why a channel that is in use cannot be deleted."
+  },
+  "deleteChannelBlockedLast": "The only channel can't be deleted.",
+  "@deleteChannelBlockedLast": {
+    "description": "Why the last remaining channel cannot be deleted."
+  },
+  "channelOnAirRefusal": "The channel is on air or still receiving a signal. Take it off air first.",
+  "@channelOnAirRefusal": {
+    "description": "Toast when the server refuses a change to a channel that is in use."
+  },
+  "channelOrderStale": "The channel list changed while you were looking at it. Try again.",
+  "@channelOrderStale": {
+    "description": "Toast when a reorder is refused because the list was out of date."
+  },
+  "moveChannelUp": "Move up",
+  "@moveChannelUp": {
+    "description": "Tooltip of the row action that moves a channel earlier in the list."
+  },
+  "moveChannelDown": "Move down",
+  "@moveChannelDown": {
+    "description": "Tooltip of the row action that moves a channel later in the list."
+  },
+  "colKey": "KEY",
+  "@colKey": {
+    "description": "Channel list column: the channel key."
+  },
+  "colTv": "TV",
+  "@colTv": {
+    "description": "Channel list column: television state."
+  },
+  "colRadio": "RADIO",
+  "@colRadio": {
+    "description": "Channel list column: radio state."
+  },
+  "colViewers": "VIEWERS",
+  "@colViewers": {
+    "description": "Channel list column: concurrent viewers."
+  },
+  "channelHidden": "Hidden",
+  "@channelHidden": {
+    "description": "Chip on a channel that readers cannot see yet."
+  },
+  "channelStateLive": "Live",
+  "@channelStateLive": {
+    "description": "A channel that is on air with a signal arriving."
+  },
+  "channelStateNoSignal": "No signal",
+  "@channelStateNoSignal": {
+    "description": "A channel that is on air with nothing arriving."
+  },
+  "channelStateOffAir": "Off air",
+  "@channelStateOffAir": {
+    "description": "A channel, or its radio, that is off air."
+  },
+  "allChannels": "All channels",
+  "@allChannels": {
+    "description": "Button in a channel's control room that returns to the channel list."
+  },
+  "switchChannel": "Switch channel",
+  "@switchChannel": {
+    "description": "Tooltip of the channel picker in live control and the schedule."
+  },
+  "channelUnpublishedNotice": "This channel is hidden from the app. Readers won't see it until it is published.",
+  "@channelUnpublishedNotice": {
+    "description": "Notice in the control room of an unpublished channel."
+  },
+  "noTvChannels": "No TV channels yet.",
+  "@noTvChannels": {
+    "description": "Empty state where a TV channel is needed, such as the schedule and the overview."
+  },
+  "noChannels": "No channels yet",
+  "@noChannels": {
+    "description": "Title of the empty channel list."
+  },
+  "otherChannels": "OTHER CHANNELS",
+  "@otherChannels": {
+    "description": "Overline above the other channels on the overview's on-air card."
+  },
+  "navShortOverview": "Home",
+  "@navShortOverview": {
+    "description": "Collapsed rail label for Overview — one short word under the icon."
+  },
+  "navShortArticles": "News",
+  "@navShortArticles": {
+    "description": "Collapsed rail label for Articles."
+  },
+  "navShortPrograms": "Programs",
+  "@navShortPrograms": {
+    "description": "Collapsed rail label for Programs."
+  },
+  "navShortLiveControl": "Live",
+  "@navShortLiveControl": {
+    "description": "Collapsed rail label for Live control."
+  },
+  "navShortSchedule": "Schedule",
+  "@navShortSchedule": {
+    "description": "Collapsed rail label for Schedule."
+  },
+  "navShortPush": "Push",
+  "@navShortPush": {
+    "description": "Collapsed rail label for Push."
+  },
+  "navShortMedia": "Media",
+  "@navShortMedia": {
+    "description": "Collapsed rail label for Media."
+  },
+  "navShortUsers": "Staff",
+  "@navShortUsers": {
+    "description": "Collapsed rail label for Staff."
+  },
+  "navShortAppConfig": "Config",
+  "@navShortAppConfig": {
+    "description": "Collapsed rail label for App config."
+  },
+  "openNavigation": "Open navigation",
+  "@openNavigation": {
+    "description": "Tooltip of the menu button that opens the console navigation on a phone."
+  },
+  "channelCount": "{count, plural, =1{1 channel} other{{count} channels}}",
+  "@channelCount": {
+    "description": "How many channels the list holds.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "channelOrderNote": "the order below is the order readers see in the app",
+  "@channelOrderNote": {
+    "description": "Follows the channel count in the page subtitle."
+  },
+  "channelOrderNoteShort": "order = reader order",
+  "@channelOrderNoteShort": {
+    "description": "The same note, for tablet width."
+  },
+  "bandChannelsOnAir": "channels on air",
+  "@bandChannelsOnAir": {
+    "description": "Caption under the \"3 / 4\" count in the on-air band."
+  },
+  "bandTvViewers": "TV viewers",
+  "@bandTvViewers": {
+    "description": "Caption under the total TV viewer count."
+  },
+  "bandRadioListeners": "radio listeners",
+  "@bandRadioListeners": {
+    "description": "Caption under the total radio listener count."
+  },
+  "bandListeners": "listeners",
+  "@bandListeners": {
+    "description": "Shorter caption under the listener count, for tablet width."
+  },
+  "alarmTitle": "{count, plural, =1{1 channel on air with no signal} other{{count} channels on air with no signal}}",
+  "@alarmTitle": {
+    "description": "Heading of the no-signal alarm. Rendered uppercase.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "alarmBody": "{name} has been on air for {onAirFor} with nothing arriving from the studio encoder for the last {silentFor}. Viewers see a spinner.",
+  "@alarmBody": {
+    "description": "Body of the no-signal alarm when both durations are known.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "onAirFor": {
+        "type": "String"
+      },
+      "silentFor": {
+        "type": "String"
+      }
+    }
+  },
+  "alarmBodyNoDuration": "{name} is on air with nothing arriving from the studio encoder. Viewers see a spinner.",
+  "@alarmBodyNoDuration": {
+    "description": "Body of the no-signal alarm when the durations are not known.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "alarmTitleShort": "{name} — on air, no signal",
+  "@alarmTitleShort": {
+    "description": "Heading of the compact no-signal alarm. Rendered uppercase.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "alarmBodyShort": "Nothing from the encoder for {duration}.",
+  "@alarmBodyShort": {
+    "description": "Body of the compact no-signal alarm.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "alarmBodyShortNoDuration": "Nothing is arriving from the encoder.",
+  "@alarmBodyShortNoDuration": {
+    "description": "Body of the compact no-signal alarm when the duration is not known."
+  },
+  "openNamed": "Open {name}",
+  "@openNamed": {
+    "description": "Button that opens one channel's control room, by name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openShort": "Open",
+  "@openShort": {
+    "description": "Short button that opens a control room, where there is no room for the name."
+  },
+  "takeOffAir": "Take off air",
+  "@takeOffAir": {
+    "description": "Button that takes a channel off air from the channel list."
+  },
+  "channelTakenOffAir": "{name} is off air",
+  "@channelTakenOffAir": {
+    "description": "Toast after taking a channel off air from the channel list.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keyNotice": "The {key} is permanent — it is the stream path inside every encoder's publish URL. The channel {name} is safe to change at any time.",
+  "@keyNotice": {
+    "description": "Notice above the channel list. {key} and {name} are the emphasised words keyNoticeKey and keyNoticeName.",
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keyNoticeShort": "The {key} is permanent — it is the stream path in every publish URL. The {name} is safe to change.",
+  "@keyNoticeShort": {
+    "description": "The notice, for tablet width.",
+    "placeholders": {
+      "key": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keyNoticeKey": "key",
+  "@keyNoticeKey": {
+    "description": "The emphasised word for a channel key inside keyNotice."
+  },
+  "keyNoticeName": "name",
+  "@keyNoticeName": {
+    "description": "The emphasised word for a channel name inside keyNotice."
+  },
+  "colOrd": "ORD",
+  "@colOrd": {
+    "description": "Column header: the channel's position in the list."
+  },
+  "colPreview": "PREVIEW",
+  "@colPreview": {
+    "description": "Column header: the channel's preview tile."
+  },
+  "colChannel": "CHANNEL",
+  "@colChannel": {
+    "description": "Column header: the channel's name and details."
+  },
+  "colChannelActions": "ORDER · EDIT · DELETE",
+  "@colChannelActions": {
+    "description": "Column header over the four row actions."
+  },
+  "chipTvAndRadio": "TV + radio",
+  "@chipTvAndRadio": {
+    "description": "Chip: the channel carries TV and radio. Rendered uppercase."
+  },
+  "chipTvOnly": "TV only",
+  "@chipTvOnly": {
+    "description": "Chip: the channel carries TV only. Rendered uppercase."
+  },
+  "chipRadioOnly": "Radio only",
+  "@chipRadioOnly": {
+    "description": "Chip: the channel carries radio only. Rendered uppercase."
+  },
+  "previewNoFrames": "no frames",
+  "@previewNoFrames": {
+    "description": "Preview tile of a channel on air with no signal."
+  },
+  "previewOffAir": "off air",
+  "@previewOffAir": {
+    "description": "Preview tile of a channel that is off air."
+  },
+  "previewNotSetUp": "not set up yet",
+  "@previewNotSetUp": {
+    "description": "Preview tile of a hidden channel that has never been on air."
+  },
+  "pillLiveFor": "Live · {duration}",
+  "@pillLiveFor": {
+    "description": "Status pill: live to readers, with uptime. Rendered uppercase.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "pillNoSignal": "On air · no signal",
+  "@pillNoSignal": {
+    "description": "Status pill: on air with nothing arriving. Rendered uppercase."
+  },
+  "pillOffAir": "Off air",
+  "@pillOffAir": {
+    "description": "Status pill: off air. Rendered uppercase."
+  },
+  "pillOnAir": "On air",
+  "@pillOnAir": {
+    "description": "Status pill: a radio-only station on air, uptime unknown. Rendered uppercase."
+  },
+  "pillOnAirFor": "On air · {duration}",
+  "@pillOnAirFor": {
+    "description": "Status pill: a radio-only station on air, with uptime. Rendered uppercase.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "watchingWord": "watching",
+  "@watchingWord": {
+    "description": "Follows a bold viewer count."
+  },
+  "listeningWord": "listening",
+  "@listeningWord": {
+    "description": "Follows a bold listener count."
+  },
+  "radioOnAirSuffix": "radio on air",
+  "@radioOnAirSuffix": {
+    "description": "Follows the listener count when the radio is on air."
+  },
+  "ingestNotArriving": "Ingest {state}",
+  "@ingestNotArriving": {
+    "description": "Status line of a channel with no signal. {state} is ingestNotArrivingState, in red.",
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "ingestNotArrivingState": "not arriving",
+  "@ingestNotArrivingState": {
+    "description": "The emphasised half of ingestNotArriving."
+  },
+  "watchingASpinner": "watching a spinner",
+  "@watchingASpinner": {
+    "description": "Follows a bold count of viewers stuck on a channel with no signal."
+  },
+  "noSignalExpected": "No signal expected while off air",
+  "@noSignalExpected": {
+    "description": "Status line of an off-air channel."
+  },
+  "neverBeenOnAir": "Never been on air",
+  "@neverBeenOnAir": {
+    "description": "Status line of a channel that has never broadcast."
+  },
+  "nowPlayingLine": "Now playing {title}",
+  "@nowPlayingLine": {
+    "description": "Start of the channel line; {title} is bold.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "nowPlayingUntil": "Now playing {title} · until {time}",
+  "@nowPlayingUntil": {
+    "description": "The now-playing line on the expanded single-channel card.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "renditionsAllHealthy": "all renditions healthy",
+  "@renditionsAllHealthy": {
+    "description": "Follows the now-playing title when every rendition is healthy."
+  },
+  "renditionsSomeDegraded": "renditions degraded",
+  "@renditionsSomeDegraded": {
+    "description": "Follows the now-playing title when a rendition is unhealthy."
+  },
+  "renditionLabelsHealthy": "{labels} all healthy",
+  "@renditionLabelsHealthy": {
+    "description": "Rendition line on the expanded card, e.g. \"1080p · 720p · 240p all healthy\".",
+    "placeholders": {
+      "labels": {
+        "type": "String"
+      }
+    }
+  },
+  "renditionLabelsDegraded": "{labels} degraded",
+  "@renditionLabelsDegraded": {
+    "description": "Rendition line on the expanded card when one is unhealthy.",
+    "placeholders": {
+      "labels": {
+        "type": "String"
+      }
+    }
+  },
+  "noSignalConsequence": "Readers see a spinner. Nothing has arrived from the studio encoder for {duration}.",
+  "@noSignalConsequence": {
+    "description": "The consequence line of a channel on air with no signal.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "noSignalConsequenceNoDuration": "Readers see a spinner. Nothing is arriving from the studio encoder.",
+  "@noSignalConsequenceNoDuration": {
+    "description": "The consequence line when the duration is not known."
+  },
+  "noSignalConsequenceShort": "Readers see a spinner · no frames for {duration}",
+  "@noSignalConsequenceShort": {
+    "description": "The consequence line at tablet width.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "noSignalConsequenceShortNoDuration": "Readers see a spinner · no frames",
+  "@noSignalConsequenceShortNoDuration": {
+    "description": "The tablet consequence line when the duration is not known."
+  },
+  "onAirSinceLastFrame": "On air since {since} · last frame {lastFrame}",
+  "@onAirSinceLastFrame": {
+    "description": "Detail line of a channel on air with no signal.",
+    "placeholders": {
+      "since": {
+        "type": "String"
+      },
+      "lastFrame": {
+        "type": "String"
+      }
+    }
+  },
+  "onAirSince": "On air since {since}",
+  "@onAirSince": {
+    "description": "Detail line of a channel on air with no signal, last frame unknown.",
+    "placeholders": {
+      "since": {
+        "type": "String"
+      }
+    }
+  },
+  "noSignalCause": "Either the encoder stopped publishing to {path}, or the studio uplink dropped.",
+  "@noSignalCause": {
+    "description": "The likely causes, on the no-signal card. {path} is monospace.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "openControlRoom": "Open control room",
+  "@openControlRoom": {
+    "description": "Button or link that opens a channel's control room."
+  },
+  "offAirSince": "Off air since {when}",
+  "@offAirSince": {
+    "description": "Detail line of an off-air channel.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "nothingScheduled": "nothing scheduled",
+  "@nothingScheduled": {
+    "description": "Follows the off-air line when the channel has nothing scheduled."
+  },
+  "visibleAsOffAir": "Visible to readers as an off-air channel",
+  "@visibleAsOffAir": {
+    "description": "Second line of a published off-air channel."
+  },
+  "radioAudioArriving": "On air · audio arriving, bitrate stable",
+  "@radioAudioArriving": {
+    "description": "Channel line of a radio-only station whose stream is healthy."
+  },
+  "radioOnAirLine": "On air",
+  "@radioOnAirLine": {
+    "description": "Channel line of a radio-only station on air."
+  },
+  "radioOffAirLine": "Off air",
+  "@radioOffAirLine": {
+    "description": "Channel line of a radio-only station off air."
+  },
+  "createdAgoHidden": "Created {ago} ago · not visible to readers while hidden",
+  "@createdAgoHidden": {
+    "description": "Detail line of a hidden channel.",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "createdAgoShort": "Created {ago} ago · not visible to readers",
+  "@createdAgoShort": {
+    "description": "The same line, at phone width.",
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "hiddenNotVisible": "Not visible to readers while hidden",
+  "@hiddenNotVisible": {
+    "description": "Detail line of a hidden channel whose age is not known."
+  },
+  "hiddenNextStep": "Next: point an encoder at {path}, then publish",
+  "@hiddenNextStep": {
+    "description": "Setup hint on a hidden channel. {path} is monospace.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours}h {minutes}m",
+  "@durationHoursMinutes": {
+    "description": "A duration of hours and minutes, e.g. \"2h 04m\". Minutes arrive zero-padded.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinutesSeconds": "{minutes}m {seconds}s",
+  "@durationMinutesSeconds": {
+    "description": "A duration of minutes and seconds, e.g. \"3m 12s\". Seconds arrive zero-padded.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMinutesCompact": "{minutes}m",
+  "@durationMinutesCompact": {
+    "description": "A duration in minutes, e.g. \"12m\".",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "ageMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
+  "@ageMinutes": {
+    "description": "How long ago something happened, in minutes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageHours": "{count, plural, =1{1 hour} other{{count} hours}}",
+  "@ageHours": {
+    "description": "How long ago something happened, in hours.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ageDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@ageDays": {
+    "description": "How long ago something happened, in days.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yesterdayAt": "yesterday {time}",
+  "@yesterdayAt": {
+    "description": "A time on the previous day.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "noChannelsBody": "A channel is one stream path readers can tune into — TV, radio, or both. You will pick a permanent key and point the studio encoder at it.",
+  "@noChannelsBody": {
+    "description": "Body of the empty channel list."
+  },
+  "noChannelsFootnote": "The key is permanent; the name can change later.",
+  "@noChannelsFootnote": {
+    "description": "Footnote under the empty list's button."
+  },
+  "addSecondChannel": "Add a second channel — radio-only stations and test channels can stay hidden until they are ready.",
+  "@addSecondChannel": {
+    "description": "Prompt under the list when there is only one channel."
+  },
+  "deleteBlockedOnAirTitle": "Can't delete while on air",
+  "@deleteBlockedOnAirTitle": {
+    "description": "Tooltip heading on the delete button of a channel that is on air."
+  },
+  "deleteBlockedOnAirBody": "Take {name} off air first.",
+  "@deleteBlockedOnAirBody": {
+    "description": "Tooltip body on the delete button of a channel that is on air.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteBlockedSignalTitle": "Can't delete while a signal is arriving",
+  "@deleteBlockedSignalTitle": {
+    "description": "Tooltip heading on the delete button of a channel still receiving a signal."
+  },
+  "deleteBlockedSignalBody": "A signal is still arriving from the studio encoder.",
+  "@deleteBlockedSignalBody": {
+    "description": "Tooltip body: a signal is still arriving. Follows deleteBlockedOnAirBody when both apply."
+  },
+  "deleteBlockedRadioBody": "Switch {name}'s radio off first.",
+  "@deleteBlockedRadioBody": {
+    "description": "Tooltip body: the radio is on air.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteBlockedLastTitle": "Can't delete the last channel",
+  "@deleteBlockedLastTitle": {
+    "description": "Tooltip heading on the delete button of the only channel."
+  },
+  "deleteBlockedLastBody": "Readers would have no channel at all. Create another one first.",
+  "@deleteBlockedLastBody": {
+    "description": "Tooltip body on the delete button of the only channel."
+  },
+  "cantBeUndone": "This can't be undone.",
+  "@cantBeUndone": {
+    "description": "Warning box in the delete-channel confirmation."
+  },
+  "keepChannel": "Keep channel",
+  "@keepChannel": {
+    "description": "Cancel button of the delete-channel confirmation."
+  },
+  "deleteChannelConfirm": "Delete channel",
+  "@deleteChannelConfirm": {
+    "description": "Confirm button of the delete-channel confirmation."
   }
 }

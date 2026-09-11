@@ -51,9 +51,20 @@ abstract final class ConsoleRoutes {
   /// is open.
   static const categories = '$articles/$categoriesPattern';
 
+  /// One channel's control room.
+  ///
+  /// Live control opens on the channel list; each channel's room hangs off it
+  /// by key, so the rail stays on Live control and "the channel I mean is
+  /// /live/pltv2" is a link one operator can send another.
+  static String liveChannel(String key) => '$live/$key';
+
+  /// One channel's schedule. Bare [schedule] shows the first channel's.
+  static String scheduleFor(String key) => '$schedule/$key';
+
   /// Path pattern fragments used when registering the child routes.
   static const programPattern = ':id';
   static const articlePattern = ':id';
+  static const channelPattern = ':channelKey';
 
   /// A literal segment, so it has to be registered ahead of [articlePattern] —
   /// the router matches in order, and `:id` would otherwise take it as an

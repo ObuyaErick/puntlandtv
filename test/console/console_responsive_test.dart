@@ -10,6 +10,7 @@ import 'package:puntland/console/features/articles/presentation/pages/article_li
 import 'package:puntland/console/features/auth/domain/entities/console_user.dart';
 import 'package:puntland/console/features/media/presentation/pages/media_library_page.dart';
 import 'package:puntland/console/features/articles/presentation/pages/categories_page.dart';
+import 'package:puntland/console/features/operations/presentation/pages/channels_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/live_control_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/push_composer_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/schedule_page.dart';
@@ -57,7 +58,13 @@ void main() {
     'media': MediaLibraryPage.new,
     'programs': ProgramsPage.new,
     'schedule': SchedulePage.new,
-    'live control': LiveControlPage.new,
+    'channels': ChannelsPage.new,
+    'live control': () => const LiveControlPage(channelKey: 'main'),
+    // The two other shapes a control room takes: a TV channel with nothing
+    // arriving and no ladder yet, and a radio-only station with no TV sections.
+    'live control · idle': () => const LiveControlPage(channelKey: 'pltv2'),
+    'live control · radio only': () =>
+        const LiveControlPage(channelKey: 'radio-garowe'),
     'categories': CategoriesPage.new,
     'push': PushComposerPage.new,
     'users': UsersPage.new,

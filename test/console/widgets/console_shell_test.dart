@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:puntland/console/app/console_shell.dart';
 import 'package:puntland/console/core/providers/console_providers.dart';
+import 'package:puntland/console/core/widgets/console_compact_bar.dart';
 import 'package:puntland/console/features/auth/domain/entities/console_user.dart';
 import 'package:puntland/core/l10n/l10n.dart';
 import 'package:puntland/core/l10n/so_material_localizations.dart';
@@ -33,6 +34,14 @@ void main() {
     WidgetTester tester, {
     required ConsoleRole role,
     Size size = const Size(1280, 800),
+    // A page that draws the phone bar, as every console page does: at compact
+    // width the menu button that opens the rail is in it.
+    Widget child = const Column(
+      children: [
+        ConsoleCompactBar(title: 'Page'),
+        Expanded(child: SizedBox.expand()),
+      ],
+    ),
   }) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
@@ -58,7 +67,7 @@ void main() {
           home: ConsoleShell(
             currentRoute: '/overview',
             onNavigate: (_) {},
-            child: const SizedBox.expand(),
+            child: child,
           ),
         ),
       ),
@@ -123,6 +132,28 @@ void main() {
       expect(find.text('Overview'), findsOneWidget);
     });
 
+    /// Tablet width has no room for names but room for a rail: icons over
+    /// one short word each, per the design review's tablet artboard.
+    testWidgets('collapses the rail to icons and short labels at medium', (
+      tester,
+    ) async {
+      await pumpShell(
+        tester,
+        role: ConsoleRole.admin,
+        size: const Size(768, 1024),
+      );
+
+      expect(find.byType(Drawer), findsNothing);
+      expect(find.text('Home'), findsOneWidget);
+      expect(find.text('Live'), findsOneWidget);
+      expect(find.text('Overview'), findsNothing);
+      expect(
+        find.byTooltip('Collapse sidebar'),
+        findsNothing,
+        reason: 'collapsed for want of room, so there is nothing to toggle',
+      );
+    });
+
     testWidgets('moves the rail into a drawer at compact', (tester) async {
       await pumpShell(
         tester,
@@ -130,9 +161,14 @@ void main() {
         size: const Size(390, 844),
       );
 
-      // The destinations live behind the drawer, so they are not on screen.
+      // The destinations live behind the drawer, so they are not on screen —
+      // the way to them is the menu button in the page's navy bar.
       expect(find.text('Overview'), findsNothing);
-      expect(find.byIcon(Icons.menu), findsOneWidget);
+      expect(find.byKey(const Key('open-navigation')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('open-navigation')));
+      await tester.pumpAndSettle();
+      expect(find.text('Overview'), findsOneWidget);
     });
   });
 }

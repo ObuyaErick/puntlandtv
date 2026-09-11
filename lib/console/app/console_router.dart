@@ -14,6 +14,7 @@ import '../features/articles/presentation/pages/categories_page.dart';
 import '../features/auth/domain/entities/console_user.dart';
 import '../features/auth/presentation/pages/sign_in_page.dart';
 import '../features/media/presentation/pages/media_library_page.dart';
+import '../features/operations/presentation/pages/channels_page.dart';
 import '../features/operations/presentation/pages/live_control_page.dart';
 import '../features/operations/presentation/pages/push_composer_page.dart';
 import '../features/operations/presentation/pages/schedule_page.dart';
@@ -109,8 +110,34 @@ final consoleRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          _branch(ConsoleRoutes.live, const LiveControlPage()),
-          _branch(ConsoleRoutes.schedule, const SchedulePage()),
+          _branch(
+            ConsoleRoutes.live,
+            const ChannelsPage(),
+            routes: [
+              // One channel's control room hangs off the list, so the rail
+              // keeps Live control selected and back returns to the channels.
+              GoRoute(
+                path: ConsoleRoutes.channelPattern,
+                builder: (_, state) => LiveControlPage(
+                  channelKey: state.pathParameters['channelKey']!,
+                ),
+              ),
+            ],
+          ),
+          _branch(
+            ConsoleRoutes.schedule,
+            // Bare, it shows the first TV channel's day; the picker in its
+            // header moves to the child route below.
+            const SchedulePage(),
+            routes: [
+              GoRoute(
+                path: ConsoleRoutes.channelPattern,
+                builder: (_, state) => SchedulePage(
+                  channelKey: state.pathParameters['channelKey'],
+                ),
+              ),
+            ],
+          ),
           _branch(ConsoleRoutes.push, const PushComposerPage()),
           _branch(ConsoleRoutes.media, const MediaLibraryPage()),
           _branch(ConsoleRoutes.users, const UsersPage()),

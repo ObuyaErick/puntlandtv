@@ -12,7 +12,10 @@ class NewsroomSummaryDto {
 
   factory NewsroomSummaryDto.fromJson(Map<String, dynamic> json) =>
       NewsroomSummaryDto(
-        onAir: OnAirDto.fromJson(json['on_air'] as Map<String, dynamic>),
+        onAir: (json['on_air'] as List<dynamic>)
+            .cast<Map<String, dynamic>>()
+            .map(OnAirDto.fromJson)
+            .toList(growable: false),
         publishedToday: json['published_today'] as int,
         publishedTodayByLocale:
             (json['published_today_by_locale'] as Map<String, dynamic>).map(
@@ -24,7 +27,9 @@ class NewsroomSummaryDto {
         failedIngestDetail: json['failed_ingest_detail'] as String?,
       );
 
-  final OnAirDto onAir;
+  /// One entry per channel with a TV feed, in the channel list's order — so
+  /// the first is the one the on-air card leads with.
+  final List<OnAirDto> onAir;
   final int publishedToday;
 
   /// e.g. `{so: 9, en: 5}` — the split matters, because an all-English day is
@@ -37,9 +42,11 @@ class NewsroomSummaryDto {
   final String? failedIngestDetail;
 }
 
-/// Broadcast health, as shown in the overview's on-air panel.
+/// One channel's broadcast health, as shown in the overview's on-air panel.
 class OnAirDto {
   const OnAirDto({
+    required this.key,
+    required this.name,
     required this.isLive,
     required this.programmeTitle,
     required this.elapsed,
@@ -49,6 +56,8 @@ class OnAirDto {
   });
 
   factory OnAirDto.fromJson(Map<String, dynamic> json) => OnAirDto(
+    key: json['key'] as String,
+    name: json['name'] as String,
     isLive: json['is_live'] as bool,
     programmeTitle: json['programme_title'] as String,
     elapsed: Duration(seconds: json['elapsed_seconds'] as int),
@@ -59,6 +68,10 @@ class OnAirDto {
     concurrentViewers: json['concurrent_viewers'] as int,
     radioOnAir: json['radio_on_air'] as bool,
   );
+
+  /// The channel's key — what its control room is opened by.
+  final String key;
+  final String name;
 
   final bool isLive;
   final String programmeTitle;

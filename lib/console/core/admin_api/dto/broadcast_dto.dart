@@ -103,7 +103,7 @@ class IngestStatusDto {
     this.videoLabel,
     this.rtmpUrl = '',
     this.srtUrl = '',
-    this.path = 'main',
+    this.path = '',
   });
 
   factory IngestStatusDto.fromJson(Map<String, dynamic> json) =>
@@ -117,7 +117,7 @@ class IngestStatusDto {
         videoLabel: json['video_label'] as String?,
         rtmpUrl: json['rtmp_url'] as String? ?? '',
         srtUrl: json['srt_url'] as String? ?? '',
-        path: json['path'] as String? ?? 'main',
+        path: json['path'] as String? ?? '',
       );
 
   /// Whether bytes are arriving at the packager right now.
@@ -143,6 +143,8 @@ class IngestStatusDto {
   /// of either: the path is public and the credential is separate.
   final String rtmpUrl;
   final String srtUrl;
+
+  /// The packager path, which is the channel's key.
   final String path;
 }
 
@@ -207,9 +209,10 @@ class IngestKeyDto {
   bool get hasNeverBeenUsed => lastUsedAt == null;
 }
 
-/// Everything the live control screen governs.
+/// Everything one channel's control room governs.
 class BroadcastControlDto {
   const BroadcastControlDto({
+    required this.channelKey,
     required this.tvOnAir,
     required this.radioOnAir,
     required this.channelName,
@@ -218,12 +221,21 @@ class BroadcastControlDto {
     required this.radioListeners,
     required this.renditions,
     required this.slate,
+    this.isPublished = true,
+    this.hasTv = true,
+    this.hasRadio = false,
+    this.radioStationName = '',
     this.ingest = const IngestStatusDto(isPublishing: false),
     this.ingestKeys = const [],
   });
 
   factory BroadcastControlDto.fromJson(Map<String, dynamic> json) =>
       BroadcastControlDto(
+        channelKey: json['channel_key'] as String,
+        isPublished: json['is_published'] as bool? ?? true,
+        hasTv: json['has_tv'] as bool? ?? true,
+        hasRadio: json['has_radio'] as bool? ?? false,
+        radioStationName: json['radio_station_name'] as String? ?? '',
         tvOnAir: json['tv_on_air'] as bool,
         radioOnAir: json['radio_on_air'] as bool,
         channelName: json['channel_name'] as String,
@@ -248,6 +260,20 @@ class BroadcastControlDto {
             .map(IngestKeyDto.fromJson)
             .toList(growable: false),
       );
+
+  /// Which channel this is. Every write from the control room is addressed to
+  /// it, so the screen can never save one channel's state onto another's.
+  final String channelKey;
+
+  /// Readers do not see an unpublished channel at all; the control room is
+  /// where one is readied before they do.
+  final bool isPublished;
+
+  /// A radio-only station has no TV feed — no ingest, renditions or slate.
+  final bool hasTv;
+
+  final bool hasRadio;
+  final String radioStationName;
 
   final bool tvOnAir;
   final bool radioOnAir;
@@ -319,17 +345,30 @@ class BroadcastControlDto {
   @Deprecated('Renamed to canToggleOnAir — the slate now gates both directions')
   bool get canGoOffAir => canToggleOnAir;
 
+  /// The channel's identity fields are settable here only for the fixture,
+  /// which keeps them in its channel list and stamps them on at read time.
+  /// The control room never changes them — they belong to the channel form.
   BroadcastControlDto copyWith({
     bool? tvOnAir,
     bool? radioOnAir,
+    String? channelName,
+    bool? isPublished,
+    bool? hasTv,
+    bool? hasRadio,
+    String? radioStationName,
     List<RenditionConfigDto>? renditions,
     Map<String, SlateMessageDto>? slate,
     IngestStatusDto? ingest,
     List<IngestKeyDto>? ingestKeys,
   }) => BroadcastControlDto(
+    channelKey: channelKey,
+    isPublished: isPublished ?? this.isPublished,
+    hasTv: hasTv ?? this.hasTv,
+    hasRadio: hasRadio ?? this.hasRadio,
+    radioStationName: radioStationName ?? this.radioStationName,
     tvOnAir: tvOnAir ?? this.tvOnAir,
     radioOnAir: radioOnAir ?? this.radioOnAir,
-    channelName: channelName,
+    channelName: channelName ?? this.channelName,
     uptime: uptime,
     concurrentViewers: concurrentViewers,
     radioListeners: radioListeners,

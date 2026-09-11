@@ -9,6 +9,7 @@ import 'package:puntland/console/features/auth/domain/entities/console_user.dart
 import 'package:puntland/console/core/admin_api/dto/push_dto.dart';
 import 'package:puntland/console/features/operations/presentation/controllers/push_controller.dart';
 import 'package:puntland/console/features/articles/presentation/pages/categories_page.dart';
+import 'package:puntland/console/features/operations/presentation/pages/channels_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/live_control_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/push_composer_page.dart';
 import 'package:puntland/console/features/operations/presentation/pages/schedule_page.dart';
@@ -56,6 +57,7 @@ void main() {
 
   Future<List<Override>> baseOverrides({
     ConsoleRole role = ConsoleRole.operations,
+    DateTime? clock,
   }) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
@@ -63,7 +65,7 @@ void main() {
       sharedPreferencesProvider.overrideWithValue(prefs),
       authControllerProvider.overrideWith(() => _SignedInAs(role)),
       consoleClockProvider.overrideWithValue(
-        () => DateTime(2026, 8, 30, 21, 4),
+        () => clock ?? DateTime(2026, 8, 30, 21, 4),
       ),
       adminApiProvider.overrideWithValue(
         FixtureAdminApi(
@@ -101,7 +103,7 @@ void main() {
   testWidgets('console · live control', (tester) async {
     await pumpGolden(
       tester,
-      const Scaffold(body: LiveControlPage()),
+      const Scaffold(body: LiveControlPage(channelKey: 'main')),
       width: 1200,
       height: 1100,
       overrides: await baseOverrides(),
@@ -110,6 +112,41 @@ void main() {
     await expectLater(
       find.byType(LiveControlPage),
       matchesGoldenFile('../goldens/console_live_control.png'),
+    );
+  });
+
+  /// The design review's desktop artboard: every shape a channel card takes —
+  /// live with TV and radio, on air with no signal, off air, radio only, and
+  /// hidden — under the navy band carrying the no-signal alarm.
+  testWidgets('console · channels', (tester) async {
+    await pumpGolden(
+      tester,
+      const Scaffold(body: ChannelsPage()),
+      width: 1440,
+      height: 1300,
+      // The fixture's instant, which its uptimes and "8 minutes ago" are
+      // measured from.
+      overrides: await baseOverrides(clock: DateTime(2026, 8, 30, 21, 12)),
+    );
+    await settle(tester);
+    await expectLater(
+      find.byType(ChannelsPage),
+      matchesGoldenFile('../goldens/console_channels.png'),
+    );
+  });
+
+  testWidgets('console · live control, radio-only station', (tester) async {
+    await pumpGolden(
+      tester,
+      const Scaffold(body: LiveControlPage(channelKey: 'radio-garowe')),
+      width: 1200,
+      height: 600,
+      overrides: await baseOverrides(),
+    );
+    await settle(tester);
+    await expectLater(
+      find.byType(LiveControlPage),
+      matchesGoldenFile('../goldens/console_live_control_radio_only.png'),
     );
   });
 

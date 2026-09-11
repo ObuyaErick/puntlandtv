@@ -62,7 +62,7 @@ abstract final class Layout {
   static const railWidth = 80.0;
 
   /// Expanded rail, the only place badge counts appear.
-  static const railExpandedWidth = 236.0;
+  static const railExpandedWidth = 264.0;
 
   /// The docked mini-player bar at compact width.
   static const miniPlayerHeight = 58.0;

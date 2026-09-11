@@ -92,8 +92,12 @@ class _CategoryTable extends StatelessWidget {
       ConsoleColumn(label: l10n.colArticles, width: 90, alignEnd: true),
       ConsoleColumn(label: l10n.colInApp, width: 110),
       // Unlabelled: the icons say what they do, and their tooltips say it in
-      // words.
-      const ConsoleColumn(label: '', width: 88, alignEnd: true),
+      // words. Two buttons at the 48dp minimum tap target.
+      const ConsoleColumn(
+        label: '',
+        width: 2 * kMinInteractiveDimension,
+        alignEnd: true,
+      ),
     ];
 
     // Four columns and the actions need ~800dp before the NAME column is squeezed into
@@ -368,10 +372,9 @@ class _CategoryRowActionsState extends ConsumerState<_CategoryRowActions> {
             color: context.scheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(width: Spacing.chip),
         if (_busy)
           const SizedBox.square(
-            dimension: 40,
+            dimension: kMinInteractiveDimension,
             child: Center(
               child: SizedBox.square(
                 dimension: 16,

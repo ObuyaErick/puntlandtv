@@ -7,27 +7,66 @@ import '../../../../../core/l10n/l10n.dart';
 import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../../core/widgets/feedback_views.dart';
+import '../../../../app/console_navigation.dart';
 import '../../../../core/admin_api/dto/schedule_dto.dart';
 import '../../../../core/providers/console_providers.dart';
 import '../../../../core/widgets/console_page.dart';
 import '../../../../core/widgets/status_badge.dart';
+import '../controllers/channel_controller.dart';
+import '../widgets/channel_switcher.dart';
 
-final dayScheduleProvider = FutureProvider<DayScheduleDto>(
-  (ref) => ref.watch(adminApiProvider).fetchSchedule(DateTime.now()),
+/// Today's programming on one channel, by channel key.
+final dayScheduleProvider = FutureProvider.family<DayScheduleDto, String>(
+  (ref, channelKey) =>
+      ref.watch(adminApiProvider).fetchSchedule(channelKey, DateTime.now()),
 );
 
-/// The day's programming, with its problems shown rather than counted.
+/// One channel's day, with its problems shown rather than counted.
 ///
 /// Gaps and overlaps are derived from the slots on every build, never stored.
 /// A stored flag goes stale the moment somebody moves a programme, and a
 /// schedule that claims to be clean when it is not is worse than no check.
+///
+/// Each channel has its own day: two channels airing different programmes at
+/// 21:00 is the point of having two, not an overlap.
 class SchedulePage extends ConsumerWidget {
-  const SchedulePage({super.key});
+  const SchedulePage({super.key, this.channelKey});
+
+  /// The channel whose day this is. Null — the bare `/schedule` — means the
+  /// first channel with a TV feed, which is the one readers meet first.
+  final String? channelKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final schedule = ref.watch(dayScheduleProvider);
+    final channels = ref.watch(channelListProvider);
+    // Only channels with television: the schedule is what the live screen's
+    // "now playing" and "up next" read, and a radio-only station has neither.
+    final tvChannels = channels.value
+        ?.where((channel) => channel.hasTv)
+        .toList(growable: false);
+    final key = channelKey ?? tvChannels?.firstOrNull?.key;
+
+    if (key == null) {
+      return ConsolePage(
+        title: l10n.scheduleTitle,
+        child: channels.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => ErrorView(
+            failure: error is Failure
+                ? error
+                : const Failure(kind: FailureKind.unknown, code: 'UNKNOWN'),
+            onRetry: () => ref.invalidate(channelListProvider),
+          ),
+          data: (_) => EmptyView(
+            icon: Icons.calendar_month_outlined,
+            title: l10n.noTvChannels,
+          ),
+        ),
+      );
+    }
+
+    final schedule = ref.watch(dayScheduleProvider(key));
     final day = schedule.value;
 
     return ConsolePage(
@@ -37,13 +76,19 @@ class SchedulePage extends ConsumerWidget {
         context.languageCode,
       ),
       actions: [
+        if (tvChannels != null && tvChannels.isNotEmpty)
+          ChannelSwitcher(
+            channels: tvChannels,
+            selectedKey: key,
+            onSelected: context.openSchedule,
+          ),
         if (day != null && day.overlaps.isNotEmpty)
           OutlinedButton(
             onPressed: () async {
               await ref
                   .read(adminApiProvider)
-                  .saveSchedule(day.resolveOverlaps());
-              ref.invalidate(dayScheduleProvider);
+                  .saveSchedule(key, day.resolveOverlaps());
+              ref.invalidate(dayScheduleProvider(key));
             },
             child: Text(l10n.autoResolveOverlap),
           ),
@@ -69,7 +114,7 @@ class SchedulePage extends ConsumerWidget {
           failure: error is Failure
               ? error
               : const Failure(kind: FailureKind.unknown, code: 'UNKNOWN'),
-          onRetry: () => ref.invalidate(dayScheduleProvider),
+          onRetry: () => ref.invalidate(dayScheduleProvider(key)),
         ),
         data: (data) => _DayGrid(schedule: data),
       ),

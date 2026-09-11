@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/responsive/window_size.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/theme/tokens.dart';
+import 'console_compact_bar.dart';
 
 /// Standard console page chrome: a title bar with a count and actions, then
 /// content.
@@ -98,6 +99,58 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // A phone gets the navy bar with the menu button, and the title moves
+    // into it. What the bar has no room for — the subtitle and the actions —
+    // follows in a strip beneath, rather than being dropped.
+    if (!context.windowSize.isAtLeastMedium) {
+      final hasStrip = subtitle != null || actions.isNotEmpty;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ConsoleCompactBar(title: title),
+          if (hasStrip)
+            Container(
+              padding: const EdgeInsets.fromLTRB(
+                Spacing.listRhythm,
+                Spacing.cardInternal,
+                Spacing.listRhythm,
+                Spacing.cardInternal,
+              ),
+              decoration: BoxDecoration(
+                color: onDark ? DarkTokens.surface : context.scheme.surface,
+                border: Border(
+                  bottom: BorderSide(
+                    color: onDark ? DarkTokens.outline : context.colors.outline,
+                  ),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: context.text.meta.copyWith(
+                        color: onDark
+                            ? DarkTokens.onSurfaceVariant
+                            : context.scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  if (subtitle != null && actions.isNotEmpty)
+                    const SizedBox(height: Spacing.cardInternal),
+                  if (actions.isNotEmpty)
+                    Wrap(
+                      spacing: Spacing.chip,
+                      runSpacing: Spacing.chip,
+                      children: actions,
+                    ),
+                ],
+              ),
+            ),
+        ],
+      );
+    }
+
     return Container(
       constraints: const BoxConstraints(minHeight: 68),
       padding: const EdgeInsets.symmetric(

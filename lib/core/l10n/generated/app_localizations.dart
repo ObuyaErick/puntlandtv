@@ -730,7 +730,7 @@ abstract class AppL10n {
   /// Name of the internal console.
   ///
   /// In en, this message translates to:
-  /// **'Content console'**
+  /// **'Staff console'**
   String get consoleTitle;
 
   /// Sign-in page description of the console.
@@ -790,7 +790,7 @@ abstract class AppL10n {
   /// Console navigation: staff accounts.
   ///
   /// In en, this message translates to:
-  /// **'Users & roles'**
+  /// **'Staff'**
   String get navUsers;
 
   /// Console navigation: flags and build settings.
@@ -3600,6 +3600,876 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Articles are still filed in this category, so it can\'t be deleted.'**
   String get categoryInUseRefusal;
+
+  /// Notice at the top of the channel list.
+  ///
+  /// In en, this message translates to:
+  /// **'A channel\'s key is permanent — it is the stream path encoders publish to and every viewer\'s player reads from. Its name and what it carries are safe to change.'**
+  String get channelKeyPermanentNote;
+
+  /// Button that opens the new-channel panel.
+  ///
+  /// In en, this message translates to:
+  /// **'New channel'**
+  String get newChannel;
+
+  /// Heading of the panel that edits a channel, and the row action that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit channel'**
+  String get editChannel;
+
+  /// Submit button of the new-channel panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Create channel'**
+  String get createChannel;
+
+  /// Label of the channel key field.
+  ///
+  /// In en, this message translates to:
+  /// **'Key'**
+  String get fieldChannelKey;
+
+  /// Hint in the channel key field.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. pltv2'**
+  String get channelKeyHint;
+
+  /// Shown while a new channel key breaks the key rule.
+  ///
+  /// In en, this message translates to:
+  /// **'Use lower-case letters, digits and single hyphens — like pltv2.'**
+  String get channelKeyFormatError;
+
+  /// Shown while a new channel key is already in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Another channel already uses this key.'**
+  String get channelKeyTakenError;
+
+  /// Under the key field when creating a channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose carefully: the key is the stream path in every encoder\'s publish URL and can\'t be changed once the channel exists.'**
+  String get channelKeyChooseCarefully;
+
+  /// Under the read-only key field when editing a channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent — it is the stream path in every encoder\'s publish URL.'**
+  String get channelKeyLocked;
+
+  /// Label of the channel name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get fieldChannelName;
+
+  /// Switch that publishes a channel to readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Visible in the app'**
+  String get channelPublishedLabel;
+
+  /// Explains the publish switch in the channel panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave off while you set the channel up — readers won\'t see it until this is on.'**
+  String get channelPublishedHint;
+
+  /// Switch for whether a channel has a TV feed.
+  ///
+  /// In en, this message translates to:
+  /// **'Television'**
+  String get channelHasTvLabel;
+
+  /// Explains the television switch in the channel panel.
+  ///
+  /// In en, this message translates to:
+  /// **'A TV feed the studio publishes to. Off for a radio-only station.'**
+  String get channelHasTvHint;
+
+  /// Label of the radio stream URL field.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio stream URL'**
+  String get fieldRadioStreamUrl;
+
+  /// Under the radio stream URL field.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty for a channel without radio.'**
+  String get radioStreamUrlHint;
+
+  /// Label of the radio station name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Station name'**
+  String get fieldRadioStationName;
+
+  /// Label of the radio frequency field.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get fieldRadioFrequency;
+
+  /// Hint in the radio frequency field.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 88.5 FM · Garoowe'**
+  String get radioFrequencyHint;
+
+  /// Section heading above the radio fields in the channel panel.
+  ///
+  /// In en, this message translates to:
+  /// **'RADIO'**
+  String get sectionChannelRadio;
+
+  /// Shown when a channel would have neither a TV feed nor a radio stream.
+  ///
+  /// In en, this message translates to:
+  /// **'A channel needs television, a radio stream, or both.'**
+  String get channelNeedsSomething;
+
+  /// Toast after a channel is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Created “{name}”'**
+  String channelCreated(String name);
+
+  /// Toast after a channel's settings are saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved “{name}”'**
+  String channelSaved(String name);
+
+  /// Toast after a channel is deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted “{name}”'**
+  String channelDeleted(String name);
+
+  /// Heading of the delete-channel confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteChannelTitle(String name);
+
+  /// Body of the delete-channel confirmation. {key} and {path} are rendered in monospace.
+  ///
+  /// In en, this message translates to:
+  /// **'The channel and its schedule are removed for everyone. The key {key} becomes free again, so any encoder still publishing to {path} will stop reaching readers.'**
+  String deleteChannelBody(String key, String path);
+
+  /// Why a channel that is in use cannot be deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Take the channel off air and switch its radio off before deleting it.'**
+  String get deleteChannelBlockedOnAir;
+
+  /// Why the last remaining channel cannot be deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'The only channel can\'t be deleted.'**
+  String get deleteChannelBlockedLast;
+
+  /// Toast when the server refuses a change to a channel that is in use.
+  ///
+  /// In en, this message translates to:
+  /// **'The channel is on air or still receiving a signal. Take it off air first.'**
+  String get channelOnAirRefusal;
+
+  /// Toast when a reorder is refused because the list was out of date.
+  ///
+  /// In en, this message translates to:
+  /// **'The channel list changed while you were looking at it. Try again.'**
+  String get channelOrderStale;
+
+  /// Tooltip of the row action that moves a channel earlier in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get moveChannelUp;
+
+  /// Tooltip of the row action that moves a channel later in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get moveChannelDown;
+
+  /// Channel list column: the channel key.
+  ///
+  /// In en, this message translates to:
+  /// **'KEY'**
+  String get colKey;
+
+  /// Channel list column: television state.
+  ///
+  /// In en, this message translates to:
+  /// **'TV'**
+  String get colTv;
+
+  /// Channel list column: radio state.
+  ///
+  /// In en, this message translates to:
+  /// **'RADIO'**
+  String get colRadio;
+
+  /// Channel list column: concurrent viewers.
+  ///
+  /// In en, this message translates to:
+  /// **'VIEWERS'**
+  String get colViewers;
+
+  /// Chip on a channel that readers cannot see yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden'**
+  String get channelHidden;
+
+  /// A channel that is on air with a signal arriving.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get channelStateLive;
+
+  /// A channel that is on air with nothing arriving.
+  ///
+  /// In en, this message translates to:
+  /// **'No signal'**
+  String get channelStateNoSignal;
+
+  /// A channel, or its radio, that is off air.
+  ///
+  /// In en, this message translates to:
+  /// **'Off air'**
+  String get channelStateOffAir;
+
+  /// Button in a channel's control room that returns to the channel list.
+  ///
+  /// In en, this message translates to:
+  /// **'All channels'**
+  String get allChannels;
+
+  /// Tooltip of the channel picker in live control and the schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch channel'**
+  String get switchChannel;
+
+  /// Notice in the control room of an unpublished channel.
+  ///
+  /// In en, this message translates to:
+  /// **'This channel is hidden from the app. Readers won\'t see it until it is published.'**
+  String get channelUnpublishedNotice;
+
+  /// Empty state where a TV channel is needed, such as the schedule and the overview.
+  ///
+  /// In en, this message translates to:
+  /// **'No TV channels yet.'**
+  String get noTvChannels;
+
+  /// Title of the empty channel list.
+  ///
+  /// In en, this message translates to:
+  /// **'No channels yet'**
+  String get noChannels;
+
+  /// Overline above the other channels on the overview's on-air card.
+  ///
+  /// In en, this message translates to:
+  /// **'OTHER CHANNELS'**
+  String get otherChannels;
+
+  /// Collapsed rail label for Overview — one short word under the icon.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navShortOverview;
+
+  /// Collapsed rail label for Articles.
+  ///
+  /// In en, this message translates to:
+  /// **'News'**
+  String get navShortArticles;
+
+  /// Collapsed rail label for Programs.
+  ///
+  /// In en, this message translates to:
+  /// **'Programs'**
+  String get navShortPrograms;
+
+  /// Collapsed rail label for Live control.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get navShortLiveControl;
+
+  /// Collapsed rail label for Schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get navShortSchedule;
+
+  /// Collapsed rail label for Push.
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
+  String get navShortPush;
+
+  /// Collapsed rail label for Media.
+  ///
+  /// In en, this message translates to:
+  /// **'Media'**
+  String get navShortMedia;
+
+  /// Collapsed rail label for Staff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get navShortUsers;
+
+  /// Collapsed rail label for App config.
+  ///
+  /// In en, this message translates to:
+  /// **'Config'**
+  String get navShortAppConfig;
+
+  /// Tooltip of the menu button that opens the console navigation on a phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Open navigation'**
+  String get openNavigation;
+
+  /// How many channels the list holds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 channel} other{{count} channels}}'**
+  String channelCount(int count);
+
+  /// Follows the channel count in the page subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'the order below is the order readers see in the app'**
+  String get channelOrderNote;
+
+  /// The same note, for tablet width.
+  ///
+  /// In en, this message translates to:
+  /// **'order = reader order'**
+  String get channelOrderNoteShort;
+
+  /// Caption under the "3 / 4" count in the on-air band.
+  ///
+  /// In en, this message translates to:
+  /// **'channels on air'**
+  String get bandChannelsOnAir;
+
+  /// Caption under the total TV viewer count.
+  ///
+  /// In en, this message translates to:
+  /// **'TV viewers'**
+  String get bandTvViewers;
+
+  /// Caption under the total radio listener count.
+  ///
+  /// In en, this message translates to:
+  /// **'radio listeners'**
+  String get bandRadioListeners;
+
+  /// Shorter caption under the listener count, for tablet width.
+  ///
+  /// In en, this message translates to:
+  /// **'listeners'**
+  String get bandListeners;
+
+  /// Heading of the no-signal alarm. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 channel on air with no signal} other{{count} channels on air with no signal}}'**
+  String alarmTitle(int count);
+
+  /// Body of the no-signal alarm when both durations are known.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has been on air for {onAirFor} with nothing arriving from the studio encoder for the last {silentFor}. Viewers see a spinner.'**
+  String alarmBody(String name, String onAirFor, String silentFor);
+
+  /// Body of the no-signal alarm when the durations are not known.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on air with nothing arriving from the studio encoder. Viewers see a spinner.'**
+  String alarmBodyNoDuration(String name);
+
+  /// Heading of the compact no-signal alarm. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — on air, no signal'**
+  String alarmTitleShort(String name);
+
+  /// Body of the compact no-signal alarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing from the encoder for {duration}.'**
+  String alarmBodyShort(String duration);
+
+  /// Body of the compact no-signal alarm when the duration is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is arriving from the encoder.'**
+  String get alarmBodyShortNoDuration;
+
+  /// Button that opens one channel's control room, by name.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {name}'**
+  String openNamed(String name);
+
+  /// Short button that opens a control room, where there is no room for the name.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get openShort;
+
+  /// Button that takes a channel off air from the channel list.
+  ///
+  /// In en, this message translates to:
+  /// **'Take off air'**
+  String get takeOffAir;
+
+  /// Toast after taking a channel off air from the channel list.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is off air'**
+  String channelTakenOffAir(String name);
+
+  /// Notice above the channel list. {key} and {name} are the emphasised words keyNoticeKey and keyNoticeName.
+  ///
+  /// In en, this message translates to:
+  /// **'The {key} is permanent — it is the stream path inside every encoder\'s publish URL. The channel {name} is safe to change at any time.'**
+  String keyNotice(String key, String name);
+
+  /// The notice, for tablet width.
+  ///
+  /// In en, this message translates to:
+  /// **'The {key} is permanent — it is the stream path in every publish URL. The {name} is safe to change.'**
+  String keyNoticeShort(String key, String name);
+
+  /// The emphasised word for a channel key inside keyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'key'**
+  String get keyNoticeKey;
+
+  /// The emphasised word for a channel name inside keyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'name'**
+  String get keyNoticeName;
+
+  /// Column header: the channel's position in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'ORD'**
+  String get colOrd;
+
+  /// Column header: the channel's preview tile.
+  ///
+  /// In en, this message translates to:
+  /// **'PREVIEW'**
+  String get colPreview;
+
+  /// Column header: the channel's name and details.
+  ///
+  /// In en, this message translates to:
+  /// **'CHANNEL'**
+  String get colChannel;
+
+  /// Column header over the four row actions.
+  ///
+  /// In en, this message translates to:
+  /// **'ORDER · EDIT · DELETE'**
+  String get colChannelActions;
+
+  /// Chip: the channel carries TV and radio. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'TV + radio'**
+  String get chipTvAndRadio;
+
+  /// Chip: the channel carries TV only. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'TV only'**
+  String get chipTvOnly;
+
+  /// Chip: the channel carries radio only. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio only'**
+  String get chipRadioOnly;
+
+  /// Preview tile of a channel on air with no signal.
+  ///
+  /// In en, this message translates to:
+  /// **'no frames'**
+  String get previewNoFrames;
+
+  /// Preview tile of a channel that is off air.
+  ///
+  /// In en, this message translates to:
+  /// **'off air'**
+  String get previewOffAir;
+
+  /// Preview tile of a hidden channel that has never been on air.
+  ///
+  /// In en, this message translates to:
+  /// **'not set up yet'**
+  String get previewNotSetUp;
+
+  /// Status pill: live to readers, with uptime. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'Live · {duration}'**
+  String pillLiveFor(String duration);
+
+  /// Status pill: on air with nothing arriving. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'On air · no signal'**
+  String get pillNoSignal;
+
+  /// Status pill: off air. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'Off air'**
+  String get pillOffAir;
+
+  /// Status pill: a radio-only station on air, uptime unknown. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'On air'**
+  String get pillOnAir;
+
+  /// Status pill: a radio-only station on air, with uptime. Rendered uppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'On air · {duration}'**
+  String pillOnAirFor(String duration);
+
+  /// Follows a bold viewer count.
+  ///
+  /// In en, this message translates to:
+  /// **'watching'**
+  String get watchingWord;
+
+  /// Follows a bold listener count.
+  ///
+  /// In en, this message translates to:
+  /// **'listening'**
+  String get listeningWord;
+
+  /// Follows the listener count when the radio is on air.
+  ///
+  /// In en, this message translates to:
+  /// **'radio on air'**
+  String get radioOnAirSuffix;
+
+  /// Status line of a channel with no signal. {state} is ingestNotArrivingState, in red.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingest {state}'**
+  String ingestNotArriving(String state);
+
+  /// The emphasised half of ingestNotArriving.
+  ///
+  /// In en, this message translates to:
+  /// **'not arriving'**
+  String get ingestNotArrivingState;
+
+  /// Follows a bold count of viewers stuck on a channel with no signal.
+  ///
+  /// In en, this message translates to:
+  /// **'watching a spinner'**
+  String get watchingASpinner;
+
+  /// Status line of an off-air channel.
+  ///
+  /// In en, this message translates to:
+  /// **'No signal expected while off air'**
+  String get noSignalExpected;
+
+  /// Status line of a channel that has never broadcast.
+  ///
+  /// In en, this message translates to:
+  /// **'Never been on air'**
+  String get neverBeenOnAir;
+
+  /// Start of the channel line; {title} is bold.
+  ///
+  /// In en, this message translates to:
+  /// **'Now playing {title}'**
+  String nowPlayingLine(String title);
+
+  /// The now-playing line on the expanded single-channel card.
+  ///
+  /// In en, this message translates to:
+  /// **'Now playing {title} · until {time}'**
+  String nowPlayingUntil(String title, String time);
+
+  /// Follows the now-playing title when every rendition is healthy.
+  ///
+  /// In en, this message translates to:
+  /// **'all renditions healthy'**
+  String get renditionsAllHealthy;
+
+  /// Follows the now-playing title when a rendition is unhealthy.
+  ///
+  /// In en, this message translates to:
+  /// **'renditions degraded'**
+  String get renditionsSomeDegraded;
+
+  /// Rendition line on the expanded card, e.g. "1080p · 720p · 240p all healthy".
+  ///
+  /// In en, this message translates to:
+  /// **'{labels} all healthy'**
+  String renditionLabelsHealthy(String labels);
+
+  /// Rendition line on the expanded card when one is unhealthy.
+  ///
+  /// In en, this message translates to:
+  /// **'{labels} degraded'**
+  String renditionLabelsDegraded(String labels);
+
+  /// The consequence line of a channel on air with no signal.
+  ///
+  /// In en, this message translates to:
+  /// **'Readers see a spinner. Nothing has arrived from the studio encoder for {duration}.'**
+  String noSignalConsequence(String duration);
+
+  /// The consequence line when the duration is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Readers see a spinner. Nothing is arriving from the studio encoder.'**
+  String get noSignalConsequenceNoDuration;
+
+  /// The consequence line at tablet width.
+  ///
+  /// In en, this message translates to:
+  /// **'Readers see a spinner · no frames for {duration}'**
+  String noSignalConsequenceShort(String duration);
+
+  /// The tablet consequence line when the duration is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Readers see a spinner · no frames'**
+  String get noSignalConsequenceShortNoDuration;
+
+  /// Detail line of a channel on air with no signal.
+  ///
+  /// In en, this message translates to:
+  /// **'On air since {since} · last frame {lastFrame}'**
+  String onAirSinceLastFrame(String since, String lastFrame);
+
+  /// Detail line of a channel on air with no signal, last frame unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'On air since {since}'**
+  String onAirSince(String since);
+
+  /// The likely causes, on the no-signal card. {path} is monospace.
+  ///
+  /// In en, this message translates to:
+  /// **'Either the encoder stopped publishing to {path}, or the studio uplink dropped.'**
+  String noSignalCause(String path);
+
+  /// Button or link that opens a channel's control room.
+  ///
+  /// In en, this message translates to:
+  /// **'Open control room'**
+  String get openControlRoom;
+
+  /// Detail line of an off-air channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Off air since {when}'**
+  String offAirSince(String when);
+
+  /// Follows the off-air line when the channel has nothing scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'nothing scheduled'**
+  String get nothingScheduled;
+
+  /// Second line of a published off-air channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Visible to readers as an off-air channel'**
+  String get visibleAsOffAir;
+
+  /// Channel line of a radio-only station whose stream is healthy.
+  ///
+  /// In en, this message translates to:
+  /// **'On air · audio arriving, bitrate stable'**
+  String get radioAudioArriving;
+
+  /// Channel line of a radio-only station on air.
+  ///
+  /// In en, this message translates to:
+  /// **'On air'**
+  String get radioOnAirLine;
+
+  /// Channel line of a radio-only station off air.
+  ///
+  /// In en, this message translates to:
+  /// **'Off air'**
+  String get radioOffAirLine;
+
+  /// Detail line of a hidden channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {ago} ago · not visible to readers while hidden'**
+  String createdAgoHidden(String ago);
+
+  /// The same line, at phone width.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {ago} ago · not visible to readers'**
+  String createdAgoShort(String ago);
+
+  /// Detail line of a hidden channel whose age is not known.
+  ///
+  /// In en, this message translates to:
+  /// **'Not visible to readers while hidden'**
+  String get hiddenNotVisible;
+
+  /// Setup hint on a hidden channel. {path} is monospace.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: point an encoder at {path}, then publish'**
+  String hiddenNextStep(String path);
+
+  /// A duration of hours and minutes, e.g. "2h 04m". Minutes arrive zero-padded.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h {minutes}m'**
+  String durationHoursMinutes(int hours, String minutes);
+
+  /// A duration of minutes and seconds, e.g. "3m 12s". Seconds arrive zero-padded.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m {seconds}s'**
+  String durationMinutesSeconds(int minutes, String seconds);
+
+  /// A duration in minutes, e.g. "12m".
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m'**
+  String durationMinutesCompact(int minutes);
+
+  /// How long ago something happened, in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
+  String ageMinutes(int count);
+
+  /// How long ago something happened, in hours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour} other{{count} hours}}'**
+  String ageHours(int count);
+
+  /// How long ago something happened, in days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String ageDays(int count);
+
+  /// A time on the previous day.
+  ///
+  /// In en, this message translates to:
+  /// **'yesterday {time}'**
+  String yesterdayAt(String time);
+
+  /// Body of the empty channel list.
+  ///
+  /// In en, this message translates to:
+  /// **'A channel is one stream path readers can tune into — TV, radio, or both. You will pick a permanent key and point the studio encoder at it.'**
+  String get noChannelsBody;
+
+  /// Footnote under the empty list's button.
+  ///
+  /// In en, this message translates to:
+  /// **'The key is permanent; the name can change later.'**
+  String get noChannelsFootnote;
+
+  /// Prompt under the list when there is only one channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a second channel — radio-only stations and test channels can stay hidden until they are ready.'**
+  String get addSecondChannel;
+
+  /// Tooltip heading on the delete button of a channel that is on air.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t delete while on air'**
+  String get deleteBlockedOnAirTitle;
+
+  /// Tooltip body on the delete button of a channel that is on air.
+  ///
+  /// In en, this message translates to:
+  /// **'Take {name} off air first.'**
+  String deleteBlockedOnAirBody(String name);
+
+  /// Tooltip heading on the delete button of a channel still receiving a signal.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t delete while a signal is arriving'**
+  String get deleteBlockedSignalTitle;
+
+  /// Tooltip body: a signal is still arriving. Follows deleteBlockedOnAirBody when both apply.
+  ///
+  /// In en, this message translates to:
+  /// **'A signal is still arriving from the studio encoder.'**
+  String get deleteBlockedSignalBody;
+
+  /// Tooltip body: the radio is on air.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch {name}\'s radio off first.'**
+  String deleteBlockedRadioBody(String name);
+
+  /// Tooltip heading on the delete button of the only channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t delete the last channel'**
+  String get deleteBlockedLastTitle;
+
+  /// Tooltip body on the delete button of the only channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Readers would have no channel at all. Create another one first.'**
+  String get deleteBlockedLastBody;
+
+  /// Warning box in the delete-channel confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone.'**
+  String get cantBeUndone;
+
+  /// Cancel button of the delete-channel confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep channel'**
+  String get keepChannel;
+
+  /// Confirm button of the delete-channel confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete channel'**
+  String get deleteChannelConfirm;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

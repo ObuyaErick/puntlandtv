@@ -132,6 +132,10 @@ abstract final class FontFamily {
   /// Body, labels, and all UI chrome — "Plex Sans for screen legibility at
   /// low DPI", which is the whole reason for the two-family split.
   static const sans = 'IBMPlexSans';
+
+  /// Identifiers shown as identifiers — a channel key, a stream path — so
+  /// they cannot be mistaken for prose.
+  static const mono = 'IBMPlexMono';
 }
 
 /// Minimum interactive target, per the canvas ("CONTROLS — 48dp MINIMUM").

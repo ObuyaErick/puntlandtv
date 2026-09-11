@@ -8,6 +8,7 @@ import '../../features/auth/domain/entities/console_user.dart';
 import 'dto/admin_article_dto.dart';
 import 'dto/admin_program_dto.dart';
 import 'dto/broadcast_dto.dart';
+import 'dto/channel_dto.dart';
 import 'dto/console_config_dto.dart';
 import 'dto/media_dto.dart';
 import 'dto/newsroom_summary_dto.dart';
@@ -315,77 +316,127 @@ class HttpAdminApi implements PuntlandAdminApi {
   Future<List<ConsoleUser>> fetchStaff() =>
       _getList('/v1/admin/staff', _consoleUserFromJson);
 
+  // ---- Channels ----
+
+  /// `/v1/admin/channels/<key>`, the key escaped even though its pattern
+  /// needs none: a path assembled from data is escaped as a matter of course.
+  static String _channelPath(String key) =>
+      '/v1/admin/channels/${Uri.encodeComponent(key)}';
+
+  @override
+  Future<List<ChannelDto>> fetchChannels() =>
+      _getList('/v1/admin/channels', ChannelDto.fromJson);
+
+  @override
+  Future<List<ChannelDto>> createChannel({
+    required String key,
+    required ChannelSettingsDto settings,
+  }) => _sendList(
+    'POST',
+    '/v1/admin/channels',
+    ChannelDto.fromJson,
+    body: {'key': key, ...settings.toJson()},
+  );
+
+  @override
+  Future<List<ChannelDto>> updateChannel(
+    String key,
+    ChannelSettingsDto settings,
+  ) => _sendList(
+    'PATCH',
+    _channelPath(key),
+    ChannelDto.fromJson,
+    body: settings.toJson(),
+  );
+
+  @override
+  Future<List<ChannelDto>> reorderChannels(List<String> keys) => _sendList(
+    'PUT',
+    '/v1/admin/channels/order',
+    ChannelDto.fromJson,
+    body: {'keys': keys},
+  );
+
+  @override
+  Future<List<ChannelDto>> deleteChannel(String key) => _sendList(
+    // DELETE, but it answers with the remaining list rather than 204 — the
+    // same shape as deleting a category, for the same reason.
+    'DELETE',
+    _channelPath(key),
+    ChannelDto.fromJson,
+  );
+
   // ---- Operations ----
 
   @override
-  Future<BroadcastControlDto> fetchBroadcastControl() =>
-      _get('/v1/admin/broadcast', BroadcastControlDto.fromJson);
+  Future<BroadcastControlDto> fetchBroadcastControl(String channelKey) => _get(
+    '${_channelPath(channelKey)}/broadcast',
+    BroadcastControlDto.fromJson,
+  );
 
   @override
-  Future<BroadcastControlDto> saveBroadcastControl(BroadcastControlDto value) =>
-      _send(
-        'PUT',
-        '/v1/admin/broadcast',
-        BroadcastControlDto.fromJson,
-        // Uptime, viewer and listener counts are measurements, not settings:
-        // they come back on the response and are not sent. A rendition's
-        // `healthy` and `bitrate_kbps` are the encoder's for the same reason —
-        // only `enabled` is an operator decision.
-        body: {
-          'tvOnAir': value.tvOnAir,
-          'radioOnAir': value.radioOnAir,
-          'channelName': value.channelName,
-          'renditions': [
-            for (final rendition in value.renditions)
-              {'rung': rendition.rung, 'enabled': rendition.enabled},
-          ],
-          'slate': {
-            for (final entry in value.slate.entries)
-              entry.key: {
-                'title': entry.value.title,
-                'detail': entry.value.detail,
-              },
-          },
-        },
-      );
+  Future<BroadcastControlDto> saveBroadcastControl(
+    String channelKey,
+    BroadcastControlDto value,
+  ) => _send(
+    'PUT',
+    '${_channelPath(channelKey)}/broadcast',
+    BroadcastControlDto.fromJson,
+    // Uptime, viewer and listener counts are measurements, not settings:
+    // they come back on the response and are not sent. A rendition's
+    // `healthy` and `bitrate_kbps` are the encoder's for the same reason —
+    // only `enabled` is an operator decision. The channel's name is not
+    // sent either: it is a setting of the channel, not of the broadcast.
+    body: {
+      'tvOnAir': value.tvOnAir,
+      'radioOnAir': value.radioOnAir,
+      'renditions': [
+        for (final rendition in value.renditions)
+          {'rung': rendition.rung, 'enabled': rendition.enabled},
+      ],
+      'slate': {
+        for (final entry in value.slate.entries)
+          entry.key: {'title': entry.value.title, 'detail': entry.value.detail},
+      },
+    },
+  );
 
   @override
-  Future<IngestKeyDto> createIngestKey({required String label}) => _send(
+  Future<IngestKeyDto> createIngestKey(
+    String channelKey, {
+    required String label,
+  }) => _send(
     'POST',
-    '/v1/admin/broadcast/ingest-keys',
+    '${_channelPath(channelKey)}/ingest-keys',
     IngestKeyDto.fromJson,
     body: {'label': label},
   );
 
   @override
-  Future<List<IngestKeyDto>> revokeIngestKey(String id) async {
-    try {
+  Future<List<IngestKeyDto>> revokeIngestKey(String channelKey, String id) =>
       // DELETE, but it answers with the remaining list rather than 204, so it
       // goes through the list path instead of `_delete`. The screen re-renders
       // from what the server says is left rather than dropping a row locally.
-      final res = await _request(
+      _sendList(
         'DELETE',
-        '/v1/admin/broadcast/ingest-keys/$id',
+        '${_channelPath(channelKey)}/ingest-keys/${Uri.encodeComponent(id)}',
+        IngestKeyDto.fromJson,
       );
-      return _rowsOf(res.data)
-          .map(IngestKeyDto.fromJson)
-          .toList(growable: false);
-    } catch (e, st) {
-      throw ApiExceptionMapper.map(e, st);
-    }
-  }
 
   @override
-  Future<DayScheduleDto> fetchSchedule(DateTime day) => _get(
-    '/v1/admin/schedule',
+  Future<DayScheduleDto> fetchSchedule(String channelKey, DateTime day) => _get(
+    '${_channelPath(channelKey)}/schedule',
     _dayScheduleFromJson,
     query: {'day': day.toIso8601String()},
   );
 
   @override
-  Future<DayScheduleDto> saveSchedule(DayScheduleDto schedule) => _send(
+  Future<DayScheduleDto> saveSchedule(
+    String channelKey,
+    DayScheduleDto schedule,
+  ) => _send(
     'PUT',
-    '/v1/admin/schedule',
+    '${_channelPath(channelKey)}/schedule',
     _dayScheduleFromJson,
     // The whole day goes at once. Per-slot writes would make the gap and
     // overlap check meaningless, since the issues are a property of the day.

@@ -100,16 +100,20 @@ class _OverviewBody extends ConsumerWidget {
     // rather than sending a request the admin API would refuse. Everyone else
     // keeps the static thumbnail, as does anyone while it loads or if it fails.
     final canWatch = ref.watch(canProvider(Capability.manageBroadcast));
-    final control = canWatch ? ref.watch(broadcastControlProvider).value : null;
+    // The lead channel's: the card only has a preview for the first one.
+    final leadKey = summary.onAir.firstOrNull?.key;
+    final control = canWatch && leadKey != null
+        ? ref.watch(broadcastControlProvider(leadKey)).value
+        : null;
 
     final size = context.windowSize;
     final onAir = OnAirCard(
-      onAir: summary.onAir,
+      channels: summary.onAir,
       stacked: !size.isAtLeastMedium,
       streamUrl: control != null && control.isLiveToReaders
           ? control.previewUrl
           : null,
-      onOpenLiveControl: canWatch ? context.openLiveControl : null,
+      onOpenChannel: canWatch ? context.openChannelControl : null,
     );
     final published = StatCard(
       label: l10n.publishedToday,

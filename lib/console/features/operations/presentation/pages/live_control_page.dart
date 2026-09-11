@@ -17,6 +17,7 @@ import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../../core/widgets/feedback_views.dart';
 import '../../../../../core/widgets/pltv_logo.dart';
+import '../../../../app/console_navigation.dart';
 import '../../../../core/admin_api/dto/broadcast_dto.dart';
 import '../../../../core/localised.dart';
 import '../../../../core/providers/console_providers.dart';
@@ -25,21 +26,30 @@ import '../../../../core/widgets/console_table.dart';
 import '../../../../core/widgets/console_toast.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../controllers/broadcast_control_provider.dart';
+import '../controllers/channel_controller.dart';
+import '../widgets/channel_switcher.dart';
 import '../widgets/stream_preview.dart';
 
-/// Operations' control surface for the channel.
+/// Operations' control surface for one channel.
 ///
 /// Two things it refuses to do: take the channel off air without a slate in
 /// both languages, and disable the 240p rung. Neither refusal is a warning —
 /// both are the control being unavailable, because both mistakes are silent
 /// and land on the audience least able to report them.
+///
+/// Every control here acts on [channelKey] and nothing else. The header names
+/// the channel before anyone reaches a switch, and every write is addressed to
+/// it by key, so a room opened for one channel cannot save onto another.
 class LiveControlPage extends ConsumerWidget {
-  const LiveControlPage({super.key});
+  const LiveControlPage({super.key, required this.channelKey});
+
+  final String channelKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final control = ref.watch(broadcastControlProvider);
+    final control = ref.watch(broadcastControlProvider(channelKey));
+    final channels = ref.watch(channelListProvider).value;
 
     // The whole screen is dark, per artboard 11C. Operations work at night in
     // a control room; a white page is the wrong instrument.
@@ -49,21 +59,55 @@ class LiveControlPage extends ConsumerWidget {
         onDark: true,
         title: l10n.liveControlTitle,
         actions: [
-          if (control.value != null)
-            StatusBadge(
-              kind: control.value!.tvOnAir ? BadgeKind.live : BadgeKind.failed,
+          IconButton(
+            key: const Key('all-channels'),
+            tooltip: l10n.allChannels,
+            iconSize: 18,
+            constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+            onPressed: context.openLiveControl,
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: DarkTokens.onSurfaceVariant,
             ),
-          const _RefreshAction(),
+          ),
+          if (channels != null)
+            ChannelSwitcher(
+              channels: channels,
+              selectedKey: channelKey,
+              onSelected: context.openChannelControl,
+              onDark: true,
+            ),
+          if (control.value case final value? when value.hasTv)
+            StatusBadge(
+              kind: value.tvOnAir ? BadgeKind.live : BadgeKind.failed,
+            ),
+          _RefreshAction(channelKey: channelKey),
         ],
+        // Said once, at the top, rather than on every panel: nothing on this
+        // screen reaches a reader until the channel is published.
+        notice: control.value?.isPublished == false
+            ? ConsoleNotice(
+                icon: Icons.visibility_off_outlined,
+                message: l10n.channelUnpublishedNotice,
+              )
+            : null,
         child: control.when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => ErrorView(
             failure: error is Failure
                 ? error
                 : const Failure(kind: FailureKind.unknown, code: 'UNKNOWN'),
-            onRetry: () => ref.invalidate(broadcastControlProvider),
+            onRetry: () => ref.invalidate(broadcastControlProvider(channelKey)),
           ),
-          data: (data) => _ControlBody(control: data),
+          // Keyed by channel so moving to another one starts its editors from
+          // that channel's state. The slate fields read theirs once, on first
+          // build; reused across a switch they would show the last channel's
+          // message and save it onto this one on the next focus change.
+          data: (data) => _ControlBody(
+            key: ValueKey(channelKey),
+            channelKey: channelKey,
+            control: data,
+          ),
         ),
       ),
     );
@@ -80,7 +124,9 @@ class LiveControlPage extends ConsumerWidget {
 /// It stays in the header through every state, error included: the reading
 /// most worth taking again is the one that failed to arrive.
 class _RefreshAction extends ConsumerStatefulWidget {
-  const _RefreshAction();
+  const _RefreshAction({required this.channelKey});
+
+  final String channelKey;
 
   @override
   ConsumerState<_RefreshAction> createState() => _RefreshActionState();
@@ -93,11 +139,15 @@ class _RefreshActionState extends ConsumerState<_RefreshAction> {
     if (_busy) return;
     setState(() => _busy = true);
     try {
+      final provider = broadcastControlProvider(widget.channelKey);
       // Invalidate then await the new read rather than `refresh`: the body
       // keeps rendering the last good state while this is in flight, so the
-      // screen does not blank out to a spinner on every press.
-      ref.invalidate(broadcastControlProvider);
-      await ref.read(broadcastControlProvider.future);
+      // screen does not blank out to a spinner on every press. The channel
+      // list is re-read too — its switcher names the same state.
+      ref
+        ..invalidate(provider)
+        ..invalidate(channelListProvider);
+      await ref.read(provider.future);
       if (mounted) {
         showConsoleToast(
           context,
@@ -206,8 +256,13 @@ Widget _tvPreview(BroadcastControlDto control, {double? maxWidth}) {
 }
 
 class _ControlBody extends ConsumerWidget {
-  const _ControlBody({required this.control});
+  const _ControlBody({
+    super.key,
+    required this.channelKey,
+    required this.control,
+  });
 
+  final String channelKey;
   final BroadcastControlDto control;
 
   @override
@@ -215,8 +270,22 @@ class _ControlBody extends ConsumerWidget {
     final l10n = context.l10n;
 
     Future<void> save(BroadcastControlDto next) async {
-      await ref.read(adminApiProvider).saveBroadcastControl(next);
-      ref.invalidate(broadcastControlProvider);
+      await ref.read(adminApiProvider).saveBroadcastControl(channelKey, next);
+      // The list too: its rows say whether each channel is on air.
+      ref
+        ..invalidate(broadcastControlProvider(channelKey))
+        ..invalidate(channelListProvider);
+    }
+
+    // A radio-only station has none of the television sections below — no
+    // feed to switch, no packager to watch, no ladder, no slate.
+    if (!control.hasTv) {
+      return ListView(
+        padding: const EdgeInsets.all(Spacing.sectionBreak),
+        children: [
+          if (control.hasRadio) _RadioPanel(control: control, onSave: save),
+        ],
+      );
     }
 
     return ListView(
@@ -232,7 +301,9 @@ class _ControlBody extends ConsumerWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
-            final sideBySide = width >= WindowSizeClass.expandedMin;
+            // Without radio the TV panel has the row to itself.
+            final sideBySide =
+                control.hasRadio && width >= WindowSizeClass.expandedMin;
             final tvWidth = sideBySide
                 ? (width - Spacing.listRhythm) * 3 / 5
                 : width;
@@ -242,6 +313,8 @@ class _ControlBody extends ConsumerWidget {
               onSave: save,
               contentWidth: tvWidth - _DarkCard.inset * 2,
             );
+            if (!control.hasRadio) return tv;
+
             final radio = _RadioPanel(control: control, onSave: save);
 
             if (!sideBySide) {
@@ -270,8 +343,9 @@ class _ControlBody extends ConsumerWidget {
         _DarkSectionLabel(label: l10n.sectionIngest),
         const SizedBox(height: Spacing.cardInternal),
         _IngestPanel(
+          channelKey: channelKey,
           control: control,
-          onChanged: () => ref.invalidate(broadcastControlProvider),
+          onChanged: () => ref.invalidate(broadcastControlProvider(channelKey)),
         ),
         const SizedBox(height: Spacing.sectionBreak),
         _DarkSectionLabel(
@@ -411,8 +485,14 @@ class _TvPanel extends StatelessWidget {
 /// The switch is what the operator wants; this is what the studio is actually
 /// sending. When they disagree, this is the panel that says which way.
 class _IngestPanel extends ConsumerStatefulWidget {
-  const _IngestPanel({required this.control, required this.onChanged});
+  const _IngestPanel({
+    required this.channelKey,
+    required this.control,
+    required this.onChanged,
+  });
 
+  /// The channel every credential minted here is valid for, and no other.
+  final String channelKey;
   final BroadcastControlDto control;
   final VoidCallback onChanged;
 
@@ -437,7 +517,7 @@ class _IngestPanelState extends ConsumerState<_IngestPanel> {
     try {
       final minted = await ref
           .read(adminApiProvider)
-          .createIngestKey(label: label.trim());
+          .createIngestKey(widget.channelKey, label: label.trim());
       if (!mounted) return;
       setState(() => _justMintedId = minted.id);
       widget.onChanged();
@@ -507,7 +587,9 @@ class _IngestPanelState extends ConsumerState<_IngestPanel> {
 
     setState(() => _busy = true);
     try {
-      await ref.read(adminApiProvider).revokeIngestKey(key.id);
+      await ref
+          .read(adminApiProvider)
+          .revokeIngestKey(widget.channelKey, key.id);
       widget.onChanged();
     } on Failure catch (failure) {
       if (!mounted) return;
@@ -1057,8 +1139,12 @@ class _RadioPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: Spacing.chip),
+          // The channel's own station, not the app's fixed "Radio Puntland":
+          // each channel's radio is its own.
           Text(
-            l10n.radioTitle,
+            control.radioStationName.isEmpty
+                ? control.channelName
+                : control.radioStationName,
             style: context.text.title.copyWith(color: Colors.white),
           ),
           const SizedBox(height: 4),
@@ -1848,11 +1934,18 @@ class _DarkCell extends StatelessWidget {
 /// paints one red — an untouched empty field is not an error, it is a field
 /// nobody has filled in yet, and colouring it on arrival trains people to
 /// ignore the colour.
+///
+/// Saved with an explicit button, never on its own. It used to save when a
+/// field lost focus, which on the web — the console's only platform — never
+/// happened: clicking elsewhere with a mouse does not take focus out of a text
+/// field, so an operator could write both languages, see them on screen, and
+/// go off air to a slate the server had never received. The button appears
+/// the moment the fields differ from what is saved, and says so.
 class _SlateEditor extends StatefulWidget {
   const _SlateEditor({required this.control, required this.onSave});
 
   final BroadcastControlDto control;
-  final ValueChanged<BroadcastControlDto> onSave;
+  final Future<void> Function(BroadcastControlDto next) onSave;
 
   @override
   State<_SlateEditor> createState() => _SlateEditorState();
@@ -1862,22 +1955,44 @@ class _SlateEditorState extends State<_SlateEditor> {
   final _controllers = <String, TextEditingController>{};
   final _focus = <String, FocusNode>{};
   final _touched = <String>{};
+  var _saving = false;
+
+  static const _locales = BroadcastControlDto.requiredSlateLocales;
+
+  /// A message as the one field shows it: `title · detail`, or the title
+  /// alone while there is no detail — so a half-written message round-trips
+  /// rather than coming back blank and looking lost.
+  static String _format(SlateMessageDto message) => [
+    message.title.trim(),
+    message.detail.trim(),
+  ].where((part) => part.isNotEmpty).join(' · ');
+
+  /// The field's text as a message: everything before the first `·` is the
+  /// title, everything after it the detail.
+  static SlateMessageDto _parse(String raw) {
+    final parts = raw.trim().split('·');
+    return SlateMessageDto(
+      title: parts.first.trim(),
+      detail: parts.length > 1 ? parts.sublist(1).join('·').trim() : '',
+    );
+  }
+
+  String _savedText(String locale) =>
+      _format(widget.control.slate[locale] ?? const SlateMessageDto());
+
+  /// Whether any field says something the server has not been told.
+  bool get _isDirty => _locales.any(
+    (locale) => _controllers[locale]!.text.trim() != _savedText(locale),
+  );
 
   @override
   void initState() {
     super.initState();
-    for (final locale in BroadcastControlDto.requiredSlateLocales) {
-      final message = widget.control.slate[locale] ?? const SlateMessageDto();
-      _controllers[locale] = TextEditingController(
-        text: message.isComplete ? '${message.title} · ${message.detail}' : '',
-      );
+    for (final locale in _locales) {
+      _controllers[locale] = TextEditingController(text: _savedText(locale));
       _focus[locale] = FocusNode()
         ..addListener(() {
-          if (_focus[locale]!.hasFocus) {
-            setState(() => _touched.add(locale));
-          } else {
-            _persist(locale);
-          }
+          if (_focus[locale]!.hasFocus) setState(() => _touched.add(locale));
         });
     }
   }
@@ -1893,45 +2008,124 @@ class _SlateEditorState extends State<_SlateEditor> {
     super.dispose();
   }
 
-  /// Persists on focus loss rather than on every keystroke: saving mid-word
-  /// invalidates the provider and takes the caret with it.
-  void _persist(String locale) {
-    final raw = _controllers[locale]!.text.trim();
-    final parts = raw.split('·');
-    final next = SlateMessageDto(
-      title: parts.first.trim(),
-      detail: parts.length > 1 ? parts.sublist(1).join('·').trim() : '',
-    );
+  /// Both languages in one write, so the slate is never saved half-updated.
+  Future<void> _save() async {
+    final l10n = context.l10n;
+    setState(() => _saving = true);
+    try {
+      await widget.onSave(
+        widget.control.copyWith(
+          slate: {
+            ...widget.control.slate,
+            for (final locale in _locales)
+              locale: _parse(_controllers[locale]!.text),
+          },
+        ),
+      );
+      if (!mounted) return;
+      showConsoleToast(context, message: l10n.saved, kind: ToastKind.success);
+    } on Failure catch (failure) {
+      if (!mounted) return;
+      showConsoleToast(
+        context,
+        message: l10n.errorCodeLine(failure.code),
+        kind: ToastKind.error,
+      );
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
-    widget.onSave(
-      widget.control.copyWith(slate: {...widget.control.slate, locale: next}),
-    );
+  /// Puts the fields back to what is saved.
+  void _discard() {
+    setState(() {
+      for (final locale in _locales) {
+        _controllers[locale]!.text = _savedText(locale);
+      }
+      _touched.clear();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final dirty = _isDirty;
+
     return _DarkCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final locale in BroadcastControlDto.requiredSlateLocales) ...[
-            _SlateField(
-              label: context.languageNameOf(locale),
-              controller: _controllers[locale]!,
-              focusNode: _focus[locale]!,
-              // An error only once someone has been in the field and left it
-              // empty — the section note already says both are required.
-              errorText:
-                  _touched.contains(locale) &&
-                      _controllers[locale]!.text.trim().isEmpty
-                  ? context.l10n.required
-                  : null,
-              onChanged: (_) => setState(() {}),
+      child: SizedBox(
+        height: 300,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final locale in _locales) ...[
+              _SlateField(
+                key: Key('slate-field-$locale'),
+                label: context.languageNameOf(locale),
+                controller: _controllers[locale]!,
+                focusNode: _focus[locale]!,
+                enabled: !_saving,
+                // An error only once someone has been in the field and left it
+                // empty — the section note already says both are required.
+                errorText:
+                    _touched.contains(locale) &&
+                        _controllers[locale]!.text.trim().isEmpty
+                    ? l10n.required
+                    : null,
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: Spacing.listRhythm),
+            ],
+            Spacer(),
+            Row(
+              children: [
+                // Said in words, not only by the button appearing: an unsaved
+                // slate is the one thing on this screen that looks done and is
+                // not.
+                Expanded(
+                  child: dirty
+                      ? Text(
+                          l10n.unsavedChanges,
+                          style: context.text.meta.copyWith(
+                            color: DarkTokens.link,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                if (dirty) ...[
+                  TextButton(
+                    key: const Key('discard-slate'),
+                    onPressed: _saving ? null : _discard,
+                    style: TextButton.styleFrom(
+                      foregroundColor: DarkTokens.onSurfaceVariant,
+                    ),
+                    child: Text(l10n.discardChanges),
+                  ),
+                  const SizedBox(width: Spacing.chip),
+                ],
+                FilledButton(
+                  key: const Key('save-slate'),
+                  onPressed: dirty && !_saving ? _save : null,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: LightTokens.accent,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: DarkTokens.surfaceRaised,
+                    disabledForegroundColor: DarkTokens.onSurfaceVariant,
+                  ),
+                  child: _saving
+                      ? const SizedBox.square(
+                          dimension: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(l10n.save),
+                ),
+              ],
             ),
-            const SizedBox(height: Spacing.listRhythm),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -1940,11 +2134,13 @@ class _SlateEditorState extends State<_SlateEditor> {
 /// A dark-surface text field using Material's default borders.
 class _SlateField extends StatelessWidget {
   const _SlateField({
+    super.key,
     required this.label,
     required this.controller,
     required this.focusNode,
     required this.errorText,
     required this.onChanged,
+    this.enabled = true,
   });
 
   final String label;
@@ -1952,6 +2148,9 @@ class _SlateField extends StatelessWidget {
   final FocusNode focusNode;
   final String? errorText;
   final ValueChanged<String> onChanged;
+
+  /// Off while a save is in flight, so what is sent is what was on screen.
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -1975,6 +2174,9 @@ class _SlateField extends StatelessWidget {
           controller: controller,
           focusNode: focusNode,
           onChanged: onChanged,
+          // Read-only rather than disabled while saving: disabling would drop
+          // the caret and flash a greyed field for the second it takes.
+          readOnly: !enabled,
           maxLines: null,
           minLines: 3,
           style: context.text.body.copyWith(

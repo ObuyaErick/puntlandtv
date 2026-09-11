@@ -44,8 +44,19 @@ extension ConsoleNavigation on BuildContext {
   /// branch, so the list stays beneath it and the rail stays on Articles.
   void openCategories() => go(ConsoleRoutes.categories);
 
-  /// Live control.
+  /// Live control: the channel list.
   void openLiveControl() => go(ConsoleRoutes.live);
+
+  /// One channel's control room.
+  ///
+  /// `go`, like a programme's episodes: it is a child of the Live control
+  /// branch, so the channel list stays beneath it, and switching channels from
+  /// the room's own header replaces the room rather than stacking a history of
+  /// every channel visited.
+  void openChannelControl(String key) => go(ConsoleRoutes.liveChannel(key));
+
+  /// One channel's schedule.
+  void openSchedule(String key) => go(ConsoleRoutes.scheduleFor(key));
 
   /// One programme's episodes.
   void openProgram(String id) => go(ConsoleRoutes.program(id));

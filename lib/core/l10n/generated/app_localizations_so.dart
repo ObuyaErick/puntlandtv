@@ -401,7 +401,7 @@ class AppL10nSo extends AppL10n {
   String get statusTranscoding => 'WAA LA BEDDELAYAA';
 
   @override
-  String get consoleTitle => 'Xarunta maamulka';
+  String get consoleTitle => 'Console-ka shaqaalaha';
 
   @override
   String get consoleSubtitle =>
@@ -415,16 +415,16 @@ class AppL10nSo extends AppL10n {
   String get navOverview => 'Guudmar';
 
   @override
-  String get navArticles => 'Maqaallada';
+  String get navArticles => 'Warar';
 
   @override
   String get navProgramsConsole => 'Barnaamijyada';
 
   @override
-  String get navLiveControl => 'Maamulka tooska';
+  String get navLiveControl => 'Kontarool tooska ah';
 
   @override
-  String get navSchedule => 'Jadwalka';
+  String get navSchedule => 'Jadwalka barnaamijyada';
 
   @override
   String get navPush => 'Digniinaha';
@@ -433,7 +433,7 @@ class AppL10nSo extends AppL10n {
   String get navMedia => 'Warbaahinta';
 
   @override
-  String get navUsers => 'Isticmaalayaasha';
+  String get navUsers => 'Shaqaalaha';
 
   @override
   String get navAppConfig => 'Goobaha abka';
@@ -680,7 +680,7 @@ class AppL10nSo extends AppL10n {
   String get overviewTitle => 'Guudmar';
 
   @override
-  String get onAirNow => 'HADDA WAA BAAHINAYAA';
+  String get onAirNow => 'HADDA HAWADA KU JIRA';
 
   @override
   String get publishedToday => 'MAANTA LA DAABACAY';
@@ -927,7 +927,7 @@ class AppL10nSo extends AppL10n {
   }
 
   @override
-  String get liveControlTitle => 'Maamulka tooska';
+  String get liveControlTitle => 'Kontarool tooska ah';
 
   @override
   String get refreshBroadcastState => 'Cusboonaysii xaaladda baahinta';
@@ -2172,4 +2172,546 @@ class AppL10nSo extends AppL10n {
   @override
   String get categoryInUseRefusal =>
       'Maqaallo ayaa weli ku jira qaybtan, sidaas darteed lama tirtiri karo.';
+
+  @override
+  String get channelKeyPermanentNote =>
+      'Furaha kanaalku waa joogto — waa jidka ay qalabka baahintu u diraan iyo kan ciyaaryahanka daawade kastaa ka akhriyo. Magaca iyo waxa uu sido waa la beddeli karaa.';
+
+  @override
+  String get newChannel => 'Kanaal cusub';
+
+  @override
+  String get editChannel => 'Wax ka beddel kanaalka';
+
+  @override
+  String get createChannel => 'Samee kanaalka';
+
+  @override
+  String get fieldChannelKey => 'Fure';
+
+  @override
+  String get channelKeyHint => 'tusaale: pltv2';
+
+  @override
+  String get channelKeyFormatError =>
+      'Isticmaal xarfo yaryar, tirooyin iyo xariijin keliya — sida pltv2.';
+
+  @override
+  String get channelKeyTakenError =>
+      'Kanaal kale ayaa horey u isticmaalay furahan.';
+
+  @override
+  String get channelKeyChooseCarefully =>
+      'Si taxaddar leh u dooro: furuhu waa jidka ku jira URL-ka baahinta qalab kasta, lamana beddeli karo marka kanaalka la sameeyo.';
+
+  @override
+  String get channelKeyLocked =>
+      'Waa joogto — waa jidka ku jira URL-ka baahinta qalab kasta.';
+
+  @override
+  String get fieldChannelName => 'Magaca';
+
+  @override
+  String get channelPublishedLabel => 'Waxaa laga arkaa abka';
+
+  @override
+  String get channelPublishedHint =>
+      'Dami inta aad diyaarinayso — akhristayaashu ma arkayaan ilaa aad shido.';
+
+  @override
+  String get channelHasTvLabel => 'Telefishan';
+
+  @override
+  String get channelHasTvHint =>
+      'Baahin TV oo istuudiyuhu u diro. Dami haddii uu yahay raadiyo keliya.';
+
+  @override
+  String get fieldRadioStreamUrl => 'URL-ka raadiyaha';
+
+  @override
+  String get radioStreamUrlHint =>
+      'Ka tag madhan haddii kanaalku aanu raadiyo lahayn.';
+
+  @override
+  String get fieldRadioStationName => 'Magaca idaacadda';
+
+  @override
+  String get fieldRadioFrequency => 'Mowjadda';
+
+  @override
+  String get radioFrequencyHint => 'tusaale: 88.5 FM · Garoowe';
+
+  @override
+  String get sectionChannelRadio => 'RAADIYE';
+
+  @override
+  String get channelNeedsSomething =>
+      'Kanaalku wuxuu u baahan yahay telefishan, raadiyo, ama labadaba.';
+
+  @override
+  String channelCreated(String name) {
+    return '“$name” waa la sameeyay';
+  }
+
+  @override
+  String channelSaved(String name) {
+    return '“$name” waa la kaydiyay';
+  }
+
+  @override
+  String channelDeleted(String name) {
+    return '“$name” waa la tirtiray';
+  }
+
+  @override
+  String deleteChannelTitle(String name) {
+    return 'Ma tirtirtaa $name?';
+  }
+
+  @override
+  String deleteChannelBody(String key, String path) {
+    return 'Kanaalka iyo jadwalkiisa waa laga saarayaa qof walba. Furaha $key mar kale waa la heli karaa, sidaas darteed encoder kasta oo weli u daabacaya $path ma gaari doono akhristayaasha.';
+  }
+
+  @override
+  String get deleteChannelBlockedOnAir =>
+      'Ka saar kanaalka baahinta oo dami raadiyaha ka hor intaadan tirtirin.';
+
+  @override
+  String get deleteChannelBlockedLast => 'Kanaalka keliya lama tirtiri karo.';
+
+  @override
+  String get channelOnAirRefusal =>
+      'Kanaalku wuu baahinayaa ama calaamad ayaa weli imanaysa. Marka hore ka saar baahinta.';
+
+  @override
+  String get channelOrderStale =>
+      'Liiska kanaallada wuu isbeddelay intaad eegaysay. Isku day mar kale.';
+
+  @override
+  String get moveChannelUp => 'Kor u qaad';
+
+  @override
+  String get moveChannelDown => 'Hoos u dhig';
+
+  @override
+  String get colKey => 'FURE';
+
+  @override
+  String get colTv => 'TV';
+
+  @override
+  String get colRadio => 'RAADIYE';
+
+  @override
+  String get colViewers => 'DAAWAYAAL';
+
+  @override
+  String get channelHidden => 'Qarsoon';
+
+  @override
+  String get channelStateLive => 'Toos';
+
+  @override
+  String get channelStateNoSignal => 'Calaamad ma jirto';
+
+  @override
+  String get channelStateOffAir => 'Ma baahinayo';
+
+  @override
+  String get allChannels => 'Dhammaan kanaallada';
+
+  @override
+  String get switchChannel => 'Beddel kanaalka';
+
+  @override
+  String get channelUnpublishedNotice =>
+      'Kanaalkan abka waa laga qariyay. Akhristayaashu ma arkayaan ilaa la daabaco.';
+
+  @override
+  String get noTvChannels => 'Weli kanaal TV ah ma jiro.';
+
+  @override
+  String get noChannels => 'Weli kanaal ma jiro';
+
+  @override
+  String get otherChannels => 'KANAALLADA KALE';
+
+  @override
+  String get navShortOverview => 'Guriga';
+
+  @override
+  String get navShortArticles => 'Warar';
+
+  @override
+  String get navShortPrograms => 'Barnaamij';
+
+  @override
+  String get navShortLiveControl => 'Toos';
+
+  @override
+  String get navShortSchedule => 'Jadwal';
+
+  @override
+  String get navShortPush => 'Digniin';
+
+  @override
+  String get navShortMedia => 'Warbaahin';
+
+  @override
+  String get navShortUsers => 'Shaqaale';
+
+  @override
+  String get navShortAppConfig => 'Goobaha';
+
+  @override
+  String get openNavigation => 'Fur hagaha';
+
+  @override
+  String channelCount(int count) {
+    return '$count kanaal';
+  }
+
+  @override
+  String get channelOrderNote =>
+      'nidaamku wuxuu go\'aamiyaa kanaalka ugu horreeya ee akhristayaasha arkaan';
+
+  @override
+  String get channelOrderNoteShort => 'nidaamka = nidaamka akhristaha';
+
+  @override
+  String get bandChannelsOnAir => 'kanaal hawada ku jira';
+
+  @override
+  String get bandTvViewers => 'daawadayaal TV';
+
+  @override
+  String get bandRadioListeners => 'dhagaystayaal raadiye';
+
+  @override
+  String get bandListeners => 'dhagaystayaal';
+
+  @override
+  String alarmTitle(int count) {
+    return '$count kanaal waa hawada ku jira laakiin signaal ma helayo';
+  }
+
+  @override
+  String alarmBody(String name, String onAirFor, String silentFor) {
+    return '$name waxay $onAirFor hawada ku jirtay, laakiin $silentFor ma jirin wax ka soo galay encoder-ka istuudiyaha. Daawadayaasha waxay arkayaan wareeg.';
+  }
+
+  @override
+  String alarmBodyNoDuration(String name) {
+    return '$name waa hawada ku jirtaa, laakiin wax kama soo galayo encoder-ka istuudiyaha. Daawadayaasha waxay arkayaan wareeg.';
+  }
+
+  @override
+  String alarmTitleShort(String name) {
+    return '$name — hawada, signaal la\'aan';
+  }
+
+  @override
+  String alarmBodyShort(String duration) {
+    return 'Wax kama iman encoder-ka $duration.';
+  }
+
+  @override
+  String get alarmBodyShortNoDuration => 'Wax kama imanayo encoder-ka.';
+
+  @override
+  String openNamed(String name) {
+    return 'Fur $name';
+  }
+
+  @override
+  String get openShort => 'Fur';
+
+  @override
+  String get takeOffAir => 'Hawada ka saar';
+
+  @override
+  String channelTakenOffAir(String name) {
+    return '$name hawada waa laga saaray';
+  }
+
+  @override
+  String keyNotice(String key, String name) {
+    return '$key waa joogto, lama beddeli karo — waa dariiqa stream-ka ee ku jira URL-ka daabacaadda encoder kasta. $name waa la beddeli karaa wakhti kasta.';
+  }
+
+  @override
+  String keyNoticeShort(String key, String name) {
+    return '$key waa joogto — waa dariiqa stream-ka ee URL kasta. $name waa la beddeli karaa.';
+  }
+
+  @override
+  String get keyNoticeKey => 'Furaha';
+
+  @override
+  String get keyNoticeName => 'Magaca';
+
+  @override
+  String get colOrd => 'LAMBAR';
+
+  @override
+  String get colPreview => 'MUUQAAL';
+
+  @override
+  String get colChannel => 'KANAAL';
+
+  @override
+  String get colChannelActions => 'NIDAAM · BEDDEL · TIRTIR';
+
+  @override
+  String get chipTvAndRadio => 'TV + raadiye';
+
+  @override
+  String get chipTvOnly => 'TV oo keliya';
+
+  @override
+  String get chipRadioOnly => 'Raadiye oo keliya';
+
+  @override
+  String get previewNoFrames => 'signaal la\'aan';
+
+  @override
+  String get previewOffAir => 'hawada ka maqan';
+
+  @override
+  String get previewNotSetUp => 'weli lama dejin';
+
+  @override
+  String pillLiveFor(String duration) {
+    return 'Hawada waa ku jira · $duration';
+  }
+
+  @override
+  String get pillNoSignal => 'Hawada · signaal la\'aan';
+
+  @override
+  String get pillOffAir => 'Hawada ka maqan';
+
+  @override
+  String get pillOnAir => 'Hawada ku jira';
+
+  @override
+  String pillOnAirFor(String duration) {
+    return 'Hawada ku jira · $duration';
+  }
+
+  @override
+  String get watchingWord => 'daawanaya';
+
+  @override
+  String get listeningWord => 'dhagaysanaya';
+
+  @override
+  String get radioOnAirSuffix => 'raadiyaha hawada';
+
+  @override
+  String ingestNotArriving(String state) {
+    return 'Signaalka $state';
+  }
+
+  @override
+  String get ingestNotArrivingState => 'ma soo gelayo';
+
+  @override
+  String get watchingASpinner => 'wareeg daawanaya';
+
+  @override
+  String get noSignalExpected => 'Signaal lama filayo inta hawada ka maqan';
+
+  @override
+  String get neverBeenOnAir => 'Weligeed hawada ma gelin';
+
+  @override
+  String nowPlayingLine(String title) {
+    return 'Hadda socda $title';
+  }
+
+  @override
+  String nowPlayingUntil(String title, String time) {
+    return 'Hadda socda $title · ilaa $time';
+  }
+
+  @override
+  String get renditionsAllHealthy => 'tayada oo dhan waa caafimaad qabta';
+
+  @override
+  String get renditionsSomeDegraded => 'tayada qaar waa dhibaataysan';
+
+  @override
+  String renditionLabelsHealthy(String labels) {
+    return '$labels dhammaan waa caafimaad qaba';
+  }
+
+  @override
+  String renditionLabelsDegraded(String labels) {
+    return '$labels waa dhibaataysan';
+  }
+
+  @override
+  String noSignalConsequence(String duration) {
+    return 'Daawadayaasha waxay arkayaan wareeg. $duration ma jirin wax ka soo galay encoder-ka istuudiyaha.';
+  }
+
+  @override
+  String get noSignalConsequenceNoDuration =>
+      'Daawadayaasha waxay arkayaan wareeg. Wax kama soo galayo encoder-ka istuudiyaha.';
+
+  @override
+  String noSignalConsequenceShort(String duration) {
+    return 'Daawadayaasha waxay arkayaan wareeg · sawir la\'aan $duration';
+  }
+
+  @override
+  String get noSignalConsequenceShortNoDuration =>
+      'Daawadayaasha waxay arkayaan wareeg · sawir la\'aan';
+
+  @override
+  String onAirSinceLastFrame(String since, String lastFrame) {
+    return 'Hawada ayay ku jirtay $since · sawirkii ugu dambeeyay $lastFrame';
+  }
+
+  @override
+  String onAirSince(String since) {
+    return 'Hawada ayay ku jirtay $since';
+  }
+
+  @override
+  String noSignalCause(String path) {
+    return 'Ama encoder-ku wuu joojiyay daabacaadda $path, ama xiriirka istuudiyaha ayaa go\'ay.';
+  }
+
+  @override
+  String get openControlRoom => 'Fur qolka kontaroolka';
+
+  @override
+  String offAirSince(String when) {
+    return 'Hawada ka maqan tan iyo $when';
+  }
+
+  @override
+  String get nothingScheduled => 'wax lama qorsheeyay';
+
+  @override
+  String get visibleAsOffAir =>
+      'Akhristayaashu waxay u arkaan kanaal hawada ka maqan';
+
+  @override
+  String get radioAudioArriving =>
+      'Hawada ku jira · codku wuu imanayaa, xawaaruhu waa deggan yahay';
+
+  @override
+  String get radioOnAirLine => 'Hawada ku jira';
+
+  @override
+  String get radioOffAirLine => 'Hawada ka maqan';
+
+  @override
+  String createdAgoHidden(String ago) {
+    return 'La sameeyay $ago ka hor · akhristayaasha ma arkayaan inta ay qarsoon tahay';
+  }
+
+  @override
+  String createdAgoShort(String ago) {
+    return 'La sameeyay $ago ka hor · akhristayaasha ma arkayaan';
+  }
+
+  @override
+  String get hiddenNotVisible =>
+      'Akhristayaasha ma arkayaan inta ay qarsoon tahay';
+
+  @override
+  String hiddenNextStep(String path) {
+    return 'Talaabada xigta: encoder u dir $path, ka dibna daabac';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, String minutes) {
+    return '${hours}s ${minutes}d';
+  }
+
+  @override
+  String durationMinutesSeconds(int minutes, String seconds) {
+    return '${minutes}d ${seconds}il';
+  }
+
+  @override
+  String durationMinutesCompact(int minutes) {
+    return '$minutes daqiiqo';
+  }
+
+  @override
+  String ageMinutes(int count) {
+    return '$count daqiiqo';
+  }
+
+  @override
+  String ageHours(int count) {
+    return '$count saac';
+  }
+
+  @override
+  String ageDays(int count) {
+    return '$count maalmood';
+  }
+
+  @override
+  String yesterdayAt(String time) {
+    return 'shalay $time';
+  }
+
+  @override
+  String get noChannelsBody =>
+      'Kanaalku waa hal dariiq oo stream ah oo akhristayaashu la socon karaan — TV, raadiye, ama labadaba. Waxaad dooran doontaa fure joogto ah, kadibna encoder-ka istuudiyaha ayaad u dirtaa.';
+
+  @override
+  String get noChannelsFootnote =>
+      'Furaha waa joogto; magaca mar dambe ayaa la beddeli karaa.';
+
+  @override
+  String get addSecondChannel =>
+      'Ku dar kanaal labaad — idaacadaha raadiyaha keliya iyo kanaallada tijaabada ah way qarsoonaan karaan ilaa ay diyaar noqdaan.';
+
+  @override
+  String get deleteBlockedOnAirTitle =>
+      'Lama tirtiri karo inta hawada ku jirto';
+
+  @override
+  String deleteBlockedOnAirBody(String name) {
+    return 'Marka hore $name hawada ka saar.';
+  }
+
+  @override
+  String get deleteBlockedSignalTitle =>
+      'Lama tirtiri karo inta signaal imanayo';
+
+  @override
+  String get deleteBlockedSignalBody =>
+      'Signaal ayaa weli ka imanaya encoder-ka istuudiyaha.';
+
+  @override
+  String deleteBlockedRadioBody(String name) {
+    return 'Marka hore raadiyaha $name dami.';
+  }
+
+  @override
+  String get deleteBlockedLastTitle =>
+      'Kanaalka ugu dambeeya lama tirtiri karo';
+
+  @override
+  String get deleteBlockedLastBody =>
+      'Akhristayaashu kanaal ma yeelan lahaayeen. Marka hore mid kale samee.';
+
+  @override
+  String get cantBeUndone => 'Tan dib looma celin karo.';
+
+  @override
+  String get keepChannel => 'Kaydi kanaalka';
+
+  @override
+  String get deleteChannelConfirm => 'Tirtir kanaalka';
 }

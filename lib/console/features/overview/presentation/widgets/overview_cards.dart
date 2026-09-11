@@ -10,23 +10,30 @@ import '../../../operations/presentation/widgets/stream_preview.dart';
 /// Broadcast health. Navy card, radius 12, padding 22, gap 18 — per the
 /// artboard, the one dark card on a light page, because it is the thing an
 /// operator looks at first.
+///
+/// Leads with the first channel with a TV feed — the one readers meet first —
+/// and lists the others beneath it, one line each: enough to see at a glance
+/// that every channel is up, without the card growing a preview per channel.
 class OnAirCard extends StatelessWidget {
   const OnAirCard({
     super.key,
-    required this.onAir,
+    required this.channels,
     required this.stacked,
     this.streamUrl,
-    this.onOpenLiveControl,
+    this.onOpenChannel,
   });
 
-  final OnAirDto onAir;
+  /// Every channel with a TV feed, in list order.
+  final List<OnAirDto> channels;
 
-  /// Opens live control. Null hides the button: a role that cannot manage the
-  /// broadcast would only be bounced back here by the router.
-  final VoidCallback? onOpenLiveControl;
+  /// Opens a channel's control room by key. Null hides the ways in: a role
+  /// that cannot manage the broadcast would only be bounced back here by the
+  /// router.
+  final ValueChanged<String>? onOpenChannel;
 
-  /// The playlist the preview plays, when the channel is reaching readers and
-  /// this user may read the broadcast state. Null keeps the static thumbnail.
+  /// The playlist the lead channel's preview plays, when it is reaching
+  /// readers and this user may read the broadcast state. Null keeps the static
+  /// thumbnail.
   final String? streamUrl;
 
   /// Preview above the text rather than beside it.
@@ -39,6 +46,39 @@ class OnAirCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final onAir = channels.firstOrNull;
+    final others = channels.skip(1).toList(growable: false);
+
+    final decoration = BoxDecoration(
+      color: DarkTokens.surface,
+      borderRadius: BorderRadius.circular(Radii.sheet),
+    );
+
+    if (onAir == null) {
+      return Container(
+        padding: const EdgeInsets.all(22),
+        decoration: decoration,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.onAirNow,
+              style: context.text.overline.copyWith(
+                fontSize: 11.5,
+                letterSpacing: 1.27,
+                color: DarkTokens.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              l10n.noTvChannels,
+              style: context.text.body.copyWith(color: Colors.white),
+            ),
+          ],
+        ),
+      );
+    }
 
     final elapsed =
         '${onAir.elapsed.inHours}h '
@@ -46,10 +86,7 @@ class OnAirCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: DarkTokens.surface,
-        borderRadius: BorderRadius.circular(Radii.sheet),
-      ),
+      decoration: decoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -122,10 +159,23 @@ class OnAirCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: Spacing.chip),
+                  // Led by the channel's name rather than "TV": with several
+                  // channels, which one this is comes first.
                   Text(
-                    'TV · ${onAir.renditions.map((r) => r.label).join(' / ')} '
-                    '${onAir.allHealthy ? l10n.allRenditionsHealthy : l10n.renditionsDegraded}'
-                    ' · ${l10n.concurrentViewers(AppNumberFormat.decimal(onAir.concurrentViewers, context.languageCode))}',
+                    [
+                      onAir.name,
+                      // No ladder yet — nothing has ever arrived — says
+                      // nothing about health rather than "all healthy".
+                      if (onAir.renditions.isNotEmpty)
+                        '${onAir.renditions.map((r) => r.label).join(' / ')} '
+                            '${onAir.allHealthy ? l10n.allRenditionsHealthy : l10n.renditionsDegraded}',
+                      l10n.concurrentViewers(
+                        AppNumberFormat.decimal(
+                          onAir.concurrentViewers,
+                          context.languageCode,
+                        ),
+                      ),
+                    ].join(' · '),
                     style: context.text.meta.copyWith(
                       fontSize: 13,
                       height: 19 / 13,
@@ -137,10 +187,10 @@ class OnAirCard extends StatelessWidget {
                     spacing: Spacing.chip,
                     runSpacing: Spacing.chip,
                     children: [
-                      if (onOpenLiveControl != null)
+                      if (onOpenChannel != null)
                         _DarkButton(
                           label: l10n.openLiveControl,
-                          onTap: onOpenLiveControl,
+                          onTap: () => onOpenChannel!(onAir.key),
                         ),
                       _DarkButton(
                         label: onAir.radioOnAir
@@ -170,7 +220,98 @@ class OnAirCard extends StatelessWidget {
               );
             },
           ),
+          if (others.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            Text(
+              l10n.otherChannels,
+              style: context.text.overline.copyWith(
+                fontSize: 10.5,
+                color: DarkTokens.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: Spacing.chip),
+            for (final channel in others)
+              _OtherChannelRow(
+                channel: channel,
+                onTap: onOpenChannel == null
+                    ? null
+                    : () => onOpenChannel!(channel.key),
+              ),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// One more channel, in a line: a live dot, its name, and its audience.
+class _OtherChannelRow extends StatelessWidget {
+  const _OtherChannelRow({required this.channel, this.onTap});
+
+  final OnAirDto channel;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    // Its own transparent Material: the card is a decorated Container, so the
+    // nearest Material is beneath the navy fill and a splash drawn there would
+    // never be seen.
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        key: Key('other-channel-${channel.key}'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            children: [
+              Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: channel.isLive
+                      ? DarkTokens.accent
+                      : DarkTokens.onSurfaceVariant,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: Spacing.chip),
+              Expanded(
+                child: Text(
+                  channel.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.body.copyWith(color: Colors.white),
+                ),
+              ),
+              const SizedBox(width: Spacing.chip),
+              Text(
+                channel.isLive
+                    ? l10n.concurrentViewers(
+                        AppNumberFormat.decimal(
+                          channel.concurrentViewers,
+                          context.languageCode,
+                        ),
+                      )
+                    : l10n.channelStateOffAir,
+                style: context.text.meta.copyWith(
+                  color: DarkTokens.onSurfaceVariant,
+                ),
+              ),
+              if (onTap != null) ...[
+                const SizedBox(width: 4),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 16,
+                  color: DarkTokens.onSurfaceVariant,
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
