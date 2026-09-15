@@ -1,6 +1,7 @@
 import 'dto/app_config_dto.dart';
 import 'dto/article_dto.dart';
 import 'dto/category_dto.dart';
+import 'dto/channel_dto.dart';
 import 'dto/live_dto.dart';
 import 'dto/paged_dto.dart';
 import 'dto/program_dto.dart';
@@ -27,12 +28,20 @@ abstract interface class PuntlandApi {
   /// Startup config: stream URLs, minimum build, feature flags.
   Future<AppConfigDto> fetchConfig();
 
-  /// Live channel status. Returns `isLive: false` plus a localised slate
-  /// message when the broadcaster is off air.
-  Future<LiveStatusDto> fetchLiveStatus();
+  /// Published channels, in the order the console set, each with enough
+  /// status to draw its card.
+  Future<List<ChannelSummaryDto>> fetchChannels();
 
-  /// Radio stream endpoint and station metadata.
-  Future<RadioStatusDto> fetchRadioStatus();
+  /// One channel's live status. Returns `isLive: false` plus a localised slate
+  /// message when it is off air.
+  ///
+  /// A key that does not exist, is unpublished, or has no television is a
+  /// not-found [Failure] — the API does not distinguish them.
+  Future<LiveStatusDto> fetchLiveStatus(String channelKey);
+
+  /// One channel's radio stream endpoint and station metadata. A channel
+  /// without radio is a not-found [Failure].
+  Future<RadioStatusDto> fetchRadioStatus(String channelKey);
 
   /// News categories, ordered, with localised display names.
   Future<List<CategoryDto>> fetchCategories();

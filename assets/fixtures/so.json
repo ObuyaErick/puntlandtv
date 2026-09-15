@@ -12,46 +12,116 @@
       "schedule": true
     }
   },
-  "live": {
-    "is_live": true,
-    "stream_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-    "offline_message": "Baahintu waxay dib u bilaabaneysaa dhawaan.",
-    "now_playing": {
-      "title": "Warbaahinta Fiidka ee Telefishinka Puntland",
-      "starts_at": "{{today 21:00}}",
-      "ends_at": "{{today 22:00}}",
-      "subtitle": "Wararka Fiidka",
-      "genre": "Wararka"
+  "channels": [
+    {
+      "key": "main",
+      "name": "Puntland TV",
+      "has_tv": true,
+      "has_radio": true,
+      "is_live": true,
+      "radio_on_air": true,
+      "now_playing_title": "Warbaahinta Fiidka ee Telefishinka Puntland"
     },
-    "up_next": [
-      {
-        "title": "Dood Furan — arrimaha bulshada",
-        "starts_at": "{{today 22:00}}",
-        "ends_at": "{{today 23:00}}",
-        "subtitle": "Arrimaha maanta",
-        "genre": "Arrimaha maanta"
-      },
-      {
-        "title": "Wararka Habeenkii ee ugu dambeeyay",
-        "starts_at": "{{today 23:00}}",
-        "ends_at": "{{today 23:30}}",
-        "subtitle": "Wararka",
+    {
+      "key": "pltv2",
+      "name": "PLTV 2",
+      "has_tv": true,
+      "has_radio": false,
+      "is_live": false,
+      "radio_on_air": false,
+      "now_playing_title": null
+    },
+    {
+      "key": "radio-garowe",
+      "name": "Radio Garowe",
+      "has_tv": false,
+      "has_radio": true,
+      "is_live": false,
+      "radio_on_air": true,
+      "now_playing_title": "Codsiyada Subaxda"
+    }
+  ],
+  "live": {
+    "main": {
+      "channel_key": "main",
+      "channel_name": "Puntland TV",
+      "is_live": true,
+      "stream_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      "offline_message": null,
+      "now_playing": {
+        "title": "Warbaahinta Fiidka ee Telefishinka Puntland",
+        "starts_at": "{{today 21:00}}",
+        "ends_at": "{{today 22:00}}",
+        "subtitle": "Wararka Fiidka",
         "genre": "Wararka"
       },
-      {
-        "title": "Suugaan iyo Dhaqan",
-        "starts_at": "{{today 00:00}}",
-        "ends_at": "{{today 00:45}}",
-        "subtitle": "Dhaqanka",
-        "genre": "Dhaqanka"
-      }
-    ]
+      "up_next": [
+        {
+          "title": "Dood Furan — arrimaha bulshada",
+          "starts_at": "{{today 22:00}}",
+          "ends_at": "{{today 23:00}}",
+          "subtitle": "Arrimaha maanta",
+          "genre": "Arrimaha maanta"
+        },
+        {
+          "title": "Wararka Habeenkii ee ugu dambeeyay",
+          "starts_at": "{{today 23:00}}",
+          "ends_at": "{{today 23:30}}",
+          "subtitle": "Wararka",
+          "genre": "Wararka"
+        },
+        {
+          "title": "Suugaan iyo Dhaqan",
+          "starts_at": "{{today 00:00}}",
+          "ends_at": "{{today 00:45}}",
+          "subtitle": "Dhaqanka",
+          "genre": "Dhaqanka"
+        }
+      ]
+    },
+    "pltv2": {
+      "channel_key": "pltv2",
+      "channel_name": "PLTV 2",
+      "is_live": false,
+      "stream_url": null,
+      "offline_message": "PLTV 2 ma socoto hadda — Waxaan dib u bilaabeynaa 20:00",
+      "resumes_at": "{{today 20:00}}",
+      "now_playing": null,
+      "up_next": [
+        {
+          "title": "Kubadda Cagta Caawa",
+          "starts_at": "{{today 20:00}}",
+          "ends_at": "{{today 21:30}}",
+          "subtitle": "Ciyaaraha",
+          "genre": "Ciyaaraha"
+        },
+        {
+          "title": "Saacadda Carruurta",
+          "starts_at": "{{today 21:30}}",
+          "ends_at": "{{today 22:30}}",
+          "subtitle": "Carruurta",
+          "genre": "Carruurta"
+        }
+      ]
+    }
   },
   "radio": {
-    "stream_url": "https://stream.zeno.fm/0r0xa792kwzuv",
-    "station_name": "Raadiyo Puntland",
-    "now_playing": "Barnaamijka Duhurnimo",
-    "frequency_label": "Raadiyo Puntland · 88.5 FM · Garoowe"
+    "main": {
+      "channel_key": "main",
+      "is_on_air": true,
+      "stream_url": "https://stream.zeno.fm/0r0xa792kwzuv",
+      "station_name": "Raadiyo Puntland",
+      "now_playing": "Barnaamijka Duhurnimo",
+      "frequency_label": "Raadiyo Puntland · 88.5 FM · Garoowe"
+    },
+    "radio-garowe": {
+      "channel_key": "radio-garowe",
+      "is_on_air": true,
+      "stream_url": "https://stream.zeno.fm/0r0xa792kwzuv",
+      "station_name": "Raadiyo Garoowe",
+      "now_playing": "Codsiyada Subaxda",
+      "frequency_label": "Raadiyo Garoowe · 91.2 FM"
+    }
   },
   "categories": [
     {

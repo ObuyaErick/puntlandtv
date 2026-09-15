@@ -8,6 +8,7 @@ import '../error/failure.dart';
 import 'dto/app_config_dto.dart';
 import 'dto/article_dto.dart';
 import 'dto/category_dto.dart';
+import 'dto/channel_dto.dart';
 import 'dto/live_dto.dart';
 import 'dto/paged_dto.dart';
 import 'dto/program_dto.dart';
@@ -77,14 +78,37 @@ class FixturePuntlandApi implements PuntlandApi {
   );
 
   @override
-  Future<LiveStatusDto> fetchLiveStatus() => _respond(
-    (d) => LiveStatusDto.fromJson(d['live'] as Map<String, dynamic>),
+  Future<List<ChannelSummaryDto>> fetchChannels() => _respond(
+    (d) => (d['channels'] as List<dynamic>)
+        .cast<Map<String, dynamic>>()
+        .map(ChannelSummaryDto.fromJson)
+        .toList(growable: false),
+  );
+
+  /// `live` and `radio` are keyed by channel. A channel missing from one of
+  /// them is what the API answers for a radio-only station on `live`, or a
+  /// TV-only one on `radio`: not found, with the same code the API's 404 body
+  /// names.
+  @override
+  Future<LiveStatusDto> fetchLiveStatus(String channelKey) => _respond(
+    (d) => LiveStatusDto.fromJson(_byChannel(d['live'], channelKey)),
   );
 
   @override
-  Future<RadioStatusDto> fetchRadioStatus() => _respond(
-    (d) => RadioStatusDto.fromJson(d['radio'] as Map<String, dynamic>),
+  Future<RadioStatusDto> fetchRadioStatus(String channelKey) => _respond(
+    (d) => RadioStatusDto.fromJson(_byChannel(d['radio'], channelKey)),
   );
+
+  static Map<String, dynamic> _byChannel(Object? section, String key) {
+    final row = (section as Map<String, dynamic>)[key];
+    if (row is! Map<String, dynamic>) {
+      throw const Failure(
+        kind: FailureKind.notFound,
+        code: 'CHANNEL_NOT_FOUND',
+      );
+    }
+    return row;
+  }
 
   @override
   Future<List<CategoryDto>> fetchCategories() => _respond(

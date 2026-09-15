@@ -12,6 +12,8 @@ LiveStatusDto _$LiveStatusDtoFromJson(Map<String, dynamic> json) =>
       json,
       ($checkedConvert) {
         final val = LiveStatusDto(
+          channelKey: $checkedConvert('channel_key', (v) => v as String),
+          channelName: $checkedConvert('channel_name', (v) => v as String),
           isLive: $checkedConvert('is_live', (v) => v as bool),
           streamUrl: $checkedConvert('stream_url', (v) => v as String?),
           offlineMessage: $checkedConvert(
@@ -43,6 +45,8 @@ LiveStatusDto _$LiveStatusDtoFromJson(Map<String, dynamic> json) =>
         return val;
       },
       fieldKeyMap: const {
+        'channelKey': 'channel_key',
+        'channelName': 'channel_name',
         'isLive': 'is_live',
         'streamUrl': 'stream_url',
         'offlineMessage': 'offline_message',
@@ -54,6 +58,8 @@ LiveStatusDto _$LiveStatusDtoFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$LiveStatusDtoToJson(LiveStatusDto instance) =>
     <String, dynamic>{
+      'channel_key': instance.channelKey,
+      'channel_name': instance.channelName,
       'is_live': instance.isLive,
       'stream_url': instance.streamUrl,
       'offline_message': instance.offlineMessage,
@@ -92,6 +98,8 @@ RadioStatusDto _$RadioStatusDtoFromJson(Map<String, dynamic> json) =>
       json,
       ($checkedConvert) {
         final val = RadioStatusDto(
+          channelKey: $checkedConvert('channel_key', (v) => v as String),
+          isOnAir: $checkedConvert('is_on_air', (v) => v as bool),
           streamUrl: $checkedConvert('stream_url', (v) => v as String),
           stationName: $checkedConvert('station_name', (v) => v as String),
           nowPlaying: $checkedConvert('now_playing', (v) => v as String?),
@@ -103,6 +111,8 @@ RadioStatusDto _$RadioStatusDtoFromJson(Map<String, dynamic> json) =>
         return val;
       },
       fieldKeyMap: const {
+        'channelKey': 'channel_key',
+        'isOnAir': 'is_on_air',
         'streamUrl': 'stream_url',
         'stationName': 'station_name',
         'nowPlaying': 'now_playing',
@@ -112,6 +122,8 @@ RadioStatusDto _$RadioStatusDtoFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$RadioStatusDtoToJson(RadioStatusDto instance) =>
     <String, dynamic>{
+      'channel_key': instance.channelKey,
+      'is_on_air': instance.isOnAir,
       'stream_url': instance.streamUrl,
       'station_name': instance.stationName,
       'now_playing': instance.nowPlaying,

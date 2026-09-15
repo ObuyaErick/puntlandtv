@@ -14,7 +14,15 @@ abstract final class Routes {
   static String article(String slug) => '$news/article/$slug';
   static String program(String id) => '$programs/$id';
 
+  /// One channel's player. [live] and [radio] are the channel lists.
+  static String liveChannel(String key) => '$live/$key';
+  static String radioChannel(String key) => '$radio/$key';
+
   /// Path pattern fragments used when registering the routes.
   static const articlePattern = 'article/:slug';
   static const programPattern = ':id';
+
+  /// Shared by the Live TV and Radio branches: in both, the child of the list
+  /// is one channel, named by its permanent key.
+  static const channelPattern = ':channelKey';
 }

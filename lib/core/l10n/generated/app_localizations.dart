@@ -337,6 +337,54 @@ abstract class AppL10n {
   /// **'Audio keeps playing when the app is closed — 48 kbps, tuned for 3G.'**
   String get radioBackgroundNote;
 
+  /// Title of the Live TV tab's channel list.
+  ///
+  /// In en, this message translates to:
+  /// **'Live TV'**
+  String get channelsLiveTitle;
+
+  /// Subtitle under the Live TV channel list title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a channel'**
+  String get channelsLiveSubtitle;
+
+  /// Title of the Radio tab's station list.
+  ///
+  /// In en, this message translates to:
+  /// **'Radio'**
+  String get channelsRadioTitle;
+
+  /// Subtitle under the Radio station list title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a station'**
+  String get channelsRadioSubtitle;
+
+  /// Badge on a channel or station that is not broadcasting now. Uppercase; the counterpart of LIVE.
+  ///
+  /// In en, this message translates to:
+  /// **'OFF AIR'**
+  String get channelOffAir;
+
+  /// Empty state of a channel list with nothing to show.
+  ///
+  /// In en, this message translates to:
+  /// **'No channels right now'**
+  String get channelListEmptyTitle;
+
+  /// Body of the empty channel list state.
+  ///
+  /// In en, this message translates to:
+  /// **'Check back soon — channels appear here as soon as they are added.'**
+  String get channelListEmptyBody;
+
+  /// Headline on a radio station's screen while it is not broadcasting.
+  ///
+  /// In en, this message translates to:
+  /// **'This station is off air'**
+  String get radioOffAirTitle;
+
   /// Title of the bookmarks screen.
   ///
   /// In en, this message translates to:

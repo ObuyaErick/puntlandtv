@@ -5,6 +5,8 @@ import 'package:material_ui/material_ui.dart';
 import '../../features/news/presentation/pages/article_page.dart';
 import '../../features/news/presentation/pages/news_feed_page.dart';
 import '../../features/bookmarks/presentation/pages/saved_page.dart';
+import '../../features/channels/domain/entities/channel.dart';
+import '../../features/channels/presentation/pages/channel_list_page.dart';
 import '../../features/live/presentation/pages/live_page.dart';
 import '../../features/radio/presentation/pages/radio_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
@@ -39,9 +41,24 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          // Live TV and Radio each open on their channel list, with the
+          // player one level down. Still one branch per tab, so a channel left
+          // playing is where the tab returns to.
           StatefulShellBranch(
             routes: [
-              GoRoute(path: Routes.live, builder: (_, _) => const LivePage()),
+              GoRoute(
+                path: Routes.live,
+                builder: (_, _) =>
+                    const ChannelListPage(medium: ChannelMedium.tv),
+                routes: [
+                  GoRoute(
+                    path: Routes.channelPattern,
+                    builder: (_, state) => LivePage(
+                      channelKey: state.pathParameters['channelKey']!,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(
@@ -62,7 +79,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: Routes.radio, builder: (_, _) => const RadioPage()),
+              GoRoute(
+                path: Routes.radio,
+                builder: (_, _) =>
+                    const ChannelListPage(medium: ChannelMedium.radio),
+                routes: [
+                  GoRoute(
+                    path: Routes.channelPattern,
+                    builder: (_, state) => RadioPage(
+                      channelKey: state.pathParameters['channelKey']!,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(

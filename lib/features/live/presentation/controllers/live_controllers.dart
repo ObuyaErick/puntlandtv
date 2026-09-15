@@ -15,14 +15,14 @@ part 'live_controllers.g.dart';
 /// backend's own three-second ingest poll is long.
 const liveRefreshInterval = Duration(seconds: 30);
 
-/// The live channel's status and schedule.
+/// One live channel's status and schedule, by key.
 ///
-/// Kept alive so returning to the Live tab does not re-request the manifest.
-/// Not polled by itself either — see [liveChannelWatch], which is what adds a
+/// Kept alive so returning to a channel does not re-request the manifest. Not
+/// polled by itself either — see [liveChannelWatch], which is what adds a
 /// timer, and only while there is somebody to notice.
 @Riverpod(keepAlive: true)
-Future<LiveChannel> liveChannel(Ref ref) {
-  return ref.watch(liveRepositoryProvider).channel();
+Future<LiveChannel> liveChannel(Ref ref, String key) {
+  return ref.watch(liveRepositoryProvider).channel(key);
 }
 
 /// Re-checks the channel while it is being watched.
@@ -49,25 +49,29 @@ Future<LiveChannel> liveChannel(Ref ref) {
 /// Playback failures are the other half and do not go through here — the live
 /// page refreshes immediately on `PLAYBACK_FAILED`, because a viewer whose
 /// stream just died should not wait out a timer to find out why.
+///
+/// One timer per channel on screen, which in practice is one: the page for a
+/// channel is the only thing that watches it.
 @riverpod
-Stream<LiveChannel> liveChannelWatch(Ref ref) {
+Stream<LiveChannel> liveChannelWatch(Ref ref, String key) {
   final controller = StreamController<LiveChannel>();
 
   Future<void> emit() async {
     try {
-      controller.add(await ref.read(liveChannelProvider.future));
+      final channel = await ref.read(liveChannelProvider(key).future);
+      if (!controller.isClosed) controller.add(channel);
     } catch (error, stack) {
       // Surfaced rather than swallowed, but not fatal to the stream: a failed
       // re-check on a bad connection must not tear down a player that is
       // still happily playing buffered segments.
-      controller.addError(error, stack);
+      if (!controller.isClosed) controller.addError(error, stack);
     }
   }
 
   unawaited(emit());
 
   final timer = Timer.periodic(liveRefreshInterval, (_) {
-    ref.invalidate(liveChannelProvider);
+    ref.invalidate(liveChannelProvider(key));
     unawaited(emit());
   });
 

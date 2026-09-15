@@ -5,6 +5,7 @@ import '../network/api_exception.dart';
 import 'dto/app_config_dto.dart';
 import 'dto/article_dto.dart';
 import 'dto/category_dto.dart';
+import 'dto/channel_dto.dart';
 import 'dto/live_dto.dart';
 import 'dto/paged_dto.dart';
 import 'dto/program_dto.dart';
@@ -26,12 +27,22 @@ class HttpPuntlandApi implements PuntlandApi {
       _get('/v1/config', AppConfigDto.fromJson);
 
   @override
-  Future<LiveStatusDto> fetchLiveStatus() =>
-      _get('/v1/live', LiveStatusDto.fromJson);
+  Future<List<ChannelSummaryDto>> fetchChannels() =>
+      _getList('/v1/channels', ChannelSummaryDto.fromJson);
+
+  // The key is ops-chosen but pattern-checked to `[a-z0-9-]`, so it needs no
+  // escaping — encoding it anyway costs nothing and keeps a bad key a 404.
+  @override
+  Future<LiveStatusDto> fetchLiveStatus(String channelKey) => _get(
+    '/v1/channels/${Uri.encodeComponent(channelKey)}/live',
+    LiveStatusDto.fromJson,
+  );
 
   @override
-  Future<RadioStatusDto> fetchRadioStatus() =>
-      _get('/v1/radio', RadioStatusDto.fromJson);
+  Future<RadioStatusDto> fetchRadioStatus(String channelKey) => _get(
+    '/v1/channels/${Uri.encodeComponent(channelKey)}/radio',
+    RadioStatusDto.fromJson,
+  );
 
   @override
   Future<List<CategoryDto>> fetchCategories() =>

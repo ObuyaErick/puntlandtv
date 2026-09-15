@@ -20,13 +20,15 @@ class ScheduleEntry {
       !moment.isBefore(startsAt) && moment.isBefore(endsAt);
 }
 
-/// The state of the live television channel.
+/// The state of one live television channel.
 ///
 /// Modelled so that "off air" is a first-class value rather than an error:
 /// when the broadcaster stops transmitting, the app shows a branded slate,
 /// never a failed player.
 class LiveChannel {
   const LiveChannel({
+    required this.key,
+    required this.name,
     required this.isLive,
     this.streamUrl,
     this.offlineMessage,
@@ -34,6 +36,12 @@ class LiveChannel {
     this.nowPlaying,
     this.upNext = const [],
   });
+
+  /// Permanent — the route segment, and part of the playback source's id.
+  final String key;
+
+  /// A proper noun, the same in every locale.
+  final String name;
 
   final bool isLive;
 

@@ -29,7 +29,7 @@ void main() {
   }) async {
     await pumpGolden(
       tester,
-      const LivePage(),
+      const LivePage(channelKey: 'main'),
       width: width,
       height: height,
       locale: locale,

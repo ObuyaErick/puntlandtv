@@ -3,6 +3,9 @@ import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:puntland/core/preview/app_preview.dart';
+import 'package:puntland/core/preview/preview_size.dart';
+import 'package:puntland/features/live/data/fixtures/live_channel.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/app_date_format.dart';
@@ -20,7 +23,14 @@ import '../controllers/live_controllers.dart';
 import '../widgets/now_playing_panel.dart';
 import '../widgets/player_controls.dart';
 
-/// Live television.
+/// The playback source id for one channel's television.
+///
+/// Per channel, not a bare `live`: the id is how every surface decides whether
+/// the stream playing is *its* stream, and with several channels "some live
+/// TV is playing" is no longer the same question as "this channel is".
+String liveSourceId(String channelKey) => 'live:$channelKey';
+
+/// One channel's live television.
 ///
 /// Three layouts, chosen from the space actually available:
 ///
@@ -32,7 +42,9 @@ import '../widgets/player_controls.dart';
 /// * **Side-by-side** — from Large up. The player caps at 740dp wide and the
 ///   schedule sits beside it; the video never stretches to fill 1360dp.
 class LivePage extends ConsumerStatefulWidget {
-  const LivePage({super.key});
+  const LivePage({super.key, required this.channelKey});
+
+  final String channelKey;
 
   @override
   ConsumerState<LivePage> createState() => _LivePageState();
@@ -44,8 +56,10 @@ class _LivePageState extends ConsumerState<LivePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      // Only this channel's stream takes the page over. Another channel left
+      // playing stays docked in the mini-player until this one is started.
       final playback = ref.read(playbackControllerProvider);
-      if (playback.source?.kind == PlaybackKind.liveTv) {
+      if (playback.source?.id == liveSourceId(widget.channelKey)) {
         ref.read(playbackControllerProvider.notifier).expand();
       }
     });
@@ -66,7 +80,8 @@ class _LivePageState extends ConsumerState<LivePage> {
     // The watching variant, not the bare provider: while this screen is up,
     // the channel is re-checked so a signal that drops unattended becomes the
     // slate rather than a frozen frame. The timer dies with the route.
-    final channel = ref.watch(liveChannelWatchProvider);
+    final key = widget.channelKey;
+    final channel = ref.watch(liveChannelWatchProvider(key));
 
     return Scaffold(
       backgroundColor: context.colors.playerSurface,
@@ -76,7 +91,12 @@ class _LivePageState extends ConsumerState<LivePage> {
           failure: error is Failure
               ? error
               : const Failure(kind: FailureKind.unknown, code: 'UNKNOWN'),
-          onRetry: () => ref.invalidate(liveChannelProvider),
+          // Both: the watch only re-reads the cached channel, so retrying it
+          // alone would hand back the same failure.
+          onRetry: () {
+            ref.invalidate(liveChannelProvider(key));
+            ref.invalidate(liveChannelWatchProvider(key));
+          },
         ),
         data: (data) => _LiveBody(channel: data),
       ),
@@ -239,15 +259,15 @@ class _PlayerSurfaceState extends ConsumerState<PlayerSurface> {
   /// noticed something was wrong.
   ///
   /// Guarded on the source being ours: a VOD episode failing is not a reason
-  /// to re-fetch the live channel.
+  /// to re-fetch the live channel, and neither is another channel failing.
   void _refreshOnPlaybackFailure() {
     ref.listen(playbackControllerProvider, (previous, next) {
       final justFailed =
           next.errorCode == 'PLAYBACK_FAILED' &&
           previous?.errorCode != 'PLAYBACK_FAILED';
       if (!justFailed) return;
-      if (next.source?.kind != PlaybackKind.liveTv) return;
-      ref.invalidate(liveChannelProvider);
+      if (next.source?.id != _sourceId) return;
+      ref.invalidate(liveChannelProvider(widget.channel.key));
     });
   }
 
@@ -269,13 +289,23 @@ class _PlayerSurfaceState extends ConsumerState<PlayerSurface> {
     if (_chromeVisible && widget.immersive) _scheduleDismiss();
   }
 
-  PlaybackSource get _source => PlaybackSource(
-    id: 'live',
-    url: widget.channel.streamUrl!,
-    kind: PlaybackKind.liveTv,
-    title: widget.channel.nowPlaying?.title ?? 'Puntland TV',
-    subtitle: widget.channel.nowPlaying?.subtitle,
-  );
+  String get _sourceId => liveSourceId(widget.channel.key);
+
+  /// The mini-player shows [PlaybackSource.title] over
+  /// [PlaybackSource.subtitle], so the channel name goes underneath the
+  /// programme — with several channels, "what is this" is the channel as much
+  /// as the programme. With nothing scheduled the name is the title, alone.
+  PlaybackSource get _source {
+    final channel = widget.channel;
+    final programme = channel.nowPlaying?.title;
+    return PlaybackSource(
+      id: _sourceId,
+      url: channel.streamUrl!,
+      kind: PlaybackKind.liveTv,
+      title: programme ?? channel.name,
+      subtitle: programme == null ? null : channel.name,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +317,7 @@ class _PlayerSurfaceState extends ConsumerState<PlayerSurface> {
 
     final state = ref.watch(playbackControllerProvider);
     final controller = ref.read(playbackControllerProvider.notifier);
-    final isThisSource = state.source?.id == 'live';
+    final isThisSource = state.source?.id == _sourceId;
     final surface = isThisSource ? controller.buildVideoSurface() : null;
 
     return GestureDetector(
@@ -441,3 +471,6 @@ class _LiveSkeleton extends StatelessWidget {
     );
   }
 }
+
+@AppPreview(size: PreviewSize.tablet, name: 'Player Surface')
+Widget previewPlayerSurface() => PlayerSurface(channel: previewChannel);

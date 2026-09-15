@@ -5,28 +5,62 @@
     "data_saver_default": true,
     "feature_flags": {"vod": true, "radio": true, "schedule": true}
   },
+  "channels": [
+    {"key": "main", "name": "Puntland TV", "has_tv": true, "has_radio": true, "is_live": true, "radio_on_air": true, "now_playing_title": "Warbaahinta Fiidka — Evening News"},
+    {"key": "pltv2", "name": "PLTV 2", "has_tv": true, "has_radio": false, "is_live": false, "radio_on_air": false, "now_playing_title": null},
+    {"key": "radio-garowe", "name": "Radio Garowe", "has_tv": false, "has_radio": true, "is_live": false, "radio_on_air": true, "now_playing_title": "Morning Requests"}
+  ],
   "live": {
-    "is_live": true,
-    "stream_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-    "offline_message": "Broadcast resumes shortly.",
-    "now_playing": {
-      "title": "Warbaahinta Fiidka — Evening News",
-      "starts_at": "{{today 21:00}}",
-      "ends_at": "{{today 22:00}}",
-      "subtitle": "Evening News",
-      "genre": "News"
+    "main": {
+      "channel_key": "main",
+      "channel_name": "Puntland TV",
+      "is_live": true,
+      "stream_url": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+      "offline_message": null,
+      "now_playing": {
+        "title": "Warbaahinta Fiidka — Evening News",
+        "starts_at": "{{today 21:00}}",
+        "ends_at": "{{today 22:00}}",
+        "subtitle": "Evening News",
+        "genre": "News"
+      },
+      "up_next": [
+        {"title": "Dood Furan — Open Debate", "starts_at": "{{today 22:00}}", "ends_at": "{{today 23:00}}", "subtitle": "Current affairs", "genre": "Current affairs"},
+        {"title": "Wararka Habeenkii — Late News", "starts_at": "{{today 23:00}}", "ends_at": "{{today 23:30}}", "subtitle": "News", "genre": "News"},
+        {"title": "Suugaan iyo Dhaqan", "starts_at": "{{today 00:00}}", "ends_at": "{{today 00:45}}", "subtitle": "Culture", "genre": "Culture"}
+      ]
     },
-    "up_next": [
-      {"title": "Dood Furan — Open Debate", "starts_at": "{{today 22:00}}", "ends_at": "{{today 23:00}}", "subtitle": "Current affairs", "genre": "Current affairs"},
-      {"title": "Wararka Habeenkii — Late News", "starts_at": "{{today 23:00}}", "ends_at": "{{today 23:30}}", "subtitle": "News", "genre": "News"},
-      {"title": "Suugaan iyo Dhaqan", "starts_at": "{{today 00:00}}", "ends_at": "{{today 00:45}}", "subtitle": "Culture", "genre": "Culture"}
-    ]
+    "pltv2": {
+      "channel_key": "pltv2",
+      "channel_name": "PLTV 2",
+      "is_live": false,
+      "stream_url": null,
+      "offline_message": "PLTV 2 is off air — Back at 20:00",
+      "resumes_at": "{{today 20:00}}",
+      "now_playing": null,
+      "up_next": [
+        {"title": "Kubadda Cagta — Football Tonight", "starts_at": "{{today 20:00}}", "ends_at": "{{today 21:30}}", "subtitle": "Sport", "genre": "Sport"},
+        {"title": "Caruurta — Children's Hour", "starts_at": "{{today 21:30}}", "ends_at": "{{today 22:30}}", "subtitle": "Children", "genre": "Children"}
+      ]
+    }
   },
   "radio": {
-    "stream_url": "https://stream.zeno.fm/0r0xa792kwzuv",
-    "station_name": "Radio Puntland",
-    "now_playing": "Midday Programme",
-    "frequency_label": "Radio Puntland · 88.5 FM · Garowe"
+    "main": {
+      "channel_key": "main",
+      "is_on_air": true,
+      "stream_url": "https://stream.zeno.fm/0r0xa792kwzuv",
+      "station_name": "Radio Puntland",
+      "now_playing": "Midday Programme",
+      "frequency_label": "Radio Puntland · 88.5 FM · Garowe"
+    },
+    "radio-garowe": {
+      "channel_key": "radio-garowe",
+      "is_on_air": true,
+      "stream_url": "https://stream.zeno.fm/0r0xa792kwzuv",
+      "station_name": "Radio Garowe",
+      "now_playing": "Morning Requests",
+      "frequency_label": "Radio Garowe · 91.2 FM"
+    }
   },
   "categories": [
     {"slug": "top", "name": "Top news", "is_default": true},

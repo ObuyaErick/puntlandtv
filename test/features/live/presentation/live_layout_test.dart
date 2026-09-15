@@ -24,7 +24,7 @@ void main() {
 
     await pumpApp(
       tester,
-      const LivePage(),
+      const LivePage(channelKey: 'main'),
       textScale: textScale,
       overrides: [
         liveRepositoryProvider.overrideWithValue(const FakeLiveRepository()),

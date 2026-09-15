@@ -184,6 +184,31 @@ class AppL10nEn extends AppL10n {
       'Audio keeps playing when the app is closed — 48 kbps, tuned for 3G.';
 
   @override
+  String get channelsLiveTitle => 'Live TV';
+
+  @override
+  String get channelsLiveSubtitle => 'Choose a channel';
+
+  @override
+  String get channelsRadioTitle => 'Radio';
+
+  @override
+  String get channelsRadioSubtitle => 'Choose a station';
+
+  @override
+  String get channelOffAir => 'OFF AIR';
+
+  @override
+  String get channelListEmptyTitle => 'No channels right now';
+
+  @override
+  String get channelListEmptyBody =>
+      'Check back soon — channels appear here as soon as they are added.';
+
+  @override
+  String get radioOffAirTitle => 'This station is off air';
+
+  @override
   String get savedTitle => 'Saved';
 
   @override

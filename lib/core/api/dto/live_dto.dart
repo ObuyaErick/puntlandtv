@@ -5,6 +5,8 @@ part 'live_dto.g.dart';
 @JsonSerializable()
 class LiveStatusDto {
   const LiveStatusDto({
+    required this.channelKey,
+    required this.channelName,
     required this.isLive,
     this.streamUrl,
     this.offlineMessage,
@@ -15,6 +17,12 @@ class LiveStatusDto {
 
   factory LiveStatusDto.fromJson(Map<String, dynamic> json) =>
       _$LiveStatusDtoFromJson(json);
+
+  @JsonKey(name: 'channel_key')
+  final String channelKey;
+
+  @JsonKey(name: 'channel_name')
+  final String channelName;
 
   /// When false the app shows a branded slate, never a broken player.
   @JsonKey(name: 'is_live')
@@ -69,6 +77,8 @@ class ScheduleEntryDto {
 @JsonSerializable()
 class RadioStatusDto {
   const RadioStatusDto({
+    required this.channelKey,
+    required this.isOnAir,
     required this.streamUrl,
     required this.stationName,
     this.nowPlaying,
@@ -77,6 +87,14 @@ class RadioStatusDto {
 
   factory RadioStatusDto.fromJson(Map<String, dynamic> json) =>
       _$RadioStatusDtoFromJson(json);
+
+  @JsonKey(name: 'channel_key')
+  final String channelKey;
+
+  /// The operator's radio switch. The stream URL is handed out either way, so
+  /// this — not the URL's presence — is what decides whether the station is on.
+  @JsonKey(name: 'is_on_air')
+  final bool isOnAir;
 
   @JsonKey(name: 'stream_url')
   final String streamUrl;

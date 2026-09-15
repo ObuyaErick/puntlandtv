@@ -184,6 +184,31 @@ class AppL10nSo extends AppL10n {
       'Codku wuu socon doonaa xitaa marka app-ka la xiro — 48 kbps oo ku habboon 3G.';
 
   @override
+  String get channelsLiveTitle => 'Telefishinka tooska ah';
+
+  @override
+  String get channelsLiveSubtitle => 'Dooro kanaal';
+
+  @override
+  String get channelsRadioTitle => 'Raadiyo';
+
+  @override
+  String get channelsRadioSubtitle => 'Dooro idaacad';
+
+  @override
+  String get channelOffAir => 'MA BAAHINAYO';
+
+  @override
+  String get channelListEmptyTitle => 'Hadda kanaal ma jiro';
+
+  @override
+  String get channelListEmptyBody =>
+      'Dib u eeg dhawaan — kanaalada halkan ayay ka muuqan doonaan marka la daro.';
+
+  @override
+  String get radioOffAirTitle => 'Idaacaddan hadda ma baahinayso';
+
+  @override
   String get savedTitle => 'Kaydka';
 
   @override

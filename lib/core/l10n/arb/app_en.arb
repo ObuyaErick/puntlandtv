@@ -200,6 +200,38 @@
   "@radioBackgroundNote": {
     "description": "Explains background playback and the low bitrate."
   },
+  "channelsLiveTitle": "Live TV",
+  "@channelsLiveTitle": {
+    "description": "Title of the Live TV tab's channel list."
+  },
+  "channelsLiveSubtitle": "Choose a channel",
+  "@channelsLiveSubtitle": {
+    "description": "Subtitle under the Live TV channel list title."
+  },
+  "channelsRadioTitle": "Radio",
+  "@channelsRadioTitle": {
+    "description": "Title of the Radio tab's station list."
+  },
+  "channelsRadioSubtitle": "Choose a station",
+  "@channelsRadioSubtitle": {
+    "description": "Subtitle under the Radio station list title."
+  },
+  "channelOffAir": "OFF AIR",
+  "@channelOffAir": {
+    "description": "Badge on a channel or station that is not broadcasting now. Uppercase; the counterpart of LIVE."
+  },
+  "channelListEmptyTitle": "No channels right now",
+  "@channelListEmptyTitle": {
+    "description": "Empty state of a channel list with nothing to show."
+  },
+  "channelListEmptyBody": "Check back soon — channels appear here as soon as they are added.",
+  "@channelListEmptyBody": {
+    "description": "Body of the empty channel list state."
+  },
+  "radioOffAirTitle": "This station is off air",
+  "@radioOffAirTitle": {
+    "description": "Headline on a radio station's screen while it is not broadcasting."
+  },
   "savedTitle": "Saved",
   "@savedTitle": {
     "description": "Title of the bookmarks screen."

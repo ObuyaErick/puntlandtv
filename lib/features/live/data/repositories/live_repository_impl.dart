@@ -9,9 +9,11 @@ class LiveRepositoryImpl implements LiveRepository {
   final PuntlandApi _api;
 
   @override
-  Future<LiveChannel> channel() async {
-    final dto = await _api.fetchLiveStatus();
+  Future<LiveChannel> channel(String key) async {
+    final dto = await _api.fetchLiveStatus(key);
     return LiveChannel(
+      key: dto.channelKey,
+      name: dto.channelName,
       isLive: dto.isLive,
       streamUrl: dto.streamUrl,
       offlineMessage: dto.offlineMessage,

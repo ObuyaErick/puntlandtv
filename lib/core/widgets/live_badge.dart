@@ -61,3 +61,56 @@ class LiveBadge extends StatelessWidget {
     );
   }
 }
+
+/// The LIVE pill's counterpart: this channel exists but is not on air.
+///
+/// Deliberately quiet — an outline and a hollow dot, no fill — so a row of
+/// channels reads as "these are live" at a glance rather than as two equally
+/// loud states. Same heights as [LiveBadge], so the two swap without the
+/// layout moving.
+class OffAirBadge extends StatelessWidget {
+  const OffAirBadge({super.key, this.compact = false, this.onDark = false});
+
+  final bool compact;
+  final bool onDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = onDark
+        ? DarkTokens.onSurfaceVariant
+        : context.scheme.onSurfaceVariant;
+    final outline = onDark ? DarkTokens.outlineStrong : context.colors.outline;
+
+    return Container(
+      height: compact ? 22 : 32,
+      padding: EdgeInsets.symmetric(horizontal: compact ? 9 : 11),
+      decoration: BoxDecoration(
+        color: onDark ? BrandPalette.navy.withValues(alpha: 0.88) : null,
+        borderRadius: BorderRadius.circular(compact ? 4 : 6),
+        border: Border.all(color: outline),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: foreground, width: 1.2),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            context.l10n.channelOffAir,
+            style: context.text.overline.copyWith(
+              color: foreground,
+              fontSize: compact ? 10.5 : 11,
+              letterSpacing: compact ? 1.05 : 0.99,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

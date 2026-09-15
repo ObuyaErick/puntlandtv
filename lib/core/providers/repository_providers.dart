@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/bookmarks/data/repositories/prefs_bookmark_repository.dart';
 import '../../features/bookmarks/domain/repositories/bookmark_repository.dart';
+import '../../features/channels/data/repositories/channel_repository_impl.dart';
+import '../../features/channels/domain/repositories/channel_repository.dart';
 import '../../features/live/data/repositories/live_repository_impl.dart';
 import '../../features/live/domain/repositories/live_repository.dart';
 import '../../features/news/data/repositories/news_repository_impl.dart';
@@ -27,6 +29,10 @@ import 'preferences_providers.dart';
 /// ```
 final newsRepositoryProvider = Provider<NewsRepository>(
   (ref) => NewsRepositoryImpl(ref.watch(puntlandApiProvider)),
+);
+
+final channelRepositoryProvider = Provider<ChannelRepository>(
+  (ref) => ChannelRepositoryImpl(ref.watch(puntlandApiProvider)),
 );
 
 final liveRepositoryProvider = Provider<LiveRepository>(

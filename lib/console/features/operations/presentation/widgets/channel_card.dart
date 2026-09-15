@@ -1242,13 +1242,11 @@ class ChannelStatusPill extends StatelessWidget {
         : template(mark).toUpperCase().replaceAll(mark, text.duration(uptime));
 
     return switch (state) {
-      ChannelCardState.live => ChannelStatusPill._(
-        _PillTone.live,
-        switch (text.since(channel.liveSince)) {
-          final uptime? => upper(l10n.pillLiveFor, uptime),
-          null => l10n.live.toUpperCase(),
-        },
-      ),
+      ChannelCardState.live => ChannelStatusPill._(_PillTone.live, switch (text
+          .since(channel.liveSince)) {
+        final uptime? => upper(l10n.pillLiveFor, uptime),
+        null => l10n.live.toUpperCase(),
+      }),
       ChannelCardState.noSignal => ChannelStatusPill._(
         _PillTone.alarm,
         l10n.pillNoSignal.toUpperCase(),

@@ -121,7 +121,7 @@ final class ChannelActionsProvider
   }
 }
 
-String _$channelActionsHash() => r'7214c35aaaa48d785968b84e8e6c50b6e1018099';
+String _$channelActionsHash() => r'07f9fe4beddd4c7c130517751bef5bab226d7204';
 
 /// Writes against the channel list.
 ///
