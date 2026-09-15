@@ -21,6 +21,8 @@ class ConsoleTextField extends StatelessWidget {
     this.onChanged,
     this.enabled = true,
     this.suffixIcon,
+    this.textInputAction,
+    this.autofillHints,
   });
 
   final String label;
@@ -42,6 +44,13 @@ class ConsoleTextField extends StatelessWidget {
 
   /// Trailing control inside the field — the password reveal toggle, for one.
   final Widget? suffixIcon;
+
+  /// The soft keyboard's action key — "next" on all but a form's last field,
+  /// so a phone user can move through it without reaching for the screen.
+  final TextInputAction? textInputAction;
+
+  /// Lets a password manager fill the field. Pair with an [AutofillGroup].
+  final Iterable<String>? autofillHints;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +76,8 @@ class ConsoleTextField extends StatelessWidget {
           obscureText: obscureText,
           autofocus: autofocus,
           keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          autofillHints: autofillHints,
           onSubmitted: onSubmitted,
           onChanged: onChanged,
           enabled: enabled,

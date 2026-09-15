@@ -52,7 +52,10 @@ class ConsoleAuthRepository implements AuthRepository {
 
     try {
       final challenge = await _api.signIn(email: email, password: password);
-      return AwaitingSecondFactor(email: challenge.email);
+      return AwaitingSecondFactor(
+        email: challenge.email,
+        devCode: challenge.devCode,
+      );
     } on Failure catch (failure) {
       return SignedOut(errorCode: failure.code);
     }

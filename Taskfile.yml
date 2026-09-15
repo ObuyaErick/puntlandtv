@@ -126,7 +126,7 @@ tasks:
       ID: *phone
     cmds:
       - >-
-        {{.FLUTTER}} run -d {{.ID}} -t {{.CONSOLE}}
+        {{.FLUTTER}} run -d {{.ID}} --flavor console -t {{.CONSOLE}}
         --dart-define=API_BASE_URL={{.DEVICE_API}}
         {{.CLI_ARGS}}
 
@@ -152,7 +152,14 @@ tasks:
   build:apk:
     desc: "Release APK of the reader app"
     cmds:
-      - "{{.FLUTTER}} build apk --dart-define=API_BASE_URL={{.API}} {{.CLI_ARGS}}"
+      - "{{.FLUTTER}} build apk --flavor reader --dart-define=API_BASE_URL={{.API}} {{.CLI_ARGS}}"
+
+  build:apk:console:
+    desc: "Release APK of the console (installs alongside the reader app)"
+    cmds:
+      - >-
+        {{.FLUTTER}} build apk --flavor console -t {{.CONSOLE}}
+        --dart-define=API_BASE_URL={{.API}} {{.CLI_ARGS}}
 
   # ---- Docker -------------------------------------------------------------
   #

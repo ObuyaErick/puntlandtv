@@ -41,6 +41,17 @@ class TwoFactorFormState extends ConsumerState<TwoFactorForm> {
   @override
   void initState() {
     super.initState();
+
+    // TEMPORARY, for testing until the backend sends codes by SMS: pre-fill
+    // the code the challenge returned. Set here, before PinField attaches its
+    // listener, so it fills the boxes without submitting — Verify is still
+    // pressed. Not repeated after a wrong code: refilling then would complete
+    // the field and spend another attempt.
+    final state = ref.read(authControllerProvider);
+    if (state is AwaitingSecondFactor && state.devCode != null) {
+      _controller.text = state.devCode!;
+    }
+
     _focus.requestFocus();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;

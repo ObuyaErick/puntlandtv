@@ -16,9 +16,9 @@ import '../widgets/two_factor_dialog.dart';
 
 /// Console sign-in.
 ///
-/// Two panes from medium up — brand on the left, form on the right — and a
-/// single stacked column below that, so the console is usable on a phone when
-/// a duty editor needs it at 23:00.
+/// Two panes from medium up — brand on the left, form on the right. Below that
+/// it is a phone screen of its own rather than the two panes stacked, so the
+/// console is usable when a duty editor needs it at 23:00: see [_CompactLayout].
 class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
 
@@ -61,26 +61,17 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       body: SafeArea(
         child: WindowSizeScope(
           builder: (context, size) {
-            final form = _SignInCard(
+            Widget form({required bool compact}) => _SignInCard(
               email: _email,
               password: _password,
               errorCode: errorCode,
               submitting: _submitting,
               onSubmit: _submit,
+              compact: compact,
             );
 
             if (!size.isAtLeastMedium) {
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(Spacing.gutter),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const _BrandPanel(compact: true),
-                    const SizedBox(height: Spacing.sectionBreak),
-                    form,
-                  ],
-                ),
-              );
+              return _CompactLayout(form: form(compact: true));
             }
 
             return Center(
@@ -93,7 +84,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     children: [
                       const Expanded(child: _BrandPanel()),
                       const SizedBox(width: Spacing.emptyState),
-                      SizedBox(width: 400, child: form),
+                      SizedBox(width: 400, child: form(compact: false)),
                     ],
                   ),
                 ),
@@ -106,10 +97,77 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   }
 }
 
-class _BrandPanel extends StatelessWidget {
-  const _BrandPanel({this.compact = false});
+/// The portrait phone screen.
+///
+/// Brand and language sit in a top bar, the form follows with no card around
+/// it — a bordered card inside a 20dp gutter spends a sixth of a 390dp screen
+/// on frame — and the access notice holds the bottom edge. The console's
+/// marketing paragraph is left to the wide layout: the people signing in here
+/// already know what the console is, and on a phone it pushed Continue towards
+/// the fold.
+///
+/// It scrolls rather than overflows, so a short screen or an open keyboard
+/// still reaches the button; the notice only rides the bottom while there is
+/// room for it to.
+class _CompactLayout extends StatelessWidget {
+  const _CompactLayout({required this.form});
 
-  final bool compact;
+  final Widget form;
+
+  @override
+  Widget build(BuildContext context) {
+    // The lockup must never scale below its reserved size, so a screen too
+    // narrow for it beside the toggle (320dp, say) keeps the mark and drops
+    // the wordmark. Read from the window rather than a LayoutBuilder, which
+    // cannot answer the intrinsic sizing SliverFillRemaining asks of it.
+    final rowWidth =
+        MediaQuery.sizeOf(context).width -
+        MediaQuery.paddingOf(context).horizontal -
+        2 * Spacing.gutter;
+    final showWordmark =
+        rowWidth >=
+        kLogoLockupSize.width + _LocaleToggle.compactWidth + Spacing.chip;
+
+    return CustomScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      slivers: [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              Spacing.gutter,
+              Spacing.listRhythm,
+              Spacing.gutter,
+              Spacing.gutter,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    PltvLockup(showWordmark: showWordmark),
+                    const Spacer(),
+                    // Top of the screen, not inside the form: a Somali-first
+                    // user has to find it before reading anything else.
+                    const _LocaleToggle(compact: true),
+                  ],
+                ),
+                const SizedBox(height: Spacing.emptyState),
+                form,
+                const Spacer(),
+                const SizedBox(height: Spacing.sectionBreak),
+                const _InternalNotice(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BrandPanel extends StatelessWidget {
+  const _BrandPanel();
 
   @override
   Widget build(BuildContext context) {
@@ -127,11 +185,10 @@ class _BrandPanel extends StatelessWidget {
             color: context.scheme.onSurfaceVariant,
           ),
         ),
-        SizedBox(height: compact ? Spacing.gutter : Spacing.sectionBreak),
+        const SizedBox(height: Spacing.sectionBreak),
         Text(
           l10n.consoleTitle,
-          style: (compact ? context.text.headline : context.text.display)
-              .copyWith(color: context.scheme.primary),
+          style: context.text.display.copyWith(color: context.scheme.primary),
         ),
         const SizedBox(height: Spacing.cardInternal),
         Text(
@@ -152,6 +209,29 @@ class _BrandPanel extends StatelessWidget {
   }
 }
 
+/// "Internal system. Access is logged." at the foot of the phone layout.
+class _InternalNotice extends StatelessWidget {
+  const _InternalNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    final color = context.scheme.onSurfaceVariant;
+
+    return Row(
+      children: [
+        Icon(Icons.lock_outline_rounded, size: 14, color: color),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            '${context.l10n.consoleInternalNotice} v1.0.0',
+            style: context.text.meta.copyWith(color: color),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _SignInCard extends ConsumerStatefulWidget {
   const _SignInCard({
     required this.email,
@@ -159,6 +239,7 @@ class _SignInCard extends ConsumerStatefulWidget {
     required this.errorCode,
     required this.submitting,
     required this.onSubmit,
+    required this.compact,
   });
 
   final TextEditingController email;
@@ -166,6 +247,10 @@ class _SignInCard extends ConsumerStatefulWidget {
   final String? errorCode;
   final bool submitting;
   final VoidCallback onSubmit;
+
+  /// Unframed, with the page heading and no locale toggle — the phone layout
+  /// puts that in its top bar.
+  final bool compact;
 
   @override
   ConsumerState<_SignInCard> createState() => _SignInCardState();
@@ -184,6 +269,7 @@ class _SignInCardState extends ConsumerState<_SignInCard> {
     final errorCode = widget.errorCode;
     final submitting = widget.submitting;
     final onSubmit = widget.onSubmit;
+    final compact = widget.compact;
 
     // A real backend can refuse for reasons the fixtures never produced — an
     // account with no second factor, a lost connection, a 500. The fallback is
@@ -198,18 +284,36 @@ class _SignInCardState extends ConsumerState<_SignInCard> {
       _ => l10n.errorSignInFailed,
     };
 
-    return Container(
-      padding: const EdgeInsets.all(Spacing.sectionBreak),
-      decoration: BoxDecoration(
-        color: context.scheme.surface,
-        borderRadius: Radii.cardBorder,
-        border: Border.all(color: context.colors.outline),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
+    final header = compact
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.consoleTitle.toUpperCase(),
+                style: context.text.overline.copyWith(
+                  color: context.colors.accent,
+                ),
+              ),
+              const SizedBox(height: Spacing.chip),
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.signInTitle,
+                  style: context.text.headline.copyWith(
+                    color: context.scheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: Spacing.iconToLabel),
+              Text(
+                l10n.signInSubtitle,
+                style: context.text.body.copyWith(
+                  color: context.scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          )
+        : Row(
             children: [
               Expanded(
                 child: Column(
@@ -233,13 +337,24 @@ class _SignInCardState extends ConsumerState<_SignInCard> {
               ),
               const _LocaleToggle(),
             ],
-          ),
-          const SizedBox(height: Spacing.gutter),
+          );
+
+    final fields = AutofillGroup(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          header,
+          SizedBox(height: compact ? Spacing.sectionBreak : Spacing.gutter),
           ConsoleTextField(
             label: l10n.fieldEmail,
             controller: email,
-            autofocus: true,
+            // Not on a phone: the keyboard would open over the screen before
+            // anyone has seen it, language switch included.
+            autofocus: !compact,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.email],
             hintText: 'a.yuusuf@pltv.so',
             errorText: message,
           ),
@@ -248,6 +363,8 @@ class _SignInCardState extends ConsumerState<_SignInCard> {
             label: l10n.fieldPassword,
             controller: password,
             obscureText: _obscurePassword,
+            textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.password],
             onSubmitted: (_) => onSubmit(),
             suffixIcon: IconButton(
               // Tooltip and semantics both name the *result* of pressing, which
@@ -291,6 +408,18 @@ class _SignInCardState extends ConsumerState<_SignInCard> {
         ],
       ),
     );
+
+    if (compact) return fields;
+
+    return Container(
+      padding: const EdgeInsets.all(Spacing.sectionBreak),
+      decoration: BoxDecoration(
+        color: context.scheme.surface,
+        borderRadius: Radii.cardBorder,
+        border: Border.all(color: context.colors.outline),
+      ),
+      child: fields,
+    );
   }
 }
 
@@ -300,7 +429,14 @@ class _SignInCardState extends ConsumerState<_SignInCard> {
 /// able to read the login form before they have an account session to store a
 /// preference against.
 class _LocaleToggle extends ConsumerWidget {
-  const _LocaleToggle();
+  const _LocaleToggle({this.compact = false});
+
+  /// Touch-sized segments. The desktop size is a pointer target and falls
+  /// under the 48dp minimum on a phone.
+  final bool compact;
+
+  /// Two touch segments inside 2dp of padding and a 1dp border.
+  static const compactWidth = 2 * kMinTapTarget + 6;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -316,8 +452,8 @@ class _LocaleToggle extends ConsumerWidget {
           onTap: () => controller.setLocale(value),
           borderRadius: BorderRadius.circular(4),
           child: Container(
-            width: 34,
-            height: 28,
+            width: compact ? kMinTapTarget : 34,
+            height: compact ? kMinTapTarget : 28,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: selected ? context.scheme.primary : Colors.transparent,
@@ -326,7 +462,7 @@ class _LocaleToggle extends ConsumerWidget {
             child: Text(
               label,
               style: context.text.overline.copyWith(
-                fontSize: 10,
+                fontSize: compact ? 12 : 10,
                 color: selected
                     ? Colors.white
                     : context.scheme.onSurfaceVariant,

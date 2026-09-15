@@ -116,9 +116,15 @@ class AwaitingSecondFactor extends AuthState {
     required this.email,
     this.attemptsUsed = 0,
     this.errorCode,
+    this.devCode,
   });
 
   final String email;
+
+  /// The challenge's code, present only while the backend has no SMS gateway.
+  /// TEMPORARY: the two-factor form pre-fills from it for testing; remove both
+  /// once codes are sent by SMS.
+  final String? devCode;
 
   /// The canvas shows "Isku day 1 / 3" — attempts are visible, and run out.
   final int attemptsUsed;

@@ -18,6 +18,7 @@ import 'core/providers/preferences_providers.dart';
 /// fvm flutter run -d chrome -t lib/main_console.dart
 /// ```
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   usePathUrlStrategy();
   GoRouter.optionURLReflectsImperativeAPIs = true;
 

@@ -14,10 +14,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<void> pump(WidgetTester tester) async {
+  Future<void> pump(
+    WidgetTester tester, {
+    Size size = const Size(1440, 900),
+  }) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
-    tester.view.physicalSize = const Size(1440 * 3, 900 * 3);
+    tester.view.physicalSize = Size(size.width * 3, size.height * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
@@ -88,5 +91,56 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(passwordField(tester).controller?.text, 'ku-soo-dhawoow');
+  });
+
+  group('on a phone', () {
+    const phone = Size(390, 844);
+
+    testWidgets('the whole form is above the fold', (tester) async {
+      await pump(tester, size: phone);
+
+      expect(
+        tester.getRect(find.text('Forgot password')).bottom,
+        lessThan(phone.height),
+      );
+    });
+
+    testWidgets('the keyboard does not open before the screen is seen', (
+      tester,
+    ) async {
+      await pump(tester, size: phone);
+
+      expect(
+        tester.widget<TextField>(find.byType(TextField).first).autofocus,
+        isFalse,
+      );
+    });
+
+    testWidgets('every control meets the touch target', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pump(tester, size: phone);
+
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      semantics.dispose();
+    });
+
+    testWidgets('a short screen scrolls to Continue rather than overflowing', (
+      tester,
+    ) async {
+      await pump(tester, size: const Size(320, 480));
+
+      // The page's own scroll view; each text field has a Scrollable too.
+      await tester.scrollUntilVisible(
+        find.text('Continue'),
+        100,
+        scrollable: find
+            .descendant(
+              of: find.byType(CustomScrollView),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      expect(find.text('Continue').hitTestable(), findsOneWidget);
+    });
   });
 }

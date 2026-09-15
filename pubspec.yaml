@@ -53,6 +53,9 @@ dev_dependencies:
   riverpod: ^3.4.2
 
 flutter:
+  # Android product flavor used when `--flavor` is omitted (see
+  # android/app/build.gradle.kts); `console` pairs with lib/main_console.dart.
+  default-flavor: reader
   uses-material-design: true
   generate: true
 

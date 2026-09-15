@@ -29,6 +29,22 @@ android {
         versionName = flutter.versionName
     }
 
+    // Both entrypoints ship from this one module, so each gets its own
+    // application ID to install side by side. Select with `--flavor`.
+    flavorDimensions += "app"
+    productFlavors {
+        create("reader") {
+            dimension = "app"
+            manifestPlaceholders["appName"] = "PLTV"
+        }
+        create("console") {
+            dimension = "app"
+            applicationIdSuffix = ".console"
+            versionNameSuffix = "-console"
+            manifestPlaceholders["appName"] = "PLTV Console"
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
