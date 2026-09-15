@@ -24,7 +24,7 @@ class CategoryTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 46,
+      height: 56,
       decoration: BoxDecoration(
         color: context.scheme.surface,
         border: Border(bottom: BorderSide(color: context.colors.outline)),

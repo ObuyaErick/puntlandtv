@@ -54,9 +54,6 @@ class NewsFeedPage extends ConsumerWidget {
             if (offline) const OfflineBanner(),
             categories.when(
               data: (list) => CategoryTabs(
-                // "All" leads the strip. It is not a backend category — see
-                // [allCategoriesSlug] — so its name is localised here rather
-                // than arriving with the request locale like the others.
                 categories: [
                   NewsCategory(
                     slug: allCategoriesSlug,
@@ -114,8 +111,6 @@ class _DetailPane extends ConsumerWidget {
       );
     }
 
-    // Reuses the whole article screen rather than a cut-down copy, so the two
-    // never drift. It measures itself against the pane, not the window.
     return ArticlePage(slug: slug, embedded: true);
   }
 }
@@ -152,8 +147,6 @@ class _FeedBody extends ConsumerWidget {
 
         return WindowSizeScope(
           builder: (context, size) {
-            // Two columns only at medium. In list-detail the list pane is
-            // narrow, so it stays a single column however wide the window is.
             final columns = !listDetail && size == WindowSizeClass.medium
                 ? 2
                 : 1;
@@ -161,9 +154,6 @@ class _FeedBody extends ConsumerWidget {
             return RefreshIndicator(
               onRefresh: controller.refresh,
               child: NotificationListener<ScrollNotification>(
-                // Prefetch a page before the user reaches the bottom, so on a
-                // slow connection the next rows are usually there by the time
-                // they arrive rather than after a visible stall.
                 onNotification: (notification) {
                   final metrics = notification.metrics;
                   if (metrics.pixels > metrics.maxScrollExtent - 600) {
@@ -222,56 +212,48 @@ class _FeedScroll extends StatelessWidget {
             child: LeadStoryCard(article: lead, onTap: () => onOpen(lead)),
           ),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            Spacing.gutter,
-            Spacing.cardInternal,
-            Spacing.gutter,
-            Spacing.emptyState,
-          ),
-          sliver: SliverList.separated(
-            itemCount: (rest.length / columns).ceil(),
-            separatorBuilder: (_, _) =>
-                const SizedBox(height: Spacing.cardInternal),
-            itemBuilder: (context, rowIndex) {
-              final rowItems = rest
-                  .skip(rowIndex * columns)
-                  .take(columns)
-                  .toList(growable: false);
+        SliverToBoxAdapter(child: const Divider()),
+        SliverList.separated(
+          itemCount: (rest.length / columns).ceil(),
+          separatorBuilder: (_, _) => const Divider(),
+          itemBuilder: (context, rowIndex) {
+            final rowItems = rest
+                .skip(rowIndex * columns)
+                .take(columns)
+                .toList(growable: false);
 
-              if (columns == 1) {
-                return ArticleCard(
-                  article: rowItems.first,
-                  onTap: () => onOpen(rowItems.first),
-                );
-              }
-
-              // Rows of cards rather than a `SliverGrid`. A grid needs a fixed
-              // `mainAxisExtent`, and that number can only be estimated from
-              // type metrics — an estimate that was already 4px short here and
-              // would drift again with any change to the headline or the text
-              // scale. `IntrinsicHeight` costs one extra layout pass over two
-              // children and removes the guess entirely.
-              return IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (var i = 0; i < columns; i++) ...[
-                      if (i > 0) const SizedBox(width: Spacing.cardInternal),
-                      Expanded(
-                        child: i < rowItems.length
-                            ? ArticleCard(
-                                article: rowItems[i],
-                                onTap: () => onOpen(rowItems[i]),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ],
-                  ],
-                ),
+            if (columns == 1) {
+              return ArticleCard(
+                article: rowItems.first,
+                onTap: () => onOpen(rowItems.first),
               );
-            },
-          ),
+            }
+
+            // Rows of cards rather than a `SliverGrid`. A grid needs a fixed
+            // `mainAxisExtent`, and that number can only be estimated from
+            // type metrics — an estimate that was already 4px short here and
+            // would drift again with any change to the headline or the text
+            // scale. `IntrinsicHeight` costs one extra layout pass over two
+            // children and removes the guess entirely.
+            return IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < columns; i++) ...[
+                    if (i > 0) const SizedBox(width: Spacing.cardInternal),
+                    Expanded(
+                      child: i < rowItems.length
+                          ? ArticleCard(
+                              article: rowItems[i],
+                              onTap: () => onOpen(rowItems[i]),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
         ),
         if (hasMore)
           const SliverPadding(

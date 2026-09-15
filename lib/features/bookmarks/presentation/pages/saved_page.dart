@@ -71,14 +71,17 @@ class _SavedPageState extends ConsumerState<SavedPage> {
                 OfflineBanner(message: l10n.offlineShowingSaved(items.length)),
               Expanded(
                 child: ListView.separated(
-                  padding: const EdgeInsets.all(Spacing.gutter),
                   itemCount: items.length + 1,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: Spacing.cardInternal),
+                  separatorBuilder: (_, _) => Divider(),
                   itemBuilder: (context, index) {
                     if (index == items.length) {
                       return Padding(
-                        padding: const EdgeInsets.only(top: Spacing.listRhythm),
+                        padding: const EdgeInsets.fromLTRB(
+                          Spacing.listRhythm,
+                          Spacing.listRhythm,
+                          Spacing.listRhythm,
+                          Spacing.listRhythm,
+                        ),
                         child: Text(
                           l10n.savedRetentionNote,
                           style: context.text.meta.copyWith(
@@ -96,8 +99,15 @@ class _SavedPageState extends ConsumerState<SavedPage> {
                           onTap: () =>
                               context.push(Routes.article(article.slug)),
                         ),
-                        const SizedBox(height: 6),
-                        _OfflineChip(hasImage: article.imageUrl != null),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: Spacing.cardInternal,
+                            horizontal: Spacing.cardInternal
+                          ),
+                          child: _OfflineChip(
+                            hasImage: article.imageUrl != null,
+                          ),
+                        ),
                       ],
                     );
                   },

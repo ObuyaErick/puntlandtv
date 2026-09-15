@@ -139,7 +139,7 @@ abstract final class FontFamily {
 }
 
 /// Minimum interactive target, per the canvas ("CONTROLS — 48dp MINIMUM").
-const double kMinTapTarget = 48;
+const double kMinTapTarget = 40;
 
 /// The app-bar logo lockup reserves 188×36dp and must never scale below it.
 const Size kLogoLockupSize = Size(188, 36);

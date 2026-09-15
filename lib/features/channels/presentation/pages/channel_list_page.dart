@@ -17,11 +17,6 @@ import '../../../../core/widgets/skeleton.dart';
 import '../../domain/entities/channel.dart';
 import '../controllers/channel_controllers.dart';
 
-/// Where the Live TV and Radio tabs open: every published channel carrying
-/// [medium], in the newsroom's order. Tapping one opens its player.
-///
-/// One list, two filters. A channel with both television and radio appears on
-/// both tabs, and a radio-only station only on Radio.
 class ChannelListPage extends ConsumerWidget {
   const ChannelListPage({super.key, required this.medium});
 
@@ -30,8 +25,7 @@ class ChannelListPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    // The watching variant: while the list is up, its LIVE badges are
-    // re-checked, and the timer dies with the route.
+
     final channels = ref.watch(channelListWatchProvider);
 
     final (title, subtitle) = switch (medium) {
@@ -42,8 +36,6 @@ class ChannelListPage extends ConsumerWidget {
       ),
     };
 
-    // Both: the watch only re-reads the cached list, so retrying it alone
-    // would hand back the same failure.
     void retry() {
       ref.invalidate(channelListProvider);
       ref.invalidate(channelListWatchProvider);
@@ -67,8 +59,6 @@ class ChannelListPage extends ConsumerWidget {
         toolbarHeight: 72,
       ),
       body: channels.when(
-        // A re-check that fails keeps the list that was fine a moment ago.
-        // Only a first load with nothing to show is an error screen.
         skipError: true,
         loading: () => const _ChannelListSkeleton(),
         error: (error, _) => ErrorView(
@@ -133,7 +123,7 @@ class _ChannelGrid extends StatelessWidget {
 
         if (columns == 1) {
           return ListView.separated(
-            padding: const EdgeInsets.all(Spacing.gutter),
+            padding: const EdgeInsets.all(Spacing.cardInternal),
             itemCount: channels.length,
             separatorBuilder: (_, _) =>
                 const SizedBox(height: Spacing.cardInternal),
@@ -250,7 +240,7 @@ class _ChannelCard extends StatelessWidget {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          _ChannelArt(markHeight: 40),
+                          _ChannelArt(markHeight: 50),
                           Positioned(
                             left: Spacing.chip,
                             top: Spacing.chip,

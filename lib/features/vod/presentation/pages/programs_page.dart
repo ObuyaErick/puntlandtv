@@ -13,8 +13,6 @@ import '../../../../core/widgets/skeleton.dart';
 import '../../domain/entities/program.dart';
 import '../controllers/vod_controllers.dart';
 
-/// The catch-up grid. Browse by programme; the MVP has no "popular" sort
-/// because the view analytics that would rank it do not exist yet.
 class ProgramsPage extends ConsumerWidget {
   const ProgramsPage({super.key});
 
@@ -49,13 +47,8 @@ class ProgramsPage extends ConsumerWidget {
           onRetry: () => ref.invalidate(programsProvider),
         ),
         data: (items) => GridView.builder(
-          padding: const EdgeInsets.all(Spacing.gutter),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: Spacing.listRhythm,
-            crossAxisSpacing: Spacing.cardInternal,
-            mainAxisExtent: 260,
-          ),
+          padding: const EdgeInsets.all(Spacing.cardInternal),
+          gridDelegate: _gridDelegate,
           itemCount: items.length,
           itemBuilder: (context, index) => _ProgramTile(program: items[index]),
         ),
@@ -64,10 +57,14 @@ class ProgramsPage extends ConsumerWidget {
   }
 }
 
-/// How long the highlight takes to fade in.
-///
-/// Short enough to feel attached to the pointer. There is no motion token for
-/// this yet; when there is one, this should use it.
+/// Shared by the grid delegate
+const _gridDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
+  maxCrossAxisExtent: 320,
+  mainAxisSpacing: Spacing.listRhythm,
+  crossAxisSpacing: Spacing.cardInternal,
+  mainAxisExtent: 260,
+);
+
 const _highlightFade = Duration(milliseconds: 120);
 
 class _ProgramTile extends StatefulWidget {
@@ -84,13 +81,6 @@ class _ProgramTileState extends State<_ProgramTile> {
   var _focused = false;
   var _pressed = false;
 
-  /// Hover, keyboard focus and touch all get the same treatment.
-  ///
-  /// All three have to be here. Clearing the ink colours below removes the focus
-  /// ring `InkWell` would have drawn *and* the splash it would have shown on
-  /// tap — and most of this audience is on a phone, where there is no hover at
-  /// all. A card that gives nothing back when touched reads as a card that did
-  /// not register the touch.
   bool get _highlighted => _hovered || _focused || _pressed;
 
   @override
@@ -102,16 +92,8 @@ class _ProgramTileState extends State<_ProgramTile> {
       onTap: () => context.push(Routes.program(program.id)),
       onHover: (hovered) => setState(() => _hovered = hovered),
       onFocusChange: (focused) => setState(() => _focused = focused),
-      // Fires on press down and again on release or cancel, which is exactly
-      // the window a touch needs feedback for.
       onHighlightChanged: (pressed) => setState(() => _pressed = pressed),
       borderRadius: Radii.cardBorder,
-      // The default ink wash is painted by the enclosing `Material`, *behind*
-      // this tile — so it lands wherever the tile is transparent, which is
-      // everywhere except the artwork. That put a hard-edged grey slab across
-      // the title and the cadence line, wider and squarer than the picture it
-      // was meant to belong to. The treatment below is drawn on the artwork
-      // instead, where the thing being pressed actually is.
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
@@ -208,13 +190,8 @@ class _ProgramsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      padding: const EdgeInsets.all(Spacing.gutter),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: Spacing.listRhythm,
-        crossAxisSpacing: Spacing.cardInternal,
-        mainAxisExtent: 260,
-      ),
+      padding: const EdgeInsets.all(Spacing.cardInternal),
+      gridDelegate: _gridDelegate,
       itemCount: 4,
       itemBuilder: (_, _) => const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
