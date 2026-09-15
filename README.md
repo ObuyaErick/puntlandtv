@@ -150,11 +150,36 @@ what makes the claim above true rather than merely intended: `video_player` is
 named in exactly one file, and `tool/check_layers.dart` has nothing to say
 about it because there is nothing left to enforce.
 
+### Channels
+
+There is more than one channel. Each is a TV feed, a radio station, or both,
+under a permanent key (`main`, `pltv2`, `radio-garowe`) that is the route
+segment in the app and the path segment in the API:
+
+| Endpoint | Screen |
+| :--- | :--- |
+| `GET /v1/channels` | The channel list both tabs open on, filtered by medium |
+| `GET /v1/channels/:key/live` | `/live/:key` — one channel's player and schedule |
+| `GET /v1/channels/:key/radio` | `/radio/:key` — one station's player |
+
+Live TV and Radio are still one shell branch each, so a channel left playing is
+where its tab returns to. Playback sources are `live:<key>` and `radio:<key>`,
+which is what lets the mini-player tell two channels apart. The list re-checks
+every 30s while it is on screen, like the live page below, because which
+channel is live is the reason to open it.
+
+An unpublished channel is `CHANNEL_NOT_FOUND`, as is a medium the channel does
+not carry: a radio-only station has no `live`.
+
+In the console, Live control opens on the channel table (create, edit,
+reorder, delete) and each row opens that channel's control room at
+`/live/:key`. Ingest keys and the schedule belong to one channel.
+
 ### Live is two facts
 
-`GET /v1/live` reports the channel live only when the operator has set it on
-air **and** a signal is actually arriving at the packager. So the app has to
-notice a signal that drops with nobody watching:
+`GET /v1/channels/:key/live` reports a channel live only when the operator has
+set it on air **and** a signal is actually arriving at the packager. So the app
+has to notice a signal that drops with nobody watching:
 
 - `liveChannelWatch` re-checks every 30s **while the live screen is up**, and
   the timer dies with the route. Not a background poll — the original decision

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puntland/core/api/fixture_puntland_api.dart';
 import 'package:puntland/core/api/puntland_api.dart';
+import 'package:puntland/core/error/failure.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -73,6 +74,67 @@ void main() {
     expect(article.contentLocale, 'so');
     expect(article.bodyHtml, contains('<p>'));
     expect(article.relatedSlugs, isNot(contains(article.slug)));
+  });
+
+  group('channels', () {
+    test('lists every channel with the same keys in both languages', () async {
+      final english = await apiFor('en').fetchChannels();
+      final somali = await apiFor('so').fetchChannels();
+
+      expect(english.map((c) => c.key), ['main', 'pltv2', 'radio-garowe']);
+      expect(
+        somali.map((c) => c.key),
+        english.map((c) => c.key),
+        reason: 'a channel key is a route segment and must not vary by locale',
+      );
+
+      final garowe = english.last;
+      expect(garowe.hasTv, isFalse);
+      expect(garowe.hasRadio, isTrue);
+    });
+
+    test('live and radio are served per channel', () async {
+      final api = apiFor('en');
+
+      final main = await api.fetchLiveStatus('main');
+      final pltv2 = await api.fetchLiveStatus('pltv2');
+      expect(main.channelKey, 'main');
+      expect(pltv2.channelKey, 'pltv2');
+      expect(main.isLive, isTrue);
+      expect(pltv2.isLive, isFalse);
+
+      final garowe = await api.fetchRadioStatus('radio-garowe');
+      expect(garowe.channelKey, 'radio-garowe');
+    });
+
+    test('an unknown key is CHANNEL_NOT_FOUND', () async {
+      final api = apiFor('en');
+
+      expect(
+        () => api.fetchLiveStatus('does-not-exist'),
+        throwsA(
+          isA<Failure>()
+              .having((f) => f.kind, 'kind', FailureKind.notFound)
+              .having((f) => f.code, 'code', 'CHANNEL_NOT_FOUND'),
+        ),
+      );
+      expect(
+        () => api.fetchRadioStatus('does-not-exist'),
+        throwsA(isA<Failure>()),
+      );
+    });
+
+    test('a medium the channel does not carry is not found too', () async {
+      final api = apiFor('en');
+
+      // Radio-only has no live row; TV-only has no radio row. The API answers
+      // both with the same 404.
+      expect(
+        () => api.fetchLiveStatus('radio-garowe'),
+        throwsA(isA<Failure>()),
+      );
+      expect(() => api.fetchRadioStatus('pltv2'), throwsA(isA<Failure>()));
+    });
   });
 
   test('a missing article is a not-found failure, not a crash', () async {

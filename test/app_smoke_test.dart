@@ -96,6 +96,33 @@ void main() {
     expect(find.text('Watch anytime'), findsOneWidget);
   });
 
+  testWidgets('Live TV opens on the channel list', (tester) async {
+    await launch(tester);
+
+    await tester.tap(find.text('Live TV'));
+    await settle(tester);
+
+    expect(find.text('Choose a channel'), findsOneWidget);
+    expect(find.text('Puntland TV'), findsOneWidget);
+    expect(find.text('PLTV 2'), findsOneWidget);
+    expect(
+      find.text('Radio Garowe'),
+      findsNothing,
+      reason: 'a radio-only station is listed on the Radio tab, not Live TV',
+    );
+  });
+
+  testWidgets('Radio opens on the station list', (tester) async {
+    await launch(tester);
+
+    await tester.tap(find.text('Radio'));
+    await settle(tester);
+
+    expect(find.text('Choose a station'), findsOneWidget);
+    expect(find.text('Radio Garowe'), findsOneWidget);
+    expect(find.text('PLTV 2'), findsNothing);
+  });
+
   testWidgets('opens an article from the feed', (tester) async {
     await launch(tester);
 

@@ -212,7 +212,9 @@ resolved locale echoed back in `Content-Language`.
 | Endpoint | Purpose | Notes |
 | :--- | :--- | :--- |
 | `GET /v1/config` | Stream URLs, force-update floor, feature flags, **available locales** | Called at startup. **Stream URLs must not be hardcoded in the app** — a CDN change should not require a store release. |
-| `GET /v1/live` | Live channel status + HLS manifest URL | Includes an `is_live` flag and a **localised** offline-slate message. |
+| `GET /v1/channels` | Published channels, in order | `key`, `name`, `has_tv`, `has_radio`, `is_live`, `radio_on_air`, `now_playing_title`. The `key` is permanent — the app routes and caches by it. |
+| `GET /v1/channels/{key}/live` | One channel's live status + HLS manifest URL | Includes an `is_live` flag and a **localised** offline-slate message. `CHANNEL_NOT_FOUND` for an unknown or unpublished key, or a channel with no TV. |
+| `GET /v1/channels/{key}/radio` | One station's stream URL + metadata | Includes `is_on_air`. `CHANNEL_NOT_FOUND` for a channel with no radio. |
 | `GET /v1/categories` | News categories | Ordered; names localised per `Accept-Language`. Stable machine `slug` per category — the app keys off the slug, never the display name. |
 | `GET /v1/articles?category=&cursor=&limit=` | Paginated feed | Summary objects incl. `content_locale`. |
 | `GET /v1/articles/{slug}` | Full article | Sanitised HTML body, hero image, author, `content_locale`, related IDs. |
@@ -341,7 +343,7 @@ Realistic for one developer — depth where bugs are expensive, not uniform cove
 | **Somali translation delivered late** | Ships half-English | English fallback means nothing renders blank, and the CI untranslated gate keeps the shortfall visible weekly rather than discovered in week 9. Name the translation owner in week 0. |
 | Somali typography and copy quality | A government broadcaster shipping bad Somali is a credibility problem | Verify the font renders the full character set in week 1; native-speaker review in week 9 with time to act on it. |
 | Stream reliability / no low-bitrate rung | Users on 3G cannot watch; the app takes the blame | Insist on a 240p rendition; implement graceful buffering states and an explicit "poor connection" message rather than an infinite spinner. |
-| Live feed goes down during launch week | Very visible failure | `/v1/live` returns a localised offline slate the app renders as a branded message with a link to news — never a broken player. |
+| Live feed goes down during launch week | Very visible failure | `/v1/channels/{key}/live` returns a localised offline slate the app renders as a branded message with a link to news — never a broken player. |
 | Per-language push topics not implemented backend-side | Somali users get English alerts | Called out explicitly in [§6](#6-what-the-app-needs-from-the-backend); confirm in the week-1 contract freeze, not in week 8. |
 | iOS review friction | Delays launch | No login (avoids Sign-in-with-Apple), accurate data-safety and privacy manifest, submit the TestFlight build in week 10 day 1. |
 | iOS 27 / UIScene lifecycle with push | App fails to launch on new SDK builds | Audit `AppDelegate.swift` in **week 2**, not week 10. |
@@ -367,7 +369,7 @@ on-device or CMS-side article translation between Somali and English.
 4. **Advertising** — is there a pre-roll or sponsorship requirement? Ad insertion is a structural decision in the player, not a later addition.
 5. **Content volume** — how many articles per day, and how many VOD episodes at launch? A near-empty app is a worse first impression than a delayed one.
 6. **Live rights** — is any part of the schedule geo-restricted or blacked out? Geo-fencing is a backend feature, but the app must handle the state.
-7. **Radio stream** — one channel or several?
+7. ~~**Radio stream** — one channel or several?~~ **Answered: several.** A channel is a TV feed, a radio station, or both, and ops add them in the console. Each has its own ingest keys, schedule and slate. Readers pick a channel from a list on the Live TV and Radio tabs.
 8. **Rollout** — Somalia-first phased release, or global from day one?
 
 ---

@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:puntland/core/preview/app_preview.dart';
 import 'package:puntland/core/preview/preview_size.dart';
-import 'package:puntland/features/live/data/fixtures/live_channel.dart';
+import 'package:puntland/features/live/presentation/previews/preview_live_channel.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/l10n/app_date_format.dart';

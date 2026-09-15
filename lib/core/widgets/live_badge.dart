@@ -101,12 +101,18 @@ class OffAirBadge extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 6),
-          Text(
-            context.l10n.channelOffAir,
-            style: context.text.overline.copyWith(
-              color: foreground,
-              fontSize: compact ? 10.5 : 11,
-              letterSpacing: compact ? 1.05 : 0.99,
+          // Flexible so a pill squeezed narrower than its word truncates
+          // rather than overflowing. Somali's label is nearly twice English's.
+          Flexible(
+            child: Text(
+              context.l10n.channelOffAir,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.overline.copyWith(
+                color: foreground,
+                fontSize: compact ? 10.5 : 11,
+                letterSpacing: compact ? 1.05 : 0.99,
+              ),
             ),
           ),
         ],

@@ -189,6 +189,13 @@ class _ChannelCard extends StatelessWidget {
   final ChannelMedium medium;
   final bool tile;
 
+  static const _thumbWidth = 112.0;
+  static const _chevronSize = 24.0;
+
+  /// The widest badge at 100% text — Somali's MA BAAHINAYO. A row keeps its
+  /// thumbnail only while the text column still has this much room.
+  static const _minTextColumn = 172.0;
+
   /// The schedule the list reports is television's. On a channel that also
   /// has television, that is not what its radio is playing — so the Radio tab
   /// shows it only for a radio-only station, whose schedule is its own.
@@ -274,38 +281,58 @@ class _ChannelCard extends StatelessWidget {
                 )
               : Padding(
                   padding: const EdgeInsets.all(Spacing.cardInternal),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 112,
-                        child: AspectRatio(
-                          aspectRatio: 16 / 9,
-                          child: ClipRRect(
-                            borderRadius: Radii.thumbBorder,
-                            child: _ChannelArt(markHeight: 24),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: Spacing.cardInternal),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            badge,
-                            const SizedBox(height: 6),
-                            name,
-                            if (programme != null) ...[
-                              const SizedBox(height: 2),
-                              programme,
-                            ],
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      // The thumbnail is the brand, the same on every card, so
+                      // it is what gives way when the text column would be too
+                      // narrow for the badge — at 320dp, or at 130% text.
+                      final textColumn =
+                          constraints.maxWidth -
+                          _thumbWidth -
+                          Spacing.cardInternal -
+                          _chevronSize;
+                      final showThumb =
+                          textColumn >=
+                          MediaQuery.textScalerOf(context)
+                              .scale(_minTextColumn);
+
+                      return Row(
+                        children: [
+                          if (showThumb) ...[
+                            SizedBox(
+                              width: _thumbWidth,
+                              child: AspectRatio(
+                                aspectRatio: 16 / 9,
+                                child: ClipRRect(
+                                  borderRadius: Radii.thumbBorder,
+                                  child: _ChannelArt(markHeight: 24),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: Spacing.cardInternal),
                           ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.chevron_right_rounded,
-                        color: context.scheme.onSurfaceVariant,
-                      ),
-                    ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                badge,
+                                const SizedBox(height: 6),
+                                name,
+                                if (programme != null) ...[
+                                  const SizedBox(height: 2),
+                                  programme,
+                                ],
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: _chevronSize,
+                            color: context.scheme.onSurfaceVariant,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
         ),
