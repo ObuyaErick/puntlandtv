@@ -1675,6 +1675,18 @@ abstract class AppL10n {
   /// **'Broadcast state refreshed'**
   String get broadcastStateRefreshed;
 
+  /// Console header indicator, shown only while the live connection is down and being retried. Absent when connected, so the header stays quiet in the normal case.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnecting…'**
+  String get realtimeReconnecting;
+
+  /// Tooltip on the reconnecting indicator. It appears on every console page, so it must not name an action only one page offers — live control has a refresh button, the rest do not.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen has stopped updating on its own. Reload to see the current state.'**
+  String get realtimeReconnectingHint;
+
   /// Badge when the channel is transmitting. Uppercase.
   ///
   /// In en, this message translates to:

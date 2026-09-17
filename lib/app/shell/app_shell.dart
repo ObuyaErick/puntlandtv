@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/l10n/l10n.dart';
+import '../../core/realtime/realtime_providers.dart';
 import '../../core/responsive/adaptive_scaffold.dart';
 import '../../features/player/presentation/controllers/playback_controller.dart';
 import '../../features/player/presentation/widgets/mini_player.dart';
@@ -21,6 +22,10 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    // Watched here because the shell outlives every page: the socket must be
+    // closed when the app is backgrounded and reopened on resume, and a
+    // provider nobody watches is a lifecycle listener nobody installed.
+    ref.watch(realtimeLifecycleProvider);
     final playback = ref.watch(playbackControllerProvider);
     final showMiniPlayer = playback.hasSource && !playback.isExpanded;
 

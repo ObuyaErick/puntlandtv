@@ -1261,6 +1261,14 @@
   "@broadcastStateRefreshed": {
     "description": "Toast after a manual refresh of live control returns."
   },
+  "realtimeReconnecting": "Reconnecting…",
+  "@realtimeReconnecting": {
+    "description": "Console header indicator, shown only while the live connection is down and being retried. Absent when connected, so the header stays quiet in the normal case."
+  },
+  "realtimeReconnectingHint": "This screen has stopped updating on its own. Reload to see the current state.",
+  "@realtimeReconnectingHint": {
+    "description": "Tooltip on the reconnecting indicator. It appears on every console page, so it must not name an action only one page offers — live control has a refresh button, the rest do not."
+  },
   "tvOnAir": "TV ON AIR",
   "@tvOnAir": {
     "description": "Badge when the channel is transmitting. Uppercase."

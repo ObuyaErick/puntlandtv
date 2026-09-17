@@ -56,4 +56,24 @@ class LiveChannel {
   final List<ScheduleEntry> upNext;
 
   bool get isPlayable => isLive && (streamUrl?.isNotEmpty ?? false);
+
+  /// A copy with the fields a `live.changed` event can carry.
+  ///
+  /// Only the two: going on air is the one transition whose whole payload fits
+  /// in an event. Everything else about the channel — the slate, the schedule,
+  /// the resume time — is localised, so it is refetched rather than pushed,
+  /// and there is deliberately nothing here to set it with.
+  ///
+  /// `streamUrl` cannot be cleared through this, which is the right shape:
+  /// going off air is a refetch, not an inline edit.
+  LiveChannel copyWith({bool? isLive, String? streamUrl}) => LiveChannel(
+    key: key,
+    name: name,
+    isLive: isLive ?? this.isLive,
+    streamUrl: streamUrl ?? this.streamUrl,
+    offlineMessage: offlineMessage,
+    resumesAt: resumesAt,
+    nowPlaying: nowPlaying,
+    upNext: upNext,
+  );
 }

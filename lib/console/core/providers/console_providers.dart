@@ -6,7 +6,13 @@ import '../../../core/api/api_providers.dart';
 import '../../../core/network/interceptors/locale_interceptor.dart';
 import '../../../core/network/interceptors/logging_interceptor.dart';
 import '../../../core/network/interceptors/retry_interceptor.dart';
+import '../../../core/providers/connectivity_provider.dart';
 import '../../../core/providers/preferences_providers.dart';
+import '../../../core/realtime/fixture_realtime_client.dart';
+import '../../../core/realtime/realtime_client.dart';
+import '../../../core/realtime/realtime_event.dart';
+import '../../../core/realtime/realtime_providers.dart';
+import '../../../core/realtime/web_socket_realtime_client.dart';
 import '../../features/auth/data/console_auth_repository.dart';
 import '../../features/auth/domain/entities/console_user.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -103,6 +109,56 @@ final adminApiProvider = Provider<PuntlandAdminApi>((ref) {
     ref.watch(consoleDioProvider),
     ref.watch(consoleCredentialsProvider),
   );
+});
+
+/// **The console's socket**, separate from the reader's for the same reason
+/// [consoleDioProvider] is separate from `dioProvider`.
+///
+/// The reader app links the reader client. A socket that attached a staff
+/// token would be a staff token in a build shipped to every phone in the
+/// region — and unlike a request, a socket carries it for as long as the
+/// connection lives.
+///
+/// The token is read at each connect rather than held, and the client is
+/// reopened on [ConsoleCredentials.onChanged], so a renewal does not leave a
+/// socket authenticated by a token the backend has already revoked. That
+/// matters more here than on HTTP: the API re-verifies on every `subscribe`,
+/// so a stale socket keeps its existing topics but silently fails to gain any
+/// new ones.
+final consoleRealtimeClientProvider = Provider<RealtimeClient>((ref) {
+  final endpoint = realtimeEndpoint(kApiBaseUrl);
+  if (kUseFixtures || endpoint == null) {
+    final client = FixtureRealtimeClient();
+    ref.onDispose(client.dispose);
+    return client;
+  }
+
+  final credentials = ref.watch(consoleCredentialsProvider);
+  final client = WebSocketRealtimeClient(
+    endpoint: endpoint,
+    accessToken: () => credentials.accessToken,
+    canConnect: () => !ref.read(isOfflineProvider),
+  );
+
+  // The console signs in, out and renews within one session, and each of
+  // those is a different socket identity.
+  final previous = credentials.onChanged;
+  credentials.onChanged = () {
+    previous?.call();
+    client.close();
+    client.reopen();
+  };
+  ref.onDispose(() {
+    credentials.onChanged = previous;
+    client.dispose();
+  });
+
+  return client;
+});
+
+/// Where the console's connection stands — what the header indicator shows.
+final consoleRealtimeStatusProvider = StreamProvider<RealtimeStatus>((ref) {
+  return ref.watch(consoleRealtimeClientProvider).status;
 });
 
 final authRepositoryProvider = Provider<AuthRepository>(

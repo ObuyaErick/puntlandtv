@@ -16,6 +16,16 @@ class FakeLiveRepository implements LiveRepository {
 
   final bool isLive;
 
+  /// One value, then nothing.
+  ///
+  /// The screens under test render whatever the stream last emitted, so a
+  /// single seeded value exercises them exactly as the real repository's first
+  /// frame does. A test that wants to see a channel *change* drives a
+  /// [FixtureRealtimeClient] instead, which is what the real `watch` is
+  /// listening to.
+  @override
+  Stream<LiveChannel> watch(String key) => Stream.fromFuture(channel(key));
+
   @override
   Future<LiveChannel> channel(String key) async {
     final base = DateTime(2026, 8, 31, 21);
@@ -84,6 +94,9 @@ class FakeChannelRepository implements ChannelRepository {
 
   @override
   Future<List<Channel>> channels() async => channelList;
+
+  @override
+  Stream<List<Channel>> watch() => Stream.fromFuture(channels());
 }
 
 /// Radio for any key, on or off air. An unknown key is the API's not-found.
@@ -92,6 +105,9 @@ class FakeRadioRepository implements RadioRepository {
 
   final bool isOnAir;
   final Set<String> known;
+
+  @override
+  Stream<RadioStation> watch(String key) => Stream.fromFuture(station(key));
 
   @override
   Future<RadioStation> station(String key) async {

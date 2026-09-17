@@ -22,4 +22,16 @@ class RadioStation {
 
   /// "Raadiyo Puntland · 88.5 FM · Garoowe"
   final String? frequencyLabel;
+
+  /// A copy with the fields a `radio.changed` event can carry. See
+  /// [LiveChannel.copyWith] — the station name and frequency label are
+  /// localised chrome and are refetched, never pushed.
+  RadioStation copyWith({bool? isOnAir, String? streamUrl}) => RadioStation(
+    key: key,
+    isOnAir: isOnAir ?? this.isOnAir,
+    streamUrl: streamUrl ?? this.streamUrl,
+    name: name,
+    nowPlaying: nowPlaying,
+    frequencyLabel: frequencyLabel,
+  );
 }

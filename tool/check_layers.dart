@@ -56,6 +56,30 @@ const rules = <Rule>[
         'widget import is how that quietly stops being true.',
   ),
   Rule(
+    name: 'Realtime layer is UI-free',
+    appliesTo: ['lib/core/realtime/'],
+    forbidden: [
+      'package:material_ui/',
+      'package:cupertino_ui/',
+      'package:flutter/material.dart',
+      'package:flutter/cupertino.dart',
+      'package:flutter/widgets.dart',
+      '/presentation/',
+    ],
+    // Same two exemptions, for the same two reasons, as the API layer above:
+    // `realtime_providers.dart` composes the layer and legitimately touches
+    // Riverpod and the lifecycle, and `fixture_realtime_client.dart` is the
+    // no-backend implementation. Neither is consumed by the repositories.
+    exempt: [
+      'lib/core/realtime/realtime_providers.dart',
+      'lib/core/realtime/fixture_realtime_client.dart',
+    ],
+    because:
+        'Repositories subscribe to topics; widgets do not. A socket that '
+        'knows what a widget is becomes one screen\'s socket, and the whole '
+        'point of multiplexing is that there is only ever one.',
+  ),
+  Rule(
     name: 'Domain is pure Dart',
     appliesTo: ['/domain/'],
     forbidden: [

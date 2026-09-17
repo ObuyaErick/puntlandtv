@@ -48,7 +48,9 @@ class LiveControlPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final control = ref.watch(broadcastControlProvider(channelKey));
+    // The watch, not the one-shot read. This is the line the file's own
+    // comment about staleness was asking for.
+    final control = ref.watch(broadcastControlWatchProvider(channelKey));
     final channels = ref.watch(channelListProvider).value;
 
     // The whole screen is dark, per artboard 11C. Operations work at night in
@@ -97,7 +99,8 @@ class LiveControlPage extends ConsumerWidget {
             failure: error is Failure
                 ? error
                 : const Failure(kind: FailureKind.unknown, code: 'UNKNOWN'),
-            onRetry: () => ref.invalidate(broadcastControlProvider(channelKey)),
+            onRetry: () =>
+                ref.invalidate(broadcastControlWatchProvider(channelKey)),
           ),
           // Keyed by channel so moving to another one starts its editors from
           // that channel's state. The slate fields read theirs once, on first
@@ -139,7 +142,7 @@ class _RefreshActionState extends ConsumerState<_RefreshAction> {
     if (_busy) return;
     setState(() => _busy = true);
     try {
-      final provider = broadcastControlProvider(widget.channelKey);
+      final provider = broadcastControlWatchProvider(widget.channelKey);
       // Invalidate then await the new read rather than `refresh`: the body
       // keeps rendering the last good state while this is in flight, so the
       // screen does not blank out to a spinner on every press. The channel
@@ -273,7 +276,7 @@ class _ControlBody extends ConsumerWidget {
       await ref.read(adminApiProvider).saveBroadcastControl(channelKey, next);
       // The list too: its rows say whether each channel is on air.
       ref
-        ..invalidate(broadcastControlProvider(channelKey))
+        ..invalidate(broadcastControlWatchProvider(channelKey))
         ..invalidate(channelListProvider);
     }
 
@@ -345,7 +348,8 @@ class _ControlBody extends ConsumerWidget {
         _IngestPanel(
           channelKey: channelKey,
           control: control,
-          onChanged: () => ref.invalidate(broadcastControlProvider(channelKey)),
+          onChanged: () =>
+              ref.invalidate(broadcastControlWatchProvider(channelKey)),
         ),
         const SizedBox(height: Spacing.sectionBreak),
         _DarkSectionLabel(

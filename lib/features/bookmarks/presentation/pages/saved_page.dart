@@ -102,7 +102,7 @@ class _SavedPageState extends ConsumerState<SavedPage> {
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             vertical: Spacing.cardInternal,
-                            horizontal: Spacing.cardInternal
+                            horizontal: Spacing.cardInternal,
                           ),
                           child: _OfflineChip(
                             hasImage: article.imageUrl != null,

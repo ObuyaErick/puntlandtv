@@ -263,6 +263,8 @@
   "liveControlTitle": "Kontarool tooska ah",
   "refreshBroadcastState": "Cusboonaysii xaaladda baahinta",
   "broadcastStateRefreshed": "Xaaladda baahinta waa la cusboonaysiiyay",
+  "realtimeReconnecting": "Dib u xidhiidhinaya…",
+  "realtimeReconnectingHint": "Boggan iskiis iskuma cusboonaysiiyo. Dib u soo rar si aad u aragto xaaladda hadda jirta.",
   "tvOnAir": "TV WAA BAAHINAYAA",
   "tvOffAir": "TV MA BAAHINAYO",
   "sectionTvChannel": "KANAALKA TV",

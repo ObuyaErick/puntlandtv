@@ -69,8 +69,19 @@ class _LivePageState extends ConsumerState<LivePage> {
   void deactivate() {
     // Dock rather than stop. The stream keeps running and the mini-player
     // picks it up in the shell.
+    //
+    // Deferred by a frame rather than written here: `deactivate` runs while
+    // the router is rebuilding the tree, and Riverpod refuses a write mid
+    // build. The notifier is taken now, while `ref` is still valid, and the
+    // write happens once the frame is done — and only if the page really
+    // left, since a reparented element is deactivated and mounted again
+    // within the same frame.
     if (ref.read(playbackControllerProvider).hasSource) {
-      ref.read(playbackControllerProvider.notifier).collapse();
+      final playback = ref.read(playbackControllerProvider.notifier);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) return;
+        playback.collapse();
+      });
     }
     super.deactivate();
   }
@@ -91,12 +102,10 @@ class _LivePageState extends ConsumerState<LivePage> {
           failure: error is Failure
               ? error
               : const Failure(kind: FailureKind.unknown, code: 'UNKNOWN'),
-          // Both: the watch only re-reads the cached channel, so retrying it
-          // alone would hand back the same failure.
-          onRetry: () {
-            ref.invalidate(liveChannelProvider(key));
-            ref.invalidate(liveChannelWatchProvider(key));
-          },
+          // Invalidating the watch is enough now: it owns the fetch, and
+          // rebuilding it re-seeds from the network. Refcounted topics make
+          // the resulting unsubscribe/resubscribe cheap.
+          onRetry: () => ref.invalidate(liveChannelWatchProvider(key)),
         ),
         data: (data) => _LiveBody(channel: data),
       ),
@@ -267,7 +276,9 @@ class _PlayerSurfaceState extends ConsumerState<PlayerSurface> {
           previous?.errorCode != 'PLAYBACK_FAILED';
       if (!justFailed) return;
       if (next.source?.id != _sourceId) return;
-      ref.invalidate(liveChannelProvider(widget.channel.key));
+      // The watch, not the one-shot read: it is what the page is showing, and
+      // rebuilding it re-seeds from the network and resubscribes.
+      ref.invalidate(liveChannelWatchProvider(widget.channel.key));
     });
   }
 

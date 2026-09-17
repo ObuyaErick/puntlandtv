@@ -16,8 +16,6 @@
         "-v",
         // "--dart-define",
         // "USE_FIXTURES=true",
-        // "--dart-define",
-        // "API_BASE_URL=http://localhost:3000/api",
         "--dart-define",
         "API_BASE_URL=http://localhost:3000/api",
         // "--dart-define",

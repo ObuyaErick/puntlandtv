@@ -962,6 +962,13 @@ class AppL10nSo extends AppL10n {
       'Xaaladda baahinta waa la cusboonaysiiyay';
 
   @override
+  String get realtimeReconnecting => 'Dib u xidhiidhinaya…';
+
+  @override
+  String get realtimeReconnectingHint =>
+      'Boggan iskiis iskuma cusboonaysiiyo. Dib u soo rar si aad u aragto xaaladda hadda jirta.';
+
+  @override
   String get tvOnAir => 'TV WAA BAAHINAYAA';
 
   @override

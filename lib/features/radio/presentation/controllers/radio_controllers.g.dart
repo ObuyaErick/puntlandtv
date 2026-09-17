@@ -91,3 +91,112 @@ final class RadioStationFamily extends $Family
   @override
   String toString() => r'radioStationProvider';
 }
+
+/// The station, kept current while somebody is listening.
+///
+/// Radio had nothing like this. There was one future provider, no timer and no
+/// `PLAYBACK_FAILED` listener, so a station going off air left the listener on
+/// a dead stream indefinitely — the television side had grown three separate
+/// answers to that problem and radio had none of them.
+
+@ProviderFor(radioStationWatch)
+final radioStationWatchProvider = RadioStationWatchFamily._();
+
+/// The station, kept current while somebody is listening.
+///
+/// Radio had nothing like this. There was one future provider, no timer and no
+/// `PLAYBACK_FAILED` listener, so a station going off air left the listener on
+/// a dead stream indefinitely — the television side had grown three separate
+/// answers to that problem and radio had none of them.
+
+final class RadioStationWatchProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<RadioStation>,
+          RadioStation,
+          Stream<RadioStation>
+        >
+    with $FutureModifier<RadioStation>, $StreamProvider<RadioStation> {
+  /// The station, kept current while somebody is listening.
+  ///
+  /// Radio had nothing like this. There was one future provider, no timer and no
+  /// `PLAYBACK_FAILED` listener, so a station going off air left the listener on
+  /// a dead stream indefinitely — the television side had grown three separate
+  /// answers to that problem and radio had none of them.
+  RadioStationWatchProvider._({
+    required RadioStationWatchFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'radioStationWatchProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$radioStationWatchHash();
+
+  @override
+  String toString() {
+    return r'radioStationWatchProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<RadioStation> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<RadioStation> create(Ref ref) {
+    final argument = this.argument as String;
+    return radioStationWatch(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RadioStationWatchProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$radioStationWatchHash() => r'9f6352e738156468a29e06c4ff179011b6783d3e';
+
+/// The station, kept current while somebody is listening.
+///
+/// Radio had nothing like this. There was one future provider, no timer and no
+/// `PLAYBACK_FAILED` listener, so a station going off air left the listener on
+/// a dead stream indefinitely — the television side had grown three separate
+/// answers to that problem and radio had none of them.
+
+final class RadioStationWatchFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<RadioStation>, String> {
+  RadioStationWatchFamily._()
+    : super(
+        retry: null,
+        name: r'radioStationWatchProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The station, kept current while somebody is listening.
+  ///
+  /// Radio had nothing like this. There was one future provider, no timer and no
+  /// `PLAYBACK_FAILED` listener, so a station going off air left the listener on
+  /// a dead stream indefinitely — the television side had grown three separate
+  /// answers to that problem and radio had none of them.
+
+  RadioStationWatchProvider call(String key) =>
+      RadioStationWatchProvider._(argument: key, from: this);
+
+  @override
+  String toString() => r'radioStationWatchProvider';
+}

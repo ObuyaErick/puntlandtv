@@ -4,6 +4,7 @@ import '../../../core/responsive/window_size.dart';
 import '../../../core/theme/theme_context.dart';
 import '../../../core/theme/tokens.dart';
 import 'console_compact_bar.dart';
+import 'console_connection_indicator.dart';
 
 /// Standard console page chrome: a title bar with a count and actions, then
 /// content.
@@ -97,6 +98,18 @@ class _TopBar extends StatelessWidget {
   final bool onDark;
   final bool inlineSubtitle;
 
+  /// The header's actions, with the connection indicator ahead of them.
+  ///
+  /// Prepended here rather than passed by every screen: there are a dozen
+  /// console pages and "the one that forgot it" is exactly the screen an
+  /// operator would end up trusting while it was stale. It renders nothing
+  /// unless the connection is actually down, so this costs the other screens
+  /// a `SizedBox.shrink()`.
+  List<Widget> _actionsWithStatus() => [
+    ConsoleConnectionIndicator(onDark: onDark),
+    ...actions,
+  ];
+
   @override
   Widget build(BuildContext context) {
     // A phone gets the navy bar with the menu button, and the title moves
@@ -142,7 +155,7 @@ class _TopBar extends StatelessWidget {
                     Wrap(
                       spacing: Spacing.chip,
                       runSpacing: Spacing.chip,
-                      children: actions,
+                      children: _actionsWithStatus(),
                     ),
                 ],
               ),
@@ -219,7 +232,7 @@ class _TopBar extends StatelessWidget {
                 heading,
                 if (actions.isNotEmpty) ...[
                   const SizedBox(height: Spacing.cardInternal),
-                  Wrap(spacing: Spacing.chip, children: actions),
+                  Wrap(spacing: Spacing.chip, children: _actionsWithStatus()),
                 ],
               ],
             );
@@ -228,7 +241,7 @@ class _TopBar extends StatelessWidget {
           return Row(
             children: [
               Expanded(child: heading),
-              for (final action in actions) ...[
+              for (final action in _actionsWithStatus()) ...[
                 const SizedBox(width: Spacing.chip),
                 action,
               ],

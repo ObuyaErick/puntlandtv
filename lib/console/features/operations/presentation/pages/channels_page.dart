@@ -30,7 +30,10 @@ class ChannelsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final channels = ref.watch(channelListProvider);
+    // The watch: the on-air column moves on its own now, rather than showing
+    // whatever was true when the screen was opened. Viewer counts are not in
+    // this table — they arrive with the control DTO, on `admin:channel:<key>`.
+    final channels = ref.watch(channelListWatchProvider);
     // Through the console's clock, like every other timestamp: uptimes and
     // "8 minutes ago" are read against it, and a test pins it.
     final now = ref.watch(consoleClockProvider)();
@@ -51,7 +54,7 @@ class ChannelsPage extends ConsumerWidget {
               failure: error is Failure
                   ? error
                   : const Failure(kind: FailureKind.unknown, code: 'UNKNOWN'),
-              onRetry: () => ref.invalidate(channelListProvider),
+              onRetry: () => ref.invalidate(channelListWatchProvider),
             ),
             data: (rows) => rows.isEmpty
                 ? _Empty(layout: layout)

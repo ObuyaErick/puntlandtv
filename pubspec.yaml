@@ -41,6 +41,10 @@ dependencies:
   markdown: ^7.3.1
   file_selector: ^1.0.3
   web: ^1.1.0
+  # Direct rather than transitive since `core/realtime/`: the realtime layer
+  # is written against it, and a dependency the app imports must be one the
+  # app pins.
+  web_socket_channel: ^3.0.3
 
 dev_dependencies:
   flutter_test:

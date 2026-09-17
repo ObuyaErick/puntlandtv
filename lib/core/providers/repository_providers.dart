@@ -13,6 +13,7 @@ import '../../features/radio/domain/repositories/radio_repository.dart';
 import '../../features/vod/data/repositories/vod_repository_impl.dart';
 import '../../features/vod/domain/repositories/vod_repository.dart';
 import '../api/api_providers.dart';
+import '../realtime/realtime_providers.dart';
 import 'preferences_providers.dart';
 
 /// Repository wiring — the only place where an interface meets its
@@ -32,15 +33,27 @@ final newsRepositoryProvider = Provider<NewsRepository>(
 );
 
 final channelRepositoryProvider = Provider<ChannelRepository>(
-  (ref) => ChannelRepositoryImpl(ref.watch(puntlandApiProvider)),
+  (ref) => ChannelRepositoryImpl(
+    ref.watch(puntlandApiProvider),
+    ref.watch(realtimeClientProvider),
+    onDispose: ref.onDispose,
+  ),
 );
 
 final liveRepositoryProvider = Provider<LiveRepository>(
-  (ref) => LiveRepositoryImpl(ref.watch(puntlandApiProvider)),
+  (ref) => LiveRepositoryImpl(
+    ref.watch(puntlandApiProvider),
+    ref.watch(realtimeClientProvider),
+    onDispose: ref.onDispose,
+  ),
 );
 
 final radioRepositoryProvider = Provider<RadioRepository>(
-  (ref) => RadioRepositoryImpl(ref.watch(puntlandApiProvider)),
+  (ref) => RadioRepositoryImpl(
+    ref.watch(puntlandApiProvider),
+    ref.watch(realtimeClientProvider),
+    onDispose: ref.onDispose,
+  ),
 );
 
 final vodRepositoryProvider = Provider<VodRepository>(

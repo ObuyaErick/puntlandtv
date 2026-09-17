@@ -61,24 +61,22 @@ final class ChannelListProvider
 
 String _$channelListHash() => r'c5e94412ab1e0d9432e7fa50a0f321d6224ecde3';
 
-/// Re-checks the list while it is on screen.
+/// The list, kept current while it is on screen.
 ///
-/// The list's badges are the reason to open it — which channel is live now —
-/// and a channel's encoder can drop or return at any moment with nobody in
-/// the console. This is `liveChannelWatch`'s pattern for the same reason: a
-/// timer only while somebody is looking, disposed with the screen, at the same
-/// [liveRefreshInterval].
+/// The badges are the reason to open this screen — which channel is live now —
+/// and they now move on their own: `channels.changed` for the list itself, and
+/// the same fallback poll behind it that the live page has. See
+/// `ChannelRepositoryImpl.watch`.
 
 @ProviderFor(channelListWatch)
 final channelListWatchProvider = ChannelListWatchProvider._();
 
-/// Re-checks the list while it is on screen.
+/// The list, kept current while it is on screen.
 ///
-/// The list's badges are the reason to open it — which channel is live now —
-/// and a channel's encoder can drop or return at any moment with nobody in
-/// the console. This is `liveChannelWatch`'s pattern for the same reason: a
-/// timer only while somebody is looking, disposed with the screen, at the same
-/// [liveRefreshInterval].
+/// The badges are the reason to open this screen — which channel is live now —
+/// and they now move on their own: `channels.changed` for the list itself, and
+/// the same fallback poll behind it that the live page has. See
+/// `ChannelRepositoryImpl.watch`.
 
 final class ChannelListWatchProvider
     extends
@@ -88,13 +86,12 @@ final class ChannelListWatchProvider
           Stream<List<Channel>>
         >
     with $FutureModifier<List<Channel>>, $StreamProvider<List<Channel>> {
-  /// Re-checks the list while it is on screen.
+  /// The list, kept current while it is on screen.
   ///
-  /// The list's badges are the reason to open it — which channel is live now —
-  /// and a channel's encoder can drop or return at any moment with nobody in
-  /// the console. This is `liveChannelWatch`'s pattern for the same reason: a
-  /// timer only while somebody is looking, disposed with the screen, at the same
-  /// [liveRefreshInterval].
+  /// The badges are the reason to open this screen — which channel is live now —
+  /// and they now move on their own: `channels.changed` for the list itself, and
+  /// the same fallback poll behind it that the live page has. See
+  /// `ChannelRepositoryImpl.watch`.
   ChannelListWatchProvider._()
     : super(
         from: null,
@@ -121,4 +118,4 @@ final class ChannelListWatchProvider
   }
 }
 
-String _$channelListWatchHash() => r'e36486b95d88159eb9b3f503a927f9b80183358e';
+String _$channelListWatchHash() => r'9be45f72aeeb225f5fcbda301d21db19e8630148';

@@ -955,6 +955,13 @@ class AppL10nEn extends AppL10n {
   String get broadcastStateRefreshed => 'Broadcast state refreshed';
 
   @override
+  String get realtimeReconnecting => 'Reconnecting…';
+
+  @override
+  String get realtimeReconnectingHint =>
+      'This screen has stopped updating on its own. Reload to see the current state.';
+
+  @override
   String get tvOnAir => 'TV ON AIR';
 
   @override

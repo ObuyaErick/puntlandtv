@@ -67,6 +67,80 @@ final class ChannelListProvider
 
 String _$channelListHash() => r'a415065e661c426b467c46b78869e4d0c34f98df';
 
+/// The same list, kept current from the `channels` topic.
+///
+/// The table's on-air column is the reason the operations team leaves this
+/// screen open, and it used to be a snapshot of whenever they opened it. Now a
+/// channel created, renamed, reordered or removed anywhere — by another
+/// operator, or by a signal arriving — reaches the table on its own.
+///
+/// The writes above still invalidate [channelListProvider] directly. They are
+/// not waiting to be told about their own change: an operator who just pressed
+/// save should see the result at the speed of the response, not at the speed
+/// of a round trip through Redis.
+
+@ProviderFor(channelListWatch)
+final channelListWatchProvider = ChannelListWatchProvider._();
+
+/// The same list, kept current from the `channels` topic.
+///
+/// The table's on-air column is the reason the operations team leaves this
+/// screen open, and it used to be a snapshot of whenever they opened it. Now a
+/// channel created, renamed, reordered or removed anywhere — by another
+/// operator, or by a signal arriving — reaches the table on its own.
+///
+/// The writes above still invalidate [channelListProvider] directly. They are
+/// not waiting to be told about their own change: an operator who just pressed
+/// save should see the result at the speed of the response, not at the speed
+/// of a round trip through Redis.
+
+final class ChannelListWatchProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ChannelDto>>,
+          List<ChannelDto>,
+          Stream<List<ChannelDto>>
+        >
+    with $FutureModifier<List<ChannelDto>>, $StreamProvider<List<ChannelDto>> {
+  /// The same list, kept current from the `channels` topic.
+  ///
+  /// The table's on-air column is the reason the operations team leaves this
+  /// screen open, and it used to be a snapshot of whenever they opened it. Now a
+  /// channel created, renamed, reordered or removed anywhere — by another
+  /// operator, or by a signal arriving — reaches the table on its own.
+  ///
+  /// The writes above still invalidate [channelListProvider] directly. They are
+  /// not waiting to be told about their own change: an operator who just pressed
+  /// save should see the result at the speed of the response, not at the speed
+  /// of a round trip through Redis.
+  ChannelListWatchProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'channelListWatchProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$channelListWatchHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<ChannelDto>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<ChannelDto>> create(Ref ref) {
+    return channelListWatch(ref);
+  }
+}
+
+String _$channelListWatchHash() => r'3dac5f1853d34add247570fc2cee4f1d76eee886';
+
 /// Writes against the channel list.
 ///
 /// Each one invalidates the list rather than setting it from the response —

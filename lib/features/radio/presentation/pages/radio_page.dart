@@ -27,7 +27,7 @@ class RadioPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final station = ref.watch(radioStationProvider(channelKey));
+    final station = ref.watch(radioStationWatchProvider(channelKey));
 
     return Scaffold(
       backgroundColor: context.colors.playerSurface,
@@ -50,7 +50,7 @@ class RadioPage extends ConsumerWidget {
           failure: error is Failure
               ? error
               : const Failure(kind: FailureKind.unknown, code: 'UNKNOWN'),
-          onRetry: () => ref.invalidate(radioStationProvider(channelKey)),
+          onRetry: () => ref.invalidate(radioStationWatchProvider(channelKey)),
         ),
         data: (data) => _RadioBody(station: data),
       ),

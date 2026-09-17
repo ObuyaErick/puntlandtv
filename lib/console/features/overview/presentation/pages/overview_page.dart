@@ -103,7 +103,9 @@ class _OverviewBody extends ConsumerWidget {
     // The lead channel's: the card only has a preview for the first one.
     final leadKey = summary.onAir.firstOrNull?.key;
     final control = canWatch && leadKey != null
-        ? ref.watch(broadcastControlProvider(leadKey)).value
+        // The watch, so the card's preview and viewer count follow the
+        // channel rather than the moment the overview was opened.
+        ? ref.watch(broadcastControlWatchProvider(leadKey)).value
         : null;
 
     final size = context.windowSize;
