@@ -8,6 +8,10 @@ import '../../../../../core/theme/theme_context.dart';
 import '../../../../../core/theme/tokens.dart';
 import '../../../../../core/widgets/feedback_views.dart';
 import '../../../../core/admin_api/dto/media_dto.dart';
+import '../../../../core/ai_api/ai_assist_controller.dart';
+import '../../../../core/ai_api/ai_refusal.dart';
+import '../../../../core/ai_api/dto/ai_suggestion_dto.dart';
+import '../../../../core/providers/console_providers.dart';
 import '../../../../core/widgets/console_fields.dart';
 import '../../../../core/widgets/console_page.dart';
 import '../../../../core/widgets/console_toast.dart';
@@ -71,13 +75,86 @@ class _LoadedState extends ConsumerState<_Loaded> {
 
   var _saving = false;
 
+  /// Drives the description suggestion, if this deployment has one.
+  late final AiAssistController<LocalisedSuggestion> _describer =
+      AiAssistController(ai: ref.read(aiApiProvider));
+
+  @override
+  void initState() {
+    super.initState();
+    _describer.addListener(_onDescriberChanged);
+  }
+
   @override
   void dispose() {
+    _describer
+      ..removeListener(_onDescriberChanged)
+      ..dispose();
     for (final controller in _alt.values) {
       controller.dispose();
     }
     _credit.dispose();
     super.dispose();
+  }
+
+  void _onDescriberChanged() {
+    if (mounted) setState(() {});
+  }
+
+  /// Whether this deployment can describe a picture.
+  ///
+  /// Two conditions, not one: assistance has to be configured *and* the model
+  /// has to read images. A text-only provider is a perfectly good deployment
+  /// for translation and a useless one here, and the backend says which it has
+  /// rather than leaving the console to find out by failing.
+  bool get _canDescribe =>
+      ref.watch(aiCapabilitiesProvider).value?.has(AiFeature.suggestAltText) ??
+      false;
+
+  /// Fills both description fields for review.
+  ///
+  /// Lands straight in the fields rather than behind a review panel, and that
+  /// is the right call *here* specifically: two short sentences, both visible
+  /// at once, in a form that is not saved until somebody presses Save. The
+  /// review step already exists — it is the Save button — and interposing a
+  /// panel to approve text you are looking at would be ceremony rather than
+  /// care. A whole article body is a different matter, which is why that one
+  /// has a panel.
+  ///
+  /// Both languages together, because the rule is per-locale completeness: an
+  /// image described only in Somali still blocks publishing, so filling one
+  /// would leave the operator where they started.
+  Future<void> _suggestDescriptions() async {
+    final suggestion = await _describer.run(
+      () => ref.read(aiApiProvider).suggestAltText(assetId: widget.asset.id),
+    );
+
+    if (!mounted) return;
+    if (suggestion == null) {
+      final failure = _describer.error;
+      if (failure != null) {
+        showConsoleToast(
+          context,
+          message: assistRefusal(context.l10n, failure),
+          kind: ToastKind.error,
+        );
+        _describer.reset();
+      }
+      return;
+    }
+
+    setState(() {
+      for (final entry in _alt.entries) {
+        final proposed = suggestion.forLocale(entry.key);
+        // Never overwrite a description someone already wrote. The operator
+        // asked for help with what is missing, not for their own sentence to
+        // be replaced by a machine's.
+        if (proposed != null && entry.value.text.trim().isEmpty) {
+          entry.value.text = proposed;
+        }
+      }
+    });
+    _describer.reset();
   }
 
   /// The draft as it stands in the fields, not as it stands on the server.
@@ -217,6 +294,26 @@ class _LoadedState extends ConsumerState<_Loaded> {
             const SizedBox(height: Spacing.sectionBreak),
             _SectionLabel(l10n.sectionAltText),
             const SizedBox(height: Spacing.cardInternal),
+            if (_canDescribe) ...[
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton.icon(
+                  onPressed: _describer.isRunning ? null : _suggestDescriptions,
+                  icon: _describer.isRunning
+                      ? const SizedBox.square(
+                          dimension: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.auto_awesome_outlined, size: 16),
+                  label: Text(
+                    _describer.isRunning
+                        ? l10n.aiWorking
+                        : l10n.aiSuggestAltText,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+            ],
             AltTextEditor(
               controllers: _alt,
               missingLocales: draft.missingAltLocales,

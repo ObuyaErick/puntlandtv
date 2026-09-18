@@ -1382,9 +1382,9 @@
   "@manageCategories": {
     "description": "Opens the categories screen from the foot of the article list's category filter."
   },
-  "backToArticles": "All articles",
+  "backToArticles": "Back to articles",
   "@backToArticles": {
-    "description": "Returns from the categories screen to the article list."
+    "description": "Tooltip on the editor's back button."
   },
   "viewCategoryArticles": "View articles",
   "@viewCategoryArticles": {
@@ -2426,10 +2426,6 @@
         "type": "String"
       }
     }
-  },
-  "backToArticles": "Back to articles",
-  "@backToArticles": {
-    "description": "Tooltip on the editor's back button."
   },
   "badgeBehind": "BEHIND",
   "@badgeBehind": {
@@ -3764,5 +3760,114 @@
   "deleteChannelConfirm": "Delete channel",
   "@deleteChannelConfirm": {
     "description": "Confirm button of the delete-channel confirmation."
+  },
+  "aiDraftTranslation": "Draft {language} with AI",
+  "@aiDraftTranslation": {
+    "description": "Button in the translation panel that asks the model for a draft translation. Says 'draft' rather than 'translate' on purpose — nothing is written until an editor reviews it, and the word is the first place that promise is made.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReviewTitle": "Review {language} draft",
+  "@aiReviewTitle": {
+    "description": "Title of the side panel where a machine translation is reviewed field by field before any of it is applied.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReviewIntro": "Nothing here is saved yet. Tick what you want, then apply.",
+  "@aiReviewIntro": {
+    "description": "Standing note at the top of the review panel. Stated plainly because the whole design depends on the reviewer knowing they are looking at a proposal, not at the article."
+  },
+  "aiApplySelected": "Apply selected",
+  "@aiApplySelected": {
+    "description": "Confirm button of the review panel. Applies only the ticked fields into the editor, still unsaved."
+  },
+  "aiDiscard": "Discard",
+  "@aiDiscard": {
+    "description": "Dismiss button of the review panel. Throws the suggestion away without writing anything."
+  },
+  "aiSourceChanged": "The {language} has changed since this draft was made. Check it before applying.",
+  "@aiSourceChanged": {
+    "description": "Warning shown in the review panel when the source translation's updatedAt has moved past the one the suggestion was computed from — somebody rewrote the source while the panel was open.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "aiReplaceWarning": "Replaces what is there now",
+  "@aiReplaceWarning": {
+    "description": "Per-field note in the review panel, shown only when the target field already has text that applying would overwrite."
+  },
+  "aiSuggestExcerpt": "Suggest standfirst",
+  "@aiSuggestExcerpt": {
+    "description": "Inline button on the excerpt field that asks the model to write one from the body."
+  },
+  "aiSuggestHeadlines": "Suggest headlines",
+  "@aiSuggestHeadlines": {
+    "description": "Overflow-menu item in the editor top bar that asks the model for alternative headlines."
+  },
+  "aiHeadlinesTitle": "Choose a headline",
+  "@aiHeadlinesTitle": {
+    "description": "Title of the dialog listing suggested headlines. Plural because one suggestion is a replacement and several are a choice."
+  },
+  "aiSuggestAltText": "Suggest descriptions",
+  "@aiSuggestAltText": {
+    "description": "Button above the alt-text fields in the media panel. Plural: it fills both languages at once, because an image described in only one still blocks publishing."
+  },
+  "aiDraftSynopsis": "Draft synopsis",
+  "@aiDraftSynopsis": {
+    "description": "Button in the programme panel that asks the model for a shelf synopsis in both languages."
+  },
+  "aiWorking": "Drafting…",
+  "@aiWorking": {
+    "description": "Pending state on any assistance button while the request is in flight. These calls take seconds, not milliseconds, so the wait is always visible."
+  },
+  "aiCancel": "Cancel",
+  "@aiCancel": {
+    "description": "Cancels an in-flight assistance request."
+  },
+  "aiApplied": "Applied to {language}. Not saved yet.",
+  "@aiApplied": {
+    "description": "Toast after a suggestion is applied into the editor. Names the language and states plainly that the save has not happened, because the editor still owns that decision.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "aiUnavailable": "Assistance is unavailable right now. Write it by hand, or try again shortly.",
+  "@aiUnavailable": {
+    "description": "Shown when the model provider did not answer. Always names the manual route first: every assisted task here is one the newsroom can do without help, and none of these refusals may ever read as a blocker."
+  },
+  "aiRateLimited": "Too many requests just now. Try again in a few minutes.",
+  "@aiRateLimited": {
+    "description": "Shown when the per-user ceiling or the provider's own limit was hit."
+  },
+  "aiTooLong": "This story is too long to draft automatically.",
+  "@aiTooLong": {
+    "description": "Shown when the material exceeds the configured input ceiling."
+  },
+  "aiDeclined": "The model would not draft this one. Write it by hand.",
+  "@aiDeclined": {
+    "description": "Shown when the provider's safety filter declined. Deliberately does not imply the journalist did anything wrong — a news story about violence is a normal thing for a filter to refuse."
+  },
+  "aiNothingToWorkFrom": "Write the {language} version first.",
+  "@aiNothingToWorkFrom": {
+    "description": "Shown when assistance was asked for but the language it would work from is still empty.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "aiMachineDrafted": "Machine-drafted",
+  "@aiMachineDrafted": {
+    "description": "Badge on the review panel marking the text as model output. Present so a reviewer is never a click away from forgetting what they are reading."
   }
 }

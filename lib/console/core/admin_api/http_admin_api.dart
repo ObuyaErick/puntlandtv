@@ -178,6 +178,26 @@ class HttpAdminApi implements PuntlandAdminApi {
         .whenComplete(() => _renewal = null);
   }
 
+  /// [_renew], for the one other client that shares this console's session.
+  ///
+  /// `HttpAiApi` runs on its own dio — a model call outlives the timeout every
+  /// other request is built for — but it must not renew on its own. The backend
+  /// rotates the refresh token on every use and revokes the one presented, so
+  /// two independent renewals would race and one of them would be spending a
+  /// token the other had already thrown away. Renewal has exactly one owner,
+  /// and [_renewal] above is the single-flight guard that makes it one.
+  ///
+  /// Answers whether there is a usable session afterwards.
+  Future<bool> renewSession() async {
+    try {
+      return await _renew() != null;
+    } catch (_) {
+      // The caller is deciding whether to retry, not reporting this. Its own
+      // original failure is the one the operator should see.
+      return false;
+    }
+  }
+
   // ---- Newsroom ----
 
   @override

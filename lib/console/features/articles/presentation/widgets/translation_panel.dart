@@ -20,11 +20,24 @@ class TranslationPanel extends StatelessWidget {
     required this.editor,
     required this.onReconfirm,
     required this.onOpenSideBySide,
+    this.onDraftTranslation,
+    this.isDrafting = false,
   });
 
   final ArticleEditor editor;
   final ValueChanged<String> onReconfirm;
   final ValueChanged<String> onOpenSideBySide;
+
+  /// Asks for a machine draft of a language, for review.
+  ///
+  /// Null when this deployment has no assistance configured, and the button
+  /// then does not exist — rather than existing and refusing, which would be an
+  /// affordance that teaches the newsroom to distrust the console.
+  final ValueChanged<String>? onDraftTranslation;
+
+  /// True while a draft is in flight, so the button can say so and refuse a
+  /// second press.
+  final bool isDrafting;
 
   @override
   Widget build(BuildContext context) {
@@ -137,8 +150,67 @@ class TranslationPanel extends StatelessWidget {
               ),
             ],
           ),
+          // Below the pair, not among it. Re-reading the existing translation
+          // is still the first thing to try when one falls behind — a redraft
+          // throws away a human's work, and offering it as the leading action
+          // would make that the path of least resistance.
+          if (onDraftTranslation case final onDraft?) ...[
+            const SizedBox(height: 9),
+            _DraftButton(
+              locale: stale.first,
+              isDrafting: isDrafting,
+              onPressed: () => onDraft(stale.first),
+            ),
+          ],
         ],
       ],
+    );
+  }
+}
+
+/// Asks for a machine draft of one language.
+///
+/// Says "draft", never "translate". Nothing it produces is written anywhere —
+/// it opens a review panel — and the word is the first place that promise is
+/// made to whoever presses it.
+class _DraftButton extends StatelessWidget {
+  const _DraftButton({
+    required this.locale,
+    required this.isDrafting,
+    required this.onPressed,
+  });
+
+  final String locale;
+  final bool isDrafting;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: isDrafting ? null : onPressed,
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(0, 44),
+          side: BorderSide(color: context.colors.outline, width: 1.5),
+          foregroundColor: context.scheme.onSurfaceVariant,
+        ),
+        icon: isDrafting
+            // Model calls take seconds. A button that looked idle through all
+            // of them would be pressed again, and again.
+            ? const SizedBox.square(
+                dimension: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.auto_awesome_outlined, size: 16),
+        label: Text(
+          isDrafting
+              ? l10n.aiWorking
+              : l10n.aiDraftTranslation(context.languageNameOf(locale)),
+        ),
+      ),
     );
   }
 }

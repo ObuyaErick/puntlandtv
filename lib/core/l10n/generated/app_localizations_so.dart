@@ -2746,4 +2746,81 @@ class AppL10nSo extends AppL10n {
 
   @override
   String get deleteChannelConfirm => 'Tirtir kanaalka';
+
+  @override
+  String aiDraftTranslation(String language) {
+    return 'Qabyo $language ah oo AI sameeyay';
+  }
+
+  @override
+  String aiReviewTitle(String language) {
+    return 'Dib u eeg qabyada $language';
+  }
+
+  @override
+  String get aiReviewIntro =>
+      'Waxba weli lama kaydin. Calaamadee waxaad rabto, ka dibna codso.';
+
+  @override
+  String get aiApplySelected => 'Codso waxa la calaamadeeyay';
+
+  @override
+  String get aiDiscard => 'Tuur';
+
+  @override
+  String aiSourceChanged(String language) {
+    return '$language ayaa isbeddelay tan iyo markii qabyadan la sameeyay. Hubi ka hor inta aadan codsan.';
+  }
+
+  @override
+  String get aiReplaceWarning => 'Wuxuu beddelayaa waxa hadda jira';
+
+  @override
+  String get aiSuggestExcerpt => 'Soo jeedi hordhac';
+
+  @override
+  String get aiSuggestHeadlines => 'Soo jeedi cinwaanno';
+
+  @override
+  String get aiHeadlinesTitle => 'Dooro cinwaan';
+
+  @override
+  String get aiSuggestAltText => 'Soo jeedi sharraxaad';
+
+  @override
+  String get aiDraftSynopsis => 'Qabyo sharraxaad';
+
+  @override
+  String get aiWorking => 'Waa la qabyaynayaa…';
+
+  @override
+  String get aiCancel => 'Jooji';
+
+  @override
+  String aiApplied(String language) {
+    return 'Waa lagu daray $language. Weli lama kaydin.';
+  }
+
+  @override
+  String get aiUnavailable =>
+      'Caawimaadda hadda lama heli karo. Gacanta ku qor, ama mar kale isku day.';
+
+  @override
+  String get aiRateLimited =>
+      'Codsiyo aad u badan ayaa la sameeyay. Dhowr daqiiqo ka dib isku day.';
+
+  @override
+  String get aiTooLong =>
+      'Warkan aad buu u dheer yahay in si toos ah loo qabyeeyo.';
+
+  @override
+  String get aiDeclined => 'Modelku ma qabyayn karin midkan. Gacanta ku qor.';
+
+  @override
+  String aiNothingToWorkFrom(String language) {
+    return 'Marka hore qor nuqulka $language.';
+  }
+
+  @override
+  String get aiMachineDrafted => 'Mishiin ayaa qabyeeyay';
 }

@@ -19,10 +19,15 @@ class EditorTopBar extends StatelessWidget {
     required this.onAutosaveChanged,
     required this.onClose,
     required this.onTransition,
+    this.onSuggestHeadlines,
   });
 
   final ArticleEditor editor;
   final bool canPublish;
+
+  /// Offers alternative headlines for the language being edited. Null when the
+  /// deployment has no assistance, and the menu item then does not exist.
+  final VoidCallback? onSuggestHeadlines;
 
   /// Whether the editor is writing on its own. Owned by the editor screen —
   /// see `_EditorState`.
@@ -108,6 +113,7 @@ class EditorTopBar extends StatelessWidget {
                 onAutosaveChanged: onAutosaveChanged,
                 onPreview: () => _preview(context),
                 onSaveDraft: () => editor.saveDraft(),
+                onSuggestHeadlines: onSuggestHeadlines,
               ),
               const SizedBox(width: Spacing.cardInternal),
               if (canPublish)
@@ -406,6 +412,7 @@ class _Overflow extends StatelessWidget {
     required this.onAutosaveChanged,
     required this.onPreview,
     required this.onSaveDraft,
+    this.onSuggestHeadlines,
   });
 
   /// True when the header is too narrow for Preview and Save draft to sit
@@ -416,6 +423,7 @@ class _Overflow extends StatelessWidget {
   final ValueChanged<bool> onAutosaveChanged;
   final VoidCallback onPreview;
   final VoidCallback onSaveDraft;
+  final VoidCallback? onSuggestHeadlines;
 
   @override
   Widget build(BuildContext context) {
@@ -426,6 +434,17 @@ class _Overflow extends StatelessWidget {
         if (compact) ...[
           MenuItemButton(onPressed: onPreview, child: Text(l10n.preview)),
           MenuItemButton(onPressed: onSaveDraft, child: Text(l10n.saveDraft)),
+          const Divider(height: 1),
+        ],
+        // In the overflow rather than the toolbar: rewriting a headline that is
+        // already written is a thing an editor occasionally wants, not one of
+        // the three actions the header exists for.
+        if (onSuggestHeadlines case final onSuggest?) ...[
+          MenuItemButton(
+            onPressed: onSuggest,
+            leadingIcon: const Icon(Icons.auto_awesome_outlined, size: 16),
+            child: Text(l10n.aiSuggestHeadlines),
+          ),
           const Divider(height: 1),
         ],
         CheckboxMenuButton(

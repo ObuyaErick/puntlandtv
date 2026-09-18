@@ -182,6 +182,9 @@ class ArticleEditor extends ChangeNotifier {
   Object? _saveError;
   bool _sideBySide = false;
   ArticlePasteOutcome? _lastPasteOutcome;
+
+  /// See [revisionOf]. Absent means zero; only [applySuggestion] writes it.
+  final Map<String, int> _revisions = {};
   var _pasteCount = 0;
 
   AdminArticleDto get article => _article;
@@ -252,6 +255,74 @@ class ArticleEditor extends ChangeNotifier {
 
   void setCaption(String value) {
     draft.caption = value;
+    _onEdited();
+  }
+
+  /// How many times [locale]'s draft has been rewritten from outside its text
+  /// fields.
+  ///
+  /// The editor's headline and excerpt fields own `TextEditingController`s that
+  /// are seeded once, when the composer is first built, and never re-read from
+  /// the draft — deliberately, because re-seeding them mid-edit would fight the
+  /// cursor of whoever is typing. That is correct for typing and wrong for an
+  /// assistance suggestion, which changes the draft while nobody is typing and
+  /// needs the fields to show it.
+  ///
+  /// So the composer keys itself on this number. [applySuggestion] bumps it,
+  /// the composer is rebuilt, and its controllers are seeded from the new text
+  /// exactly as they were from the old. Nothing has to reconcile two copies of
+  /// the same string, which is the bug every other approach here runs into.
+  int revisionOf(String locale) => _revisions[locale] ?? 0;
+
+  /// Writes a reviewed suggestion into one language's draft.
+  ///
+  /// **Reviewed** is the load-bearing word. Nothing calls this with raw model
+  /// output; it is called with whatever survived an editor's per-field accept,
+  /// which is why every parameter is optional — a reviewer who wanted the
+  /// headline and not the body gets exactly that.
+  ///
+  /// Writes one locale, and never the source's clock. Saving is the caller's
+  /// next step, through `saveDraft(locale:)`, so the freshness model still sees
+  /// one write to one language — the same event a typed edit produces.
+  void applySuggestion(
+    String locale, {
+    String? title,
+    String? excerpt,
+    String? caption,
+    String? bodyHtml,
+  }) {
+    final target = _drafts[locale];
+    if (target == null) return;
+
+    if (title != null) target.title = title;
+    if (excerpt != null) target.excerpt = excerpt;
+    if (caption != null) target.caption = caption;
+
+    if (bodyHtml != null) {
+      // Composed as a diff against the live document, **not** assigned as a new
+      // one. Replacing `controller.document` would drop the history with it,
+      // and undo is the entire answer to a suggestion that turned out wrong —
+      // an editor who accepts a translation and then reads it properly has to
+      // be able to take it back with one keystroke.
+      //
+      // `lastRecorded = 0` for the same reason the paste handler sets it:
+      // `History.record` folds changes made within 400ms of each other, and a
+      // body that undid in fragments would be worse than one that could not be
+      // undone at all.
+      final body = target.body;
+      final next = articleHtmlToDocument(bodyHtml).toDelta();
+      final change = body.document.toDelta().diff(next);
+
+      body.document.history.lastRecorded = 0;
+      body.compose(
+        change,
+        const TextSelection.collapsed(offset: 0),
+        ChangeSource.local,
+      );
+      target.invalidateBodyHtml();
+    }
+
+    _revisions[locale] = revisionOf(locale) + 1;
     _onEdited();
   }
 

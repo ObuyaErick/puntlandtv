@@ -16,6 +16,11 @@ import '../../../core/realtime/web_socket_realtime_client.dart';
 import '../../features/auth/data/console_auth_repository.dart';
 import '../../features/auth/domain/entities/console_user.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../ai_api/disabled_ai_api.dart';
+import '../ai_api/dto/ai_suggestion_dto.dart';
+import '../ai_api/fixture_ai_api.dart';
+import '../ai_api/http_ai_api.dart';
+import '../ai_api/puntland_ai_api.dart';
 import '../admin_api/console_credentials.dart';
 import '../admin_api/fixture_admin_api.dart';
 import '../admin_api/http_admin_api.dart';
@@ -110,6 +115,72 @@ final adminApiProvider = Provider<PuntlandAdminApi>((ref) {
     ref.watch(consoleCredentialsProvider),
   );
 });
+
+/// **The console's HTTP client for model-backed calls**, separate again.
+///
+/// Same credentials, same origin, one difference that matters: the timeout.
+/// Translating a whole article body is work measured in tens of seconds, and
+/// [consoleDioProvider]'s twenty-second ceiling would cut it off. Raising that
+/// shared ceiling instead would mean every ordinary request — a list, a save, a
+/// status change — took ninety seconds to report a network that is simply gone,
+/// which is the opposite of what an operator needs from those.
+///
+/// No retry interceptor either. The shared one retries `GET` only and every
+/// call here is a `POST`, so it would do nothing; leaving it off says so rather
+/// than leaving a reader to work it out.
+final consoleAiDioProvider = Provider<Dio>((ref) {
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: kApiBaseUrl,
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 90),
+      headers: {'Accept': 'application/json'},
+      extra: {'withCredentials': true},
+    ),
+  );
+
+  dio.interceptors.add(LocaleInterceptor(() => ref.read(localeTagProvider)));
+  if (kDebugMode) dio.interceptors.add(LoggingInterceptor());
+
+  ref.onDispose(dio.close);
+  return dio;
+});
+
+/// **The assistance swap point**, mirroring [adminApiProvider].
+///
+/// Three implementations rather than two, because this one can legitimately be
+/// switched off: a deployment with no model key configured is a normal
+/// deployment. [DisabledAiApi] is what the console gets then, and it reports
+/// `enabled: false` so every affordance simply does not render.
+///
+/// Never null. A nullable provider would put a `?.` in front of every call site
+/// and leave each one deciding what absence means; one object that answers
+/// "no" keeps that decision here.
+final aiApiProvider = Provider<PuntlandAiApi>((ref) {
+  if (kUseFixtures || kApiBaseUrl.isEmpty) {
+    return FixtureAiApi(admin: ref.watch(adminApiProvider));
+  }
+
+  final admin = ref.watch(adminApiProvider);
+  if (admin is! HttpAdminApi) return const DisabledAiApi();
+
+  return HttpAiApi(
+    ref.watch(consoleAiDioProvider),
+    ref.watch(consoleCredentialsProvider),
+    // Renewal has one owner. See `HttpAdminApi.renewSession`.
+    admin.renewSession,
+  );
+});
+
+/// What assistance this deployment actually offers.
+///
+/// Every AI affordance watches this and renders nothing until it says
+/// otherwise, which is why [PuntlandAiApi.fetchCapabilities] is specified never
+/// to throw: an unreachable backend has to read as "no assistance", not as an
+/// error an operator is asked to do something about.
+final aiCapabilitiesProvider = FutureProvider<AiCapabilitiesDto>(
+  (ref) => ref.watch(aiApiProvider).fetchCapabilities(),
+);
 
 /// **The console's socket**, separate from the reader's for the same reason
 /// [consoleDioProvider] is separate from `dioProvider`.

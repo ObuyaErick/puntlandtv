@@ -2753,4 +2753,81 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get deleteChannelConfirm => 'Delete channel';
+
+  @override
+  String aiDraftTranslation(String language) {
+    return 'Draft $language with AI';
+  }
+
+  @override
+  String aiReviewTitle(String language) {
+    return 'Review $language draft';
+  }
+
+  @override
+  String get aiReviewIntro =>
+      'Nothing here is saved yet. Tick what you want, then apply.';
+
+  @override
+  String get aiApplySelected => 'Apply selected';
+
+  @override
+  String get aiDiscard => 'Discard';
+
+  @override
+  String aiSourceChanged(String language) {
+    return 'The $language has changed since this draft was made. Check it before applying.';
+  }
+
+  @override
+  String get aiReplaceWarning => 'Replaces what is there now';
+
+  @override
+  String get aiSuggestExcerpt => 'Suggest standfirst';
+
+  @override
+  String get aiSuggestHeadlines => 'Suggest headlines';
+
+  @override
+  String get aiHeadlinesTitle => 'Choose a headline';
+
+  @override
+  String get aiSuggestAltText => 'Suggest descriptions';
+
+  @override
+  String get aiDraftSynopsis => 'Draft synopsis';
+
+  @override
+  String get aiWorking => 'Drafting…';
+
+  @override
+  String get aiCancel => 'Cancel';
+
+  @override
+  String aiApplied(String language) {
+    return 'Applied to $language. Not saved yet.';
+  }
+
+  @override
+  String get aiUnavailable =>
+      'Assistance is unavailable right now. Write it by hand, or try again shortly.';
+
+  @override
+  String get aiRateLimited =>
+      'Too many requests just now. Try again in a few minutes.';
+
+  @override
+  String get aiTooLong => 'This story is too long to draft automatically.';
+
+  @override
+  String get aiDeclined =>
+      'The model would not draft this one. Write it by hand.';
+
+  @override
+  String aiNothingToWorkFrom(String language) {
+    return 'Write the $language version first.';
+  }
+
+  @override
+  String get aiMachineDrafted => 'Machine-drafted';
 }

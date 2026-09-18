@@ -4530,6 +4530,132 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Delete channel'**
   String get deleteChannelConfirm;
+
+  /// Button in the translation panel that asks the model for a draft translation. Says 'draft' rather than 'translate' on purpose — nothing is written until an editor reviews it, and the word is the first place that promise is made.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft {language} with AI'**
+  String aiDraftTranslation(String language);
+
+  /// Title of the side panel where a machine translation is reviewed field by field before any of it is applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Review {language} draft'**
+  String aiReviewTitle(String language);
+
+  /// Standing note at the top of the review panel. Stated plainly because the whole design depends on the reviewer knowing they are looking at a proposal, not at the article.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here is saved yet. Tick what you want, then apply.'**
+  String get aiReviewIntro;
+
+  /// Confirm button of the review panel. Applies only the ticked fields into the editor, still unsaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply selected'**
+  String get aiApplySelected;
+
+  /// Dismiss button of the review panel. Throws the suggestion away without writing anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get aiDiscard;
+
+  /// Warning shown in the review panel when the source translation's updatedAt has moved past the one the suggestion was computed from — somebody rewrote the source while the panel was open.
+  ///
+  /// In en, this message translates to:
+  /// **'The {language} has changed since this draft was made. Check it before applying.'**
+  String aiSourceChanged(String language);
+
+  /// Per-field note in the review panel, shown only when the target field already has text that applying would overwrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces what is there now'**
+  String get aiReplaceWarning;
+
+  /// Inline button on the excerpt field that asks the model to write one from the body.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest standfirst'**
+  String get aiSuggestExcerpt;
+
+  /// Overflow-menu item in the editor top bar that asks the model for alternative headlines.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest headlines'**
+  String get aiSuggestHeadlines;
+
+  /// Title of the dialog listing suggested headlines. Plural because one suggestion is a replacement and several are a choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a headline'**
+  String get aiHeadlinesTitle;
+
+  /// Button above the alt-text fields in the media panel. Plural: it fills both languages at once, because an image described in only one still blocks publishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest descriptions'**
+  String get aiSuggestAltText;
+
+  /// Button in the programme panel that asks the model for a shelf synopsis in both languages.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft synopsis'**
+  String get aiDraftSynopsis;
+
+  /// Pending state on any assistance button while the request is in flight. These calls take seconds, not milliseconds, so the wait is always visible.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafting…'**
+  String get aiWorking;
+
+  /// Cancels an in-flight assistance request.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get aiCancel;
+
+  /// Toast after a suggestion is applied into the editor. Names the language and states plainly that the save has not happened, because the editor still owns that decision.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied to {language}. Not saved yet.'**
+  String aiApplied(String language);
+
+  /// Shown when the model provider did not answer. Always names the manual route first: every assisted task here is one the newsroom can do without help, and none of these refusals may ever read as a blocker.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistance is unavailable right now. Write it by hand, or try again shortly.'**
+  String get aiUnavailable;
+
+  /// Shown when the per-user ceiling or the provider's own limit was hit.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests just now. Try again in a few minutes.'**
+  String get aiRateLimited;
+
+  /// Shown when the material exceeds the configured input ceiling.
+  ///
+  /// In en, this message translates to:
+  /// **'This story is too long to draft automatically.'**
+  String get aiTooLong;
+
+  /// Shown when the provider's safety filter declined. Deliberately does not imply the journalist did anything wrong — a news story about violence is a normal thing for a filter to refuse.
+  ///
+  /// In en, this message translates to:
+  /// **'The model would not draft this one. Write it by hand.'**
+  String get aiDeclined;
+
+  /// Shown when assistance was asked for but the language it would work from is still empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the {language} version first.'**
+  String aiNothingToWorkFrom(String language);
+
+  /// Badge on the review panel marking the text as model output. Present so a reviewer is never a click away from forgetting what they are reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine-drafted'**
+  String get aiMachineDrafted;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
